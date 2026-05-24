@@ -74,7 +74,7 @@ function CardUsuario() {
             </div>
 
             <p className={styles.cardDescription}>
-              {p.descricao || "Sem bio para este personagem."}
+              {p.bio || "Sem bio para este personagem."}
             </p>
 
             {/* Interações */}

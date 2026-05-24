@@ -50,7 +50,7 @@ export const FavoritesProvider: React.FC<FavoritesProviderProps> = ({ children }
         setLoading(true);
         
         try {
-            const res = await axios.get(`${API_URL}/getFavoritosFull/${usuarioId}`, {
+            const res = await axios.get(`${API_URL}/social/favorites-by-user/${usuarioId}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 

@@ -26,7 +26,7 @@ function CampoDePesquisar({ onSearch, onSearchStart }: CampoDePesquisarProps) {
       }
 
       try {
-        const url = `${API_URL}/buscarPersonagem?nomePersonagem=${encodeURIComponent(nomePersonagem)}`;
+        const url = `${API_URL}/character/search-character?nomePersonagem=${encodeURIComponent(nomePersonagem)}`;
         
         const res = await axios.get(url);
         

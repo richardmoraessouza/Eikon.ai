@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../../hooks/AuthContext/AuthContext";
 import ModalSeguidores from "../../components/ModalSeguidores/ModalSeguidores";
-import { API_URL } from '../../config/api';
+import { API_URL } from "../../config/api";
 
 interface OutroUsuario {
     nome: string;
@@ -27,52 +27,54 @@ function OutroPerfil() {
     const [abrirSeguidores, setAbrirSeguidores] = useState<boolean>(false);
     const [abrirSeguindo, setAbrirSeguindo] = useState<boolean>(false);
 
-    // Pega o id do usuário e do usuario visitado
     const { id } = useParams<{ id: string }>();
-    const { usuarioId } = useAuth();
+    const { usuarioId, token } = useAuth();
 
     useEffect(() => {
         if (!id) return;
 
-        // Função para buscar os dados do perfil, seguidores e seguindo
         const fetchData = async () => {
             try {
-                const perfilRes = await axios.get(`${API_URL}/perfil/${id}`);
+                const perfilRes = await axios.get(`${API_URL}/users/other-user/${id}`);
                 setUsuarioInfor(perfilRes.data);
 
-                const seguidoresRes = await axios.get(`${API_URL}/seguidores/${id}`);
-                setListaSeguidores(seguidoresRes.data.seguidores || []);
+                const seguidoresRes = await axios.get(`${API_URL}/social/users/${id}/followers`);
+                setListaSeguidores(seguidoresRes.data || []);
 
-                const jaSegue = seguidoresRes.data.seguidores.some((s: Seguidor) => s.id === Number(usuarioId));
-                setEstaSeguindo(jaSegue);
+                const jaSegue = seguidoresRes.data?.some((s: Seguidor) => s.id === Number(usuarioId));
+                setEstaSeguindo(jaSegue || false);
 
-                const seguindoRes = await axios.get(`${API_URL}/seguindo/${id}`);
-                setListaSeguindo(seguindoRes.data.seguindo || []);
+                const seguindoRes = await axios.get(`${API_URL}/social/users/${id}/following`);
+                setListaSeguindo(seguindoRes.data || []);
             } catch (error) {
-                console.error(error);
+                console.error("Erro ao carregar dados do perfil:", error);
             }
         };
 
         fetchData();
     }, [id, usuarioId]);
 
-    // Função para seguir/deixar de seguir o usuário
     const seguirUsuario = async () => {
         try {
             if (estaSeguindo) {
-                await axios.post(`${API_URL}/deixar-de-seguir`, {
-                    seguidor_id: Number(usuarioId),
-                    seguido_id: Number(id),
+                await axios.delete(`${API_URL}/social/unfollow`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                    data: {
+                        seguidor_id: Number(usuarioId),
+                        seguido_id: Number(id),
+                    }
                 });
                 setEstaSeguindo(false);
                 setListaSeguidores(prev => prev.filter(s => s.id !== Number(usuarioId)));
             } else {
-                await axios.post(`${API_URL}/seguir`, {
+                await axios.post(`${API_URL}/social/follow`, {
                     seguidor_id: Number(usuarioId),
                     seguido_id: Number(id),
+                }, {
+                    headers: { Authorization: `Bearer ${token}` }
                 });
 
-                const res = await axios.get(`${API_URL}/perfil/${usuarioId}`);
+                const res = await axios.get(`${API_URL}/users/other-user/${usuarioId}`);
 
                 setEstaSeguindo(true);
                 setListaSeguidores(prev => {
@@ -97,7 +99,6 @@ function OutroPerfil() {
                         <img src={usuarioInfor.foto_perfil || '/image/semPerfil.jpg'} alt="" className="w-28 h-28 rounded-full shadow-md object-cover"/>
                         <h1 className="mt-4 text-xl font-semibold">{usuarioInfor.nome}</h1>
                         <div className={`text-gray-400 text-sm mt-1 flex flex-row gap-5 ${styles.btnStatus}`}>
-                            {/* btn de abrir modal de seguidores e seguindo */}
                             <button onClick={() => setAbrirSeguidores(true)}>
                                 <strong className="text-neutral-300">{listaSeguidores.length}</strong> seguidores
                             </button>

@@ -56,7 +56,7 @@ function Authentication({ verificar }: SituacaoProps) {
     useEffect(() => {
         const buscarDados = async () => {
             try {
-                const res = await axios.get(`${API_URL}/buscarUsuario/${gmail}`);
+                const res = await axios.get(`${API_URL}/auth/gmail/${gmail}`);
                 const dados = res.data
                 setDados(dados)
             } catch (err) {
@@ -91,7 +91,7 @@ function Authentication({ verificar }: SituacaoProps) {
         try {
             if (condicaoUsuario) {
                 // --- LOGICA DE LOGIN ---
-                const res = await axios.post(`${API_URL}/entrar`, { gmail });
+                const res = await axios.post(`${API_URL}/auth/login`, { gmail });
                 
                 if (!res.data.token) {
                     setLoginErro("Erro: O servidor não enviou o token de acesso.");
@@ -112,7 +112,7 @@ function Authentication({ verificar }: SituacaoProps) {
 
             } else {
                 // --- LOGICA DE CADASTRO ---
-                const res = await axios.post(`${API_URL}/cadastra`, {
+                const res = await axios.post(`${API_URL}/auth/register`, {
                     gmail,
                     nome,
                     imgPerfil

@@ -33,7 +33,7 @@ function CriacaoPerson() {
         const fetchPersonagem = async () => {
             if (modoEdicao && id) {
                 try {
-                    const response = await axios.get(`http://localhost:3000/dadosPersonagem/${id}`, {
+                    const response = await axios.get(`${API_URL}/character/data-character/${id}`, {
                         headers: { Authorization: `Bearer ${token}` }
                     });
                     const p = response.data.personagem;
@@ -92,12 +92,12 @@ function CriacaoPerson() {
         try {
 
             const payload = {
-                nome, bio, descricao, fotoia,
+                nome, bio, descricao, fotoia, comportamento, estilo, genero,
                 personalidade, regras, historia, tipo_personagem,
             };
 
             const config = { headers: { Authorization: `Bearer ${token}` } };
-            const url = modoEdicao ? `${API_URL}/editarPerson/${id}` : `http://localhost:3000/criacao`;
+            const url = modoEdicao ? `${API_URL}/character/update-character/${id}` : `${API_URL}/character/create-character/${usuarioId}`;
             
             console.log("Token enviado:", token);
             if (modoEdicao) {
@@ -106,9 +106,11 @@ function CriacaoPerson() {
                 await axios.post(url, payload, config);
             }
             
+            console.log("Resposta do servidor:", url, payload);
             navigate(`/perfil/${usuarioId}`);
         } catch (err: any) {
             setErro(err.response?.data?.details || "Erro ao salvar.");
+
         } finally {
             setIsSubmitting(false);
         }

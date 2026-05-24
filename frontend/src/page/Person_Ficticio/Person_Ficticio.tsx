@@ -31,7 +31,7 @@ function CriacaoPerson() {
         const fetchPersonagem = async () => {
             if (modoEdicao && id) {
                 try {
-                    const response = await axios.get(`${API_URL}/dadosPersonagem/${id}`, {
+                    const response = await axios.get(`${API_URL}/character/data-character/${id}`, {
                         headers: { Authorization: `Bearer ${token}` }
                     
                     });
@@ -103,9 +103,9 @@ function CriacaoPerson() {
             };
 
             if (modoEdicao && id) {
-                await axios.put(`${API_URL}/editarPerson/${id}`, data, { headers: { Authorization: `Bearer ${token}` } });
+                await axios.put(`${API_URL}/character/update-character/${id}`, data, { headers: { Authorization: `Bearer ${token}` } });
             } else {
-                const res = await axios.post(`${API_URL}/criacao`, data, { headers: { Authorization: `Bearer ${token}` } });
+                const res = await axios.post(`${API_URL}/character/create-character/${usuarioId}`, data, { headers: { Authorization: `Bearer ${token}` } });
                 console.log(res.data)
             }
 

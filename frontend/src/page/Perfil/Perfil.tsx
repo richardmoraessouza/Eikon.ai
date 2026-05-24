@@ -4,9 +4,9 @@ import axios from 'axios';
 import { useAuth } from '../../hooks/AuthContext/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import ModalSeguidores from '../../components/ModalSeguidores/ModalSeguidores';
-import { API_URL } from '../../config/api';
 import CardUsuario from '../../components/CardUsuario/CardUsuario';
 import { converterBase64 } from '../../utils/CorverteImagem/corverteImagem';
+import { API_URL } from "../../config/api";
 
 interface UserUpdateResponse {
     success: boolean;
@@ -70,15 +70,15 @@ function Perfil() {
         const carregarDados = async () => {
             try {
                 const [seguidoresRes, seguindoRes] = await Promise.all([
-                    axios.get(`${API_URL}/seguidores/${usuarioId}`),
-                    axios.get(`${API_URL}/seguindo/${usuarioId}`)
+                    axios.get(`${API_URL}/social/users/${usuarioId}/followers`),
+                    axios.get(`${API_URL}/social/users/${usuarioId}/following`)
                 ]);
 
-                setSeguidores(seguidoresRes.data.seguidores || []);
-                setSeguindo(seguindoRes.data.seguindo || []);
+                setSeguidores(Array.isArray(seguidoresRes.data) ? seguidoresRes.data : []);
+                setSeguindo(Array.isArray(seguindoRes.data) ? seguindoRes.data : []);
 
                 // Carregar dados completos do usuário
-                const usuarioRes = await axios.get(`${API_URL}/usuario/${usuarioId}`, {
+                const usuarioRes = await axios.get(`${API_URL}/users/usuario/${usuarioId}`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
 
@@ -122,7 +122,7 @@ function Perfil() {
 
         try {
             const res = await axios.put<UserUpdateResponse>(
-                `${API_URL}/editar/${usuarioId}`,
+                `${API_URL}/users/edit-profile/${usuarioId}`,
                 {
                     nome: novoNome || nomeAtualContexto,
                     foto_perfil: imgPerfil,

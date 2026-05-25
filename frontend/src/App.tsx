@@ -130,6 +130,7 @@ function App() {
   return (
     <>
       <Menu setPersonId={setPersonId} onMenuToggle={setMenuOpen} />
+  
 
       <ProfilePerson 
         personagemId={id ? Number(id) : null}

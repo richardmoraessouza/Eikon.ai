@@ -4,7 +4,7 @@ import axios from 'axios';
 import { useAuth } from '../../hooks/AuthContext/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import ModalSeguidores from '../../components/ModalSeguidores/ModalSeguidores';
-import CardUsuario from '../../components/CardUsuario/CardUsuario';
+import CardCharacterUser from '../../components/CardCharacterUser/CardCharacterUser';
 import { converterBase64 } from '../../utils/CorverteImagem/corverteImagem';
 import { API_URL } from "../../config/api";
 
@@ -224,7 +224,7 @@ function Perfil() {
             </div>
         </section>
 
-        <CardUsuario />
+        <CardCharacterUser />
 
         {modalDefinicoes && (
             <section className={`${styles.editarPerfil}`}>

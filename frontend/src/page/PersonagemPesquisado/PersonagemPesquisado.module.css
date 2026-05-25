@@ -152,7 +152,7 @@
 /* estilos similares aos usados em CardUsuario */
 .interactions {
   display: flex;
-  gap: 8px;
+  gap: 2px;
   align-items: center;
 }
 

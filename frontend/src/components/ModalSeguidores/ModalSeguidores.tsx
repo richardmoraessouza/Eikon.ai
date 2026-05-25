@@ -50,7 +50,6 @@ function ModalSeguidores({ tipo, lista = [], onClose, usuario, usuarioLogado }: 
                     );
 
                     setUsuarios(Array.isArray(res.data) ? res.data : []);
-                    console.log(res.data);
                 }
 
             } catch (error) {

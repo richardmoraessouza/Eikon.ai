@@ -1,6 +1,4 @@
-
 .contantoPerson {
-  padding: 5px 5px 5px 30px !important;
   width: 100%;
   left: 0;
   background-color: #2e2e2e;
@@ -10,8 +8,7 @@
 }
 
 .contantoPerson.menuFechado {
-  left: 0 !important;
-  padding: 5px 5px 5px 50px !important;
+  padding: 5px 5px 5px 50px;
 }
 
 .status {
@@ -157,13 +154,7 @@
   }
 
   .contantoPerson {
-    left: auto;
-    padding: 5px 5px 5px 10px;
-  }
-
-  .contantoPerson.menuFechado {
-    left: 0 !important;
-    padding: 5px 5px 5px 10px;
+    padding: 5px 5px 5px 270px;
   }
 }
 

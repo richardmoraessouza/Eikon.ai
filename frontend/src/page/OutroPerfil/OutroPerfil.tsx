@@ -98,10 +98,13 @@ function OutroPerfil() {
                     <div className="flex flex-col items-center mt-10 gap-2">
                         <img src={usuarioInfor.foto_perfil || '/image/semPerfil.jpg'} alt="" className="w-28 h-28 rounded-full shadow-md object-cover"/>
                         <h1 className="mt-4 text-xl font-semibold">{usuarioInfor.nome}</h1>
-                        <div className={`text-gray-400 text-sm mt-1 flex flex-row gap-5 ${styles.btnStatus}`}>
+                        <div className={`text-gray-400 text-sm mt-1 flex flex-row gap-2 ${styles.btnStatus}`}>
                             <button onClick={() => setAbrirSeguidores(true)}>
                                 <strong className="text-neutral-300">{listaSeguidores.length}</strong> seguidores
                             </button>
+
+                            <span>|</span>
+
                             <button onClick={() => setAbrirSeguindo(true)}>
                                 <strong className="text-neutral-300">{listaSeguindo.length}</strong> seguindo
                             </button>

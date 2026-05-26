@@ -1,6 +1,7 @@
 .containerChat {
   display: flex;
   width: 100%;
+  margin-top: 30px;
 }
 
 .espaco {
@@ -169,6 +170,7 @@
 @media (min-width: 800px) {
   .espaco {
     display: block;
+    padding: 60px;
   }
 }
 

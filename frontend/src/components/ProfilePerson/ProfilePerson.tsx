@@ -6,6 +6,7 @@ import { API_URL } from '../../config/api';
 import { useMeusPersonagens } from '../../hooks/UserPerson/UserPerson';
 import { useAuth } from '../../hooks/AuthContext/AuthContext';
 import { useFavorites } from '../../hooks/FavoritesContext/FavoritesContext';
+import Menu from '../Menu/Menu';
 
 interface Personagem {
   id: number;
@@ -33,8 +34,8 @@ interface ProfilePersonProps {
 }
 
 const ProfilePerson: React.FC<ProfilePersonProps> = ({ 
-  personagemId, 
-  menuOpen, 
+  personagemId,
+  menuOpen,
   usuarioIdAtual, 
   perfilPerson, 
   setPerfilPerson 

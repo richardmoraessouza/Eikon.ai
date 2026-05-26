@@ -125,8 +125,8 @@ function PersonagemPesquisado() {
                 // se usuário está logado, buscar seus likes e favoritos
                 if (estaLogado && usuarioId && token) {
                     const [userLikes, userFavs] = await Promise.all([
-                        buscarLikesUsuario(usuarioId, token).catch(() => []),
-                        buscarFavoritosUsuario(usuarioId, token).catch(() => []),
+                        buscarLikesUsuario(usuarioId).catch(() => []),
+                        buscarFavoritosUsuario(usuarioId).catch(() => []),
                     ]);
                     if (!mounted) return;
                     setLikedIds(userLikes || []);

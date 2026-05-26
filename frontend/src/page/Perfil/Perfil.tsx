@@ -186,8 +186,9 @@ function Perfil() {
                 <img src={imgPerfil || '/image/semPerfil.jpg'} alt="Foto Perfil" className="w-28 h-28 rounded-full object-cover" />
                 <h1 className="mt-4 text-xl font-semibold">{nomeAtualContexto}</h1>
 
-                <div className={`text-gray-400 text-sm mt-1 flex flex-row gap-5 ${styles.btnStatus}`}>
+                <div className={`text-gray-400 text-sm mt-1 flex flex-row gap-1 ${styles.btnStatus}`}>
                     <button onClick={abrirModalSeguidores}>{seguidores.length} Seguidores</button>
+                    <span>|</span>
                     <button onClick={abrirModalSeguindo}>{seguindo.length} Seguindo</button>
 
                     {abrirSeguidores && (
@@ -199,7 +200,6 @@ function Perfil() {
                             usuarioLogado={Number(usuarioId)}
                         />
                     )}
-
                     {abrirSeguindo && (
                         <ModalSeguidores 
                             tipo="seguindo" 

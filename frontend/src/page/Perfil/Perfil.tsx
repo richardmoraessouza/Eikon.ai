@@ -188,7 +188,6 @@ function Perfil() {
 
                 <div className={`text-gray-400 text-sm mt-1 flex flex-row gap-1 ${styles.btnStatus}`}>
                     <button onClick={abrirModalSeguidores}>{seguidores.length} Seguidores</button>
-                    <span>|</span>
                     <button onClick={abrirModalSeguindo}>{seguindo.length} Seguindo</button>
 
                     {abrirSeguidores && (

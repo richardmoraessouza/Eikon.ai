@@ -130,7 +130,7 @@ function App() {
         : err.response?.status === 404
         ? 'Personagem não encontrado.'
         : err.response?.status === 503
-        ? 'Serviço temporariamente indisponível. Tente mais tarde.'
+        ? 'Minha mente está um pouco confusa agora... me chame novamente daqui a pouco.'
         : 'Ocorreu um erro, tente novamente mais tarde.';
 
       setChatHistory(prev => [
@@ -162,7 +162,7 @@ function App() {
         setPerfilPerson={setPerfilPerson}
       />
 
-      <div className={styles.containerChat}>
+      <div className={`${styles.containerChat} ${menuOpen ? styles.menuAberto : ''}`}>
         <div className={`${styles.espaco} ${!menuOpen ? styles.menuFechado : ''}`}></div>
         <main className={`${styles.chat} flex flex-col`}>
 
@@ -173,18 +173,18 @@ function App() {
             {chatHistory.map((msg, idx) => (
               <article
                 key={idx}
-                className={`${styles.message} ${msg.sender === 'user' ? styles.userMessage : styles.botMessage
-                  }`}
+                className={`${styles.message} ${msg.sender === 'user' ? styles.userMessage : styles.botMessage}`}
               >
                 <div className={`${styles.bubble} ${msg.isError ? styles.erroMensagem : ''}`}>
-
-                  {!msg.text.includes('data:image') && <p>{msg.text}</p>}
+                  {!msg.text.includes('data:image') && (
+                    <p style={{ margin: 0 }}>{msg.text}</p>
+                  )}
 
                   {msg.figurinha && (
-                    <div className="w-full flex items-center justify-center">
+                    <div className='w-full flex items-center justify-center'>
                       <img
                         src={msg.figurinha.url}
-                        alt="figurinha"
+                        alt='figurinha'
                         className={styles.figurinha}
                       />
                     </div>
@@ -196,7 +196,11 @@ function App() {
             {isLoading && (
               <article className={`${styles.message} ${styles.botMessage}`}>
                 <div className={styles.bubble}>
-                  <div className={styles.typingIndicator}><span></span><span></span><span></span></div>
+                  <div className={styles.typingIndicator}>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </div>
                 </div>
               </article>
             )}
@@ -204,23 +208,23 @@ function App() {
             <div ref={chatEndRef}></div>
           </section>
 
-          {/* Input de mensagem */}
-          <div className={`fixed bottom-8 ${styles.containerMensagem}`}>
+          {/* Input de Mensagem */}
+          <div className={`fixed ${styles.containerMensagem}`}>
             <input
               className={styles.mensagem}
-              type="text"
+              type='text'
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyDown={handleKeyPress}
-              placeholder="Fale com o personagem"
+              placeholder='Fale com o personagem...'
               disabled={isLoading}
             />
             <button
               onClick={enviarMensagem}
               disabled={isLoading || !message.trim()}
-              title="Enviar mensagem (Enter)"
+              title='Enviar (Enter)'
             >
-              <i className="fa-solid fa-paper-plane"></i>
+              <i className='fa-solid fa-paper-plane'></i>
             </button>
           </div>
         </main>

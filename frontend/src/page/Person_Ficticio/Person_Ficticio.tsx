@@ -36,7 +36,7 @@ function CriacaoPerson() {
                     
                     });
 
-                    const p = response.data.personagem;
+                    const p = response.data; 
 
 
                     setNome(p.nome || '');

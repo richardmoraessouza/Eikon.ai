@@ -22,7 +22,7 @@ export function usePersonagensUsuario(usuarioId: number | null, token?: string |
       try {
         const listaBase = await buscarPersonagens();
 
-        const idsCurtidos = usuarioId ? await buscarLikesUsuario(usuarioId) : [];
+        const idsCurtidos = usuarioId && token ? await buscarLikesUsuario(usuarioId, token) : [];
         const idsFavoritos = usuarioId ? await buscarFavoritosUsuario(usuarioId) : [];
 
         const personagensComDados = await Promise.all(
@@ -117,7 +117,7 @@ export function useMeusPersonagens(usuarioId: number | null, token?: string | nu
       setLoading(true);
       try {
         const listaBase = await buscarPersonagensUsuario(usuarioId!);
-        const idsCurtidos = await buscarLikesUsuario(usuarioId!);
+        const idsCurtidos = token ? await buscarLikesUsuario(usuarioId!, token) : [];
         const idsFavoritos = await buscarFavoritosUsuario(usuarioId!);
 
         const personagensComDados = await Promise.all(

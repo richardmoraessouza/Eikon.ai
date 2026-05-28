@@ -28,8 +28,15 @@ function validateToken(token: string | null): string {
 // ==================== PERSONAGENS ====================
 
 export async function buscarPersonagensUsuario(usuarioId: number) {
-  const res = await axios.get(`${API_URL}/character/user-search-by-id/${usuarioId}`);
-  return Array.isArray(res.data) ? res.data : res.data.personagens || [];
+  const url = `${API_URL}/character/user-search-by-id/${usuarioId}`;
+  console.log('[buscarPersonagensUsuario] URL:', url);
+  try {
+    const res = await axios.get(url);
+    return Array.isArray(res.data) ? res.data : res.data.personagens || [];
+  } catch (err: any) {
+    console.error('[buscarPersonagensUsuario] Erro na URL:', url, err);
+    throw err;
+  }
 }
 
 export async function buscarPersonagens() {
@@ -54,15 +61,15 @@ export async function recentCharacters(usuarioId: number, personagemId: number) 
 }
 
 export async function buscarPersonagensRecentes(usuarioId: number) {
+  const url = `${API_URL}/character/get-recent-characters/${usuarioId}`;
+  console.log('[buscarPersonagensRecentes] URL:', url);
   try {
-    const res = await axios.get(`${API_URL}/character/get-recent-characters/${usuarioId}`);
+    const res = await axios.get(url);
     return res.data;
-    
   } catch (err: any) {
-    console.error('Erro ao buscar personagens recentes', err);
+    console.error('[buscarPersonagensRecentes] Erro na URL:', url, err);
     throw err;
   }
-
 }
 // ==================== USUÁRIOS ====================
 
@@ -106,9 +113,15 @@ export async function editarPerfilUsuario(usuarioId: number, dados: any, token: 
 
 // ==================== LIKES ====================
 
-export async function buscarLikesUsuario(usuarioId: number) {
-  const res = await axios.get(`${API_URL}/social/likes-by-user/${usuarioId}`);
-  return Array.isArray(res.data) ? res.data.map((id: any) => Number(id)) : [];
+export async function buscarLikesUsuario(usuarioId: number, token?: string) {
+  try {
+    const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
+    const res = await axios.get(`${API_URL}/social/likes-by-user/${usuarioId}`, config);
+    return Array.isArray(res.data) ? res.data.map((id: any) => Number(id)) : [];
+  } catch (err: any) {
+    console.error('[buscarLikesUsuario] Erro:', err?.response?.status, err?.message);
+    return [];
+  }
 }
 
 export async function buscarQuantidadeLikes(personagemId: number) {

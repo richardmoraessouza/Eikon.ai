@@ -146,51 +146,47 @@ function Menu({ setPersonId, onMenuToggle }: MenuProps) {
                     {/* mostra personagens recentes do usuario */}
                     <section>
                         <h2 className={styles.subTitulo}>Recentes</h2>
-                        <nav>
-                            <ul className={styles.menuItems}>
-                                <div className={styles.containerPerson}>
-
-                                    {loading ? (
-                                        <div className={styles.loaderContainer}>
-                                            <div className={styles.spinner}></div>
-                                            <p>Carregando...</p>
-                                        </div>
-                                    ) : personagensRecentesFiltrados.length > 0 ? (
-                                        personagensRecentesFiltrados.map((item) => {
-                                            // Verifica se item é um objeto com dados ou apenas um ID numérico
-                                            const itemId = typeof item === 'number' ? item : item?.id;
-                                            const itemNome = typeof item === 'string' || typeof item === 'number' ? `Personagem ${itemId}` : item?.nome || `Personagem ${itemId}`;
-                                            const itemFoto = typeof item === 'string' || typeof item === 'number' ? '/image/semPerfil.jpg' : item?.fotoia || '/image/semPerfil.jpg';
-                                            
-                                            return (
-                                                <li key={itemId}>
-                                                    <Link
-                                                        to={`/personagem/${itemId}`}
-                                                        className="w-full flex items-center gap-2 p-1 hover:bg-[#2a2a2a] rounded transition-colors"
-                                                        onClick={() => {
-                                                            setPersonId && setPersonId(itemId);
-                                                            closeMenuOnMobile();
-                                                        }}
-                                                    >
-                                                        <img
-                                                            src={itemFoto}
-                                                            alt={itemNome}
-                                                            className='w-7 h-7 rounded-full object-cover'
-                                                        />
-                                                        <p className={styles.nomePersonagem}>{itemNome}</p>
-                                                    </Link>
-                                                </li>
-                                            );
-                                        })
-                                    ) : (
-                                        <p className='text-center text-sm text-gray-400 p-4'>
-                                            {estaLogado ? "Nenhum favorito encontrado." : "Entre para ver seus favoritos."}
-                                        </p>
-                                    )}
-
+                        <ul className={`${styles.menuItems} ${styles.containerPerson}`}>
+                            {loading ? (
+                                <div className={styles.loaderContainer}>
+                                    <div className={styles.spinner}></div>
+                                    <p>Carregando...</p>
                                 </div>
-                            </ul>
-                        </nav>
+                            ) : personagensRecentesFiltrados.length > 0 ? (
+                                personagensRecentesFiltrados.map((item) => {
+                                    // Verifica se item é um objeto com dados ou apenas um ID numérico
+                                    const itemId = typeof item === 'number' ? item : item?.id;
+                                    const itemNome = typeof item === 'string' || typeof item === 'number' ? `Personagem ${itemId}` : item?.nome || `Personagem ${itemId}`;
+                                    const itemFoto = typeof item === 'string' || typeof item === 'number' ? '/image/semPerfil.jpg' : item?.fotoia || '/image/semPerfil.jpg';
+                                    
+                                    return (
+                                        <li key={itemId}>
+                                            <Link
+                                                to={`/personagem/${itemId}`}
+                                                className="w-full flex items-center gap-2 p-1 hover:bg-[#2a2a2a] rounded transition-colors"
+                                                onClick={() => {
+                                                    setPersonId && setPersonId(itemId);
+                                                    closeMenuOnMobile();
+                                                }}
+                                            >
+                                                <img
+                                                    src={itemFoto}
+                                                    alt={itemNome}
+                                                    className='w-7 h-7 rounded-full object-cover'
+                                                />
+                                                <p className={styles.nomePersonagem}>{itemNome}</p>
+                                            </Link>
+                                        </li>
+                                    );
+                                })
+                            ) : (
+                                <li>
+                                    <p className='text-center text-sm text-gray-400 p-4'>
+                                        {estaLogado ? "Nenhum personagem recente encontrado." : "Entre para ver seus personagens recentes!"}
+                                    </p>
+                                </li>
+                            )}
+                        </ul>
                     </section>
 
                     <section>

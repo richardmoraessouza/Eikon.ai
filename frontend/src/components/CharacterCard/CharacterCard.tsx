@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/AuthContext/AuthContext";
 import { useMeusPersonagens } from "../../hooks/UserPerson/UserPerson";
-import { toggleFavorito, buscarFavoritosUsuario, buscarPersonagensRecentes,  buscarQuantidadeLikes, buscarLikesUsuario } from "../../services/personagemService";
+import { toggleFavorito, toggleLike, buscarFavoritosUsuario, buscarPersonagensRecentes,  buscarQuantidadeLikes, buscarLikesUsuario } from "../../services/personagemService";
 import styles from "./CharacterCard.module.css"
 import { useState, useEffect } from "react";
 
@@ -22,12 +22,14 @@ interface Personagem {
 interface CharacterCardProps {
   type: "meus-personagens" | "favoritos" | "recentes";
   abaAtiva?: string;
+  usuarioId?: number | null;
 }
 
-function CharacterCard({ type, abaAtiva }: CharacterCardProps) {
-  const { usuarioId, token } = useAuth();
+function CharacterCard({ type, abaAtiva, usuarioId: externalUsuarioId }: CharacterCardProps) {
+  const { usuarioId: loggedUsuarioId, token } = useAuth();
   const navigate = useNavigate();
-  const { personagens, like } = useMeusPersonagens(usuarioId, token || '');
+  const usuarioIdFinal = externalUsuarioId !== undefined ? externalUsuarioId : loggedUsuarioId;
+  const { personagens } = useMeusPersonagens(usuarioIdFinal, token || '');
   
   const [favoritos, setFavoritos] = useState<Personagem[]>([]);
   const [recentes, setRecentes] = useState<Personagem[]>([]);
@@ -38,12 +40,12 @@ function CharacterCard({ type, abaAtiva }: CharacterCardProps) {
 
   // Sincronizar dados de meus-personagens
   useEffect(() => {
-    if (type === "meus-personagens" && personagens.length > 0 && usuarioId) {
+    if (type === "meus-personagens" && personagens.length > 0 && usuarioIdFinal) {
       // Enriquecer com informação de favoritos
       const enriquecerComFavoritos = async () => {
         try {
-          if (!usuarioId) return;
-          const favData = await buscarFavoritosUsuario(usuarioId);
+          if (!usuarioIdFinal) return;
+          const favData = await buscarFavoritosUsuario(usuarioIdFinal);
           const favoritosSet = new Set(
             (Array.isArray(favData) ? favData : []).map(item => 
               typeof item === 'number' ? item : item.id
@@ -76,13 +78,13 @@ function CharacterCard({ type, abaAtiva }: CharacterCardProps) {
       
       enriquecerComFavoritos();
     }
-  }, [personagens, type, usuarioId]);
+  }, [personagens, type, usuarioIdFinal]);
 
   // Helper para enriquecer dados com likes e favoritos
   const enriquecerComLikes = async (personagens: Personagem[], usuarioId: number, isFavoritos: boolean = false) => {
     try {
-      // Buscar likes do usuário
-      const likesUsuario = await buscarLikesUsuario(usuarioId);
+      // Buscar likes do usuário (com autenticação se disponível)
+      const likesUsuario = token ? await buscarLikesUsuario(usuarioId, token) : [];
       const likesSet = new Set(likesUsuario);
       
       // Se é favoritos, buscar todos os favoritos para marcar
@@ -118,13 +120,13 @@ function CharacterCard({ type, abaAtiva }: CharacterCardProps) {
 
   // Carregar favoritos
   useEffect(() => {
-    if (type === "favoritos" && usuarioId) {
+    if (type === "favoritos" && usuarioIdFinal) {
       setLoading(true);
-      buscarFavoritosUsuario(usuarioId)
+      buscarFavoritosUsuario(usuarioIdFinal)
         .then(async (data) => {
           const favData = Array.isArray(data) ? data : [];
           // Enriquecer com dados de likes, todos são favoritos
-          const enriquecido = await enriquecerComLikes(favData, usuarioId, true);
+          const enriquecido = await enriquecerComLikes(favData, usuarioIdFinal, true);
           setFavoritos(enriquecido);
           
           // Sincronizar curtidas
@@ -147,17 +149,17 @@ function CharacterCard({ type, abaAtiva }: CharacterCardProps) {
         })
         .finally(() => setLoading(false));
     }
-  }, [type, usuarioId, abaAtiva]);
+  }, [type, usuarioIdFinal, abaAtiva]);
 
   // Carregar recentes
   useEffect(() => {
-    if (type === "recentes" && usuarioId) {
+    if (type === "recentes" && usuarioIdFinal) {
       setLoading(true);
-      buscarPersonagensRecentes(usuarioId)
+      buscarPersonagensRecentes(usuarioIdFinal)
         .then(async (data) => {
           const recentesData = Array.isArray(data) ? data : [];
           // Enriquecer com dados de likes
-          const enriquecido = await enriquecerComLikes(recentesData, usuarioId);
+          const enriquecido = await enriquecerComLikes(recentesData, usuarioIdFinal);
           setRecentes(enriquecido);
           
           // Sincronizar curtidas
@@ -180,15 +182,15 @@ function CharacterCard({ type, abaAtiva }: CharacterCardProps) {
         })
         .finally(() => setLoading(false));
     }
-  }, [type, usuarioId, abaAtiva]);
+  }, [type, usuarioIdFinal, abaAtiva]);
 
   // Listener para mudanças de favoritos (funciona para todos os tipos)
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'favoritos_updated' && usuarioId) {
+      if (e.key === 'favoritos_updated' && usuarioIdFinal) {
         setTimeout(() => {
           if (type === "favoritos") {
-            buscarFavoritosUsuario(usuarioId)
+            buscarFavoritosUsuario(usuarioIdFinal)
               .then((data) => setFavoritos(Array.isArray(data) ? data : []))
               .catch((err) => console.error("Erro ao recarregar favoritos:", err));
           }
@@ -198,16 +200,16 @@ function CharacterCard({ type, abaAtiva }: CharacterCardProps) {
 
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
-  }, [usuarioId, type]);
+  }, [usuarioIdFinal, type]);
 
   const handleFavorito = async (p: Personagem) => {
-    if (!usuarioId || !token || token.trim() === '') {
+    if (!loggedUsuarioId || !token || token.trim() === '') {
       navigate('/entrar');
       return;
     }
     
     try {
-      await toggleFavorito(usuarioId, p.id, token);
+      await toggleFavorito(loggedUsuarioId, p.id, token);
       localStorage.setItem('favoritos_updated', Date.now().toString());
       
       // Atualizar estado local do favorito
@@ -245,9 +247,16 @@ function CharacterCard({ type, abaAtiva }: CharacterCardProps) {
     }
   };
 
-  const handleLike = (personagemId: number) => {
+  const handleLike = async (personagemId: number) => {
+    // 🔒 SEGURANÇA: Sempre usar loggedUsuarioId, nunca usuarioIdFinal!
+    if (!loggedUsuarioId || !token || token.trim() === '') {
+      navigate('/entrar');
+      return;
+    }
+
     const jaCurtido = curtidas[personagemId];
     
+    // Atualizar UI otimista
     setCurtidas(prev => ({
       ...prev,
       [personagemId]: !jaCurtido
@@ -258,10 +267,23 @@ function CharacterCard({ type, abaAtiva }: CharacterCardProps) {
       [personagemId]: jaCurtido ? (prev[personagemId] || 0) - 1 : (prev[personagemId] || 0) + 1
     }));
 
-    if (type === "meus-personagens") {
-      like(personagemId);
-    } else {
-      like(personagemId);
+    try {
+      // ✅ CORRIGIDO: Usar loggedUsuarioId (usuário autenticado), não usuarioIdFinal!
+      await toggleLike(loggedUsuarioId, personagemId, token);
+    } catch (err: any) {
+      console.error('Erro ao dar like:', err);
+      // Reverter estado em caso de erro
+      setCurtidas(prev => ({
+        ...prev,
+        [personagemId]: jaCurtido
+      }));
+      setLikes(prev => ({
+        ...prev,
+        [personagemId]: jaCurtido ? (prev[personagemId] || 0) + 1 : (prev[personagemId] || 0) - 1
+      }));
+      if (err?.response?.status === 401) {
+        navigate('/entrar');
+      }
     }
   };
 
@@ -307,8 +329,8 @@ function CharacterCard({ type, abaAtiva }: CharacterCardProps) {
           className={`flex items-center gap-3 p-3 rounded-lg bg-[#1e1e1e] hover:bg-[#2a2a2a] transition-colors cursor-pointer ${styles.character}`}
           onClick={() => window.location.href = `/personagem/${p.id}`}
         >
-          {/* Botão Editar - Apenas para meus-personagens */}
-          {type === "meus-personagens" && (
+          {/* Botão Editar - Apenas para meus-personagens E se for o usuário logado */}
+          {type === "meus-personagens" && usuarioIdFinal === loggedUsuarioId && (
             <button
               className={styles.btnEditar}
               onClick={(e) => {

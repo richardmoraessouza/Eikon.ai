@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../../hooks/AuthContext/AuthContext";
 import ModalSeguidores from "../../components/ModalSeguidores/ModalSeguidores";
+import TapsPerfil from "../../components/TapsPerfil/TapsPerfil";
 import { API_URL } from "../../config/api";
 
 interface OutroUsuario {
@@ -92,10 +93,10 @@ function OutroPerfil() {
     };
 
     return (
-        <main className={`${styles.containerPerfil} min-h-screen flex flex-col items-center gap-10`}>
+        <main className={styles.containerPerfil}>
             <section className={styles.containerItemsPerfil}>
                 {usuarioInfor ? (
-                    <div className="flex flex-col items-center mt-10 gap-2">
+                    <div className="flex flex-col items-center gap-2">
                         <img src={usuarioInfor.foto_perfil || '/image/semPerfil.jpg'} alt="" className="w-28 h-28 rounded-full shadow-md object-cover"/>
                         <h1 className="mt-4 text-xl font-semibold">{usuarioInfor.nome}</h1>
                         <div className={`text-gray-400 text-sm mt-1 flex flex-row gap-2 ${styles.btnStatus}`}>
@@ -148,6 +149,10 @@ function OutroPerfil() {
                 ) : (
                     <div>carregando..</div>
                 )}
+            </section>
+
+            <section className="w-full">
+                <TapsPerfil usuarioId={Number(id)} />
             </section>
         </main>
     );

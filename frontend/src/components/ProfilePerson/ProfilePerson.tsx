@@ -3,9 +3,8 @@ import styles from './ProfilePerson.module.css';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { API_URL } from '../../config/api';
-import { useMeusPersonagens } from '../../hooks/UserPerson/UserPerson';
 import { useAuth } from '../../hooks/AuthContext/AuthContext';
-import { toggleFavorito } from '../../services/personagemService';
+import { toggleFavorito, buscarDadosPersonagem, toggleLike, buscarQuantidadeLikes } from '../../services/personagemService';
 
 interface Personagem {
   id: number;
@@ -40,15 +39,33 @@ const ProfilePerson: React.FC<ProfilePersonProps> = ({
   setPerfilPerson 
 }) => {
   const { token, usuarioId } = useAuth();
+  const [personagem, setPersonagem] = useState<Personagem | null>(null);
   const [nome, setNome] = useState<CriadorNome | null>(null);
   const [status, setStatus] = useState<string>("Online");
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
-  const { personagens, like, favorito } = useMeusPersonagens(usuarioIdAtual || 0, token || '');
+  console.log('[ProfilePerson] personagemId:', personagemId, 'usuarioIdAtual:', usuarioIdAtual);
 
-  
-  // Encontra o personagem atual dentro da lista para refletir os estados de like/favorito
-  const personagem = personagens.find(p => p.id === personagemId) || null;
+  // Carregar dados do personagem específico
+  useEffect(() => {
+    if (!personagemId) return;
+
+    const carregar = async () => {
+      setLoading(true);
+      try {
+        const dados = await buscarDadosPersonagem(personagemId);
+        console.log('[ProfilePerson] Personagem carregado:', dados.nome);
+        setPersonagem(dados);
+      } catch (err) {
+        console.error('[ProfilePerson] Erro ao carregar personagem:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    carregar();
+  }, [personagemId]);
 
 
   useEffect(() => {
@@ -60,18 +77,46 @@ const ProfilePerson: React.FC<ProfilePersonProps> = ({
 
   const modalPerfil = () => setPerfilPerson(prev => !prev);
 
-  const handleFavorito = async (p: Personagem) => {
+  const handleFavorito = async () => {
     if (!usuarioId || !token || token.trim() === '') {
       navigate('/entrar');
       return;
     }
     
+    if (!personagem) return;
+    
     try {
-      await toggleFavorito(usuarioId, p.id, token);
-      localStorage.setItem('favoritos_updated', Date.now().toString());
-      favorito(p.id);
+      await toggleFavorito(usuarioId, personagem.id, token);
+      setPersonagem(prev => prev ? {
+        ...prev,
+        favoritadoPeloUsuario: !prev.favoritadoPeloUsuario
+      } : null);
     } catch (err: any) {
       console.error("Erro ao alternar favorito:", err);
+      if (err?.response?.status === 401) {
+        navigate('/entrar');
+      }
+    }
+  };
+
+  const handleLike = async () => {
+    if (!usuarioId || !token || token.trim() === '') {
+      navigate('/entrar');
+      return;
+    }
+
+    if (!personagem) return;
+
+    try {
+      await toggleLike(usuarioId, personagem.id, token);
+      const novaQuantidade = await buscarQuantidadeLikes(personagem.id);
+      setPersonagem(prev => prev ? {
+        ...prev,
+        curtidoPeloUsuario: !prev.curtidoPeloUsuario,
+        likes: novaQuantidade
+      } : null);
+    } catch (err: any) {
+      console.error("Erro ao dar like:", err);
       if (err?.response?.status === 401) {
         navigate('/entrar');
       }
@@ -99,7 +144,19 @@ const ProfilePerson: React.FC<ProfilePersonProps> = ({
     nomeCriado();
   }, [personagem]);
 
-  if (!personagem) return null;
+  if (!personagemId) {
+    console.warn('[ProfilePerson] Nenhum personagemId fornecido');
+    return null;
+  }
+
+  if (loading) {
+    return null;
+  }
+
+  if (!personagem) {
+    console.warn('[ProfilePerson] Personagem não encontrado');
+    return null;
+  }
 
   return (
     <section className={`fixed top-0 ${styles.contantoPerson} ${!menuOpen ? styles.menuFechado : ''}`}>
@@ -134,7 +191,7 @@ const ProfilePerson: React.FC<ProfilePersonProps> = ({
 
                 <article className={`flex row-auto items-center justify-center gap-4 mt-4 ${styles.interacoes}`}>
                   {/* Botão Like */}
-                  <button onClick={() => like(personagem.id)} className="flex items-center gap-2 cursor-pointer">
+                  <button onClick={handleLike} className="flex items-center gap-2 cursor-pointer">
                     <span>{personagem.likes ?? 0}</span>
 
                     <svg width="20" height="20" viewBox="0 0 24 24" fill={personagem.curtidoPeloUsuario ? "#ff4b4b" : "none"} stroke={personagem.curtidoPeloUsuario ? "#ff4b4b" : "currentColor"} strokeWidth="2">
@@ -145,7 +202,7 @@ const ProfilePerson: React.FC<ProfilePersonProps> = ({
                   <span className={styles.divisoria}>|</span>
 
                   {/* Botão Favorito */}
-                  <button onClick={() => handleFavorito(personagem)} className="cursor-pointer">
+                  <button onClick={handleFavorito} className="cursor-pointer">
                     <i className={`fa ${personagem.favoritadoPeloUsuario ? "fa-solid fa-star" : "fa-regular fa-star"}`} 
                        style={{ color: personagem.favoritadoPeloUsuario ? "#FFD700" : "#fff" }}></i>
                   </button>

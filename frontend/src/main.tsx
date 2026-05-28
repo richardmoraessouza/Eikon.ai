@@ -18,7 +18,7 @@ import Person_Ficticio from './page/Person_Ficticio/Person_Ficticio.tsx';
 import Explorar from "./page/Explorar/Explorar.tsx";
 import PersonagemPesquisado from "./page/PersonagemPesquisado/PersonagemPesquisado.tsx";
 
-const CLIENT_ID =  import.meta.env.VITE_GOOGLE_CLIENT_ID || "default_client_id"
+const CLIENT_ID =  import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
 
 const router = createBrowserRouter([
   // Rotas com layout principal

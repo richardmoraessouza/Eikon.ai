@@ -1,7 +1,11 @@
 import { useState } from "react";
 import CharacterCard from "../CharacterCard/CharacterCard";
 
-const TapsPerfil = () => {
+interface TapsPerfilProps {
+    usuarioId?: number | null;
+}
+
+const TapsPerfil = ({ usuarioId }: TapsPerfilProps) => {
     const [abaAtiva, setAbaAtiva] = useState<string>('Personagens');
 
     return (
@@ -40,9 +44,9 @@ const TapsPerfil = () => {
             </nav>
 
             {/* Renderização condicional dos componentes */}
-            {abaAtiva === 'Personagens' && <CharacterCard type="meus-personagens" abaAtiva={abaAtiva}/>}
-            {abaAtiva === 'Favoritos' && <CharacterCard type="favoritos" abaAtiva={abaAtiva}/>}
-            {abaAtiva === 'Recentes' && <CharacterCard type="recentes" abaAtiva={abaAtiva}/>}
+            {abaAtiva === 'Personagens' && <CharacterCard type="meus-personagens" abaAtiva={abaAtiva} usuarioId={usuarioId}/>}
+            {abaAtiva === 'Favoritos' && <CharacterCard type="favoritos" abaAtiva={abaAtiva} usuarioId={usuarioId}/>}
+            {abaAtiva === 'Recentes' && <CharacterCard type="recentes" abaAtiva={abaAtiva} usuarioId={usuarioId}/>}
         </section>
     )
 }

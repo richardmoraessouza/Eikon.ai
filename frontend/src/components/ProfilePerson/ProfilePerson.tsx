@@ -45,8 +45,6 @@ const ProfilePerson: React.FC<ProfilePersonProps> = ({
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
-  console.log('[ProfilePerson] personagemId:', personagemId, 'usuarioIdAtual:', usuarioIdAtual);
-
   // Carregar dados do personagem específico
   useEffect(() => {
     if (!personagemId) return;
@@ -55,7 +53,6 @@ const ProfilePerson: React.FC<ProfilePersonProps> = ({
       setLoading(true);
       try {
         const dados = await buscarDadosPersonagem(personagemId);
-        console.log('[ProfilePerson] Personagem carregado:', dados.nome);
         setPersonagem(dados);
       } catch (err) {
         console.error('[ProfilePerson] Erro ao carregar personagem:', err);

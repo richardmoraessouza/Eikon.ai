@@ -49,12 +49,7 @@ function App() {
   // ID numérico da URL (fonte da verdade para qual personagem mostrar)
   const idNum = id != null ? Number(id) : NaN;
   const personagemId = !isNaN(idNum) ? idNum : personId;
-
-  if (!personagemId) {
-  console.error("personagemId inválido! Abortando envio.");
-  return;
-}
-
+  
   // Gera ou recupera ID anônimo
   useEffect(() => {
     if (!localStorage.getItem("anonId")) {
@@ -113,6 +108,16 @@ function App() {
       if (usuarioId && personagemId) {
         await recentCharacters(Number(usuarioId), Number(personagemId));
       }
+
+
+      if (personagemId && token) {
+        // Dispara a rota do perfil do personagem. O backend vai rodar a lógica 
+        // do INSERT ON CONFLICT e atualizar +1 na view apenas se for o primeiro acesso.
+        await axios.get(`${API_URL}/character/increment-chat-views/${personagemId}`, config).catch(err => {
+          console.error("Erro silencioso ao computar visualização única:", err);
+        });
+      }
+      // ================================================================
 
       // 3. Adiciona a resposta da IA na tela
       if (res.data && res.data.reply) {

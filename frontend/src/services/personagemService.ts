@@ -62,7 +62,7 @@ export async function recentCharacters(usuarioId: number, personagemId: number) 
 
 export async function buscarPersonagensRecentes(usuarioId: number) {
   const url = `${API_URL}/character/get-recent-characters/${usuarioId}`;
-  console.log('[buscarPersonagensRecentes] URL:', url);
+  
   try {
     const res = await axios.get(url);
     return res.data;

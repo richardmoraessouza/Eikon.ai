@@ -7,6 +7,7 @@ import Menu from './components/Menu/Menu';
 import ProfilePerson from './components/ProfilePerson/ProfilePerson';
 import { useParams } from 'react-router-dom';
 import { API_URL } from './config/api';
+import { useCharacters } from './hooks/useCharacters/useCharacters';
 
 interface ChatResponse {
   reply: string;
@@ -44,6 +45,7 @@ function App() {
 
   const { usuarioId, token } = useAuth(); 
   const chatEndRef = useRef<HTMLDivElement | null>(null);
+  const { incrementChatViews } = useCharacters();
 
 
   // ID numérico da URL (fonte da verdade para qual personagem mostrar)
@@ -69,8 +71,6 @@ function App() {
 
   // Limpa chat ao trocar de personagem
   useEffect(() => setChatHistory([]), [personagemId]);
-
-
 
   // Scroll automático
   useEffect(() => {
@@ -105,19 +105,15 @@ function App() {
       );
 
       // 2. Registra o personagem nos Recentes do usuário
+     // 2. Registra o personagem nos Recentes do usuário
       if (usuarioId && personagemId) {
         await recentCharacters(Number(usuarioId), Number(personagemId));
       }
 
-
+      // 3. Executa o incremento de views passando o token necessário
       if (personagemId && token) {
-        // Dispara a rota do perfil do personagem. O backend vai rodar a lógica 
-        // do INSERT ON CONFLICT e atualizar +1 na view apenas se for o primeiro acesso.
-        await axios.get(`${API_URL}/character/increment-chat-views/${personagemId}`, config).catch(err => {
-          console.error("Erro silencioso ao computar visualização única:", err);
-        });
+        await incrementChatViews(personagemId, token); 
       }
-      // ================================================================
 
       // 3. Adiciona a resposta da IA na tela
       if (res.data && res.data.reply) {

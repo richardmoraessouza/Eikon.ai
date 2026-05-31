@@ -15,13 +15,14 @@ interface Personagem {
   nome: string;                    // Nome do personagem
   fotoia?: string;                 // URL da imagem/foto
   bio?: string;                    // Pequena descrição (bio)
-  descricao?: string;              // Descrição completa do personagem
+  descricao?: string;             // Descrição completa do personagema
   likes?: number;                  // Quantidade de curtidas que o personagem recebeu
   criador?: string;                // Nome de quem criou
   usuario_id: number;              // ID do usuário que criou este personagem
   tipo_personagem: string;         // Tipo: "person" ou "person-ficticio"
   curtidoPeloUsuario?: boolean;    // Se o usuário LOGADO curtiu este personagem
   favoritadoPeloUsuario?: boolean; // Se o usuário LOGADO favoritou este personagem
+  
 }
 
 // ============================================================
@@ -599,28 +600,19 @@ function CharacterCard({ type, abaAtiva, usuarioId: externalUsuarioId }: Charact
               1. type = "meus-personagens" (só em sua própria lista)
               2. usuarioIdFinal === loggedUsuarioId (é o próprio usuário)
           */}
-          {type === "meus-personagens" && usuarioIdFinal === loggedUsuarioId && (
-            <button
-              className={styles.btnEditar}
-              onClick={(e) => {
-                // Previne que o clique suba para o pai (que navegaria)
-                e.stopPropagation();
-                
-                // Determina a rota baseado no tipo de personagem
-                const rota =
-                  p.tipo_personagem === "person"
-                    ? "/criacao-person"      // Person criados por usuário
-                    : "/person-ficticio";    // Personagens fictícios criados por usuário
-
-                // Navega passando o personagem para edição
-                navigate(rota, {
-                  state: { editar: true, personagem: p }
-                });
-              }}
-            >
-              <i className="fa-solid fa-pen-to-square"></i>
-            </button>
-          )}
+       {type === "meus-personagens" && usuarioIdFinal === loggedUsuarioId && (
+  <button
+    className={styles.btnEditar}
+    onClick={(e) => {
+      e.stopPropagation();
+      navigate("/criacao-person", {
+        state: { editar: true, personagem: p, tipo: p.tipo_personagem }
+      });
+    }}
+  >
+    <i className="fa-solid fa-pen-to-square"></i>
+  </button>
+)}
 
           {/* ========== IMAGEM DO PERSONAGEM ========== */}
           {/* Exibe a foto do personagem ou uma imagem padrão se não houver */}

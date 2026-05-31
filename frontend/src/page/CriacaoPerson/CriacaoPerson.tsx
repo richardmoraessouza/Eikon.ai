@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import styles from './CriacaoPerson.module.css';
 import { useNavigate, useLocation } from 'react-router-dom';
-import axios from 'axios';
-import { API_URL } from '../../config/api';
 import { useAuth } from '../../hooks/AuthContext/AuthContext';
+import { useCharacters } from '../../hooks/useCharacters/useCharacters';
 import { converterBase64 } from '../../utils/CorverteImagem/corverteImagem';
 
-function CriacaoPerson() {
+function CriacaoPersonagem() {
     const [historia, setHistoria] = useState('');
     const [personalidade, setPersonalidade] = useState('');
     const [fotoia, setFotoia] = useState('');
@@ -16,6 +15,7 @@ function CriacaoPerson() {
     const [descricao, setDescricao] = useState('');
     const [estilo, setEstilo] = useState('');
     const [nome, setNome] = useState('');
+    const [obra, setObra] = useState('');
     const [tipo_personagem, setTipo_personagem] = useState('person');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [erro, setErro] = useState('');
@@ -27,49 +27,43 @@ function CriacaoPerson() {
     const id = personagemState?.id;
 
     const { token, usuarioId } = useAuth();
+    const { createCharacter, updateCharacter, searchCharacterById } = useCharacters();
     const navigate = useNavigate();
 
+    const isFiccional = tipo_personagem === 'ficcional';
+
     useEffect(() => {
+        if (!modoEdicao) {
+            setTipo_personagem(location.state?.tipo || 'person');
+        }
+    }, [location.key]);
+
+    useEffect(() => {
+        if (!modoEdicao || !id) return;
+
         const fetchPersonagem = async () => {
-            if (modoEdicao && id) {
-                try {
-                    const response = await axios.get(`${API_URL}/character/data-character/${id}`, {
-                        headers: { Authorization: `Bearer ${token}` }
-                    });
-                    const p = response.data.personagem;
+            try {
+                const p = await searchCharacterById(id);
 
-                    setNome(p.nome || '');
-                    setGenero(p.genero || '');
-                    setDescricao(p.descricao || '');
-                    setFotoia(p.fotoia || '');
-                    setPersonalidade(p.personalidade || '');
-                    setComportamento(p.comportamento || '');
-                    setRegras(p.regras || '');
-                    setEstilo(p.estilo || '');
-                    setHistoria(p.historia || '');
-                    setTipo_personagem(p.tipo_personagem || 'person');
-                    setBio(p.bio || '');
-                } catch (err) {
-                    console.error("Erro ao buscar personagem:", err);
-                    alert('Não foi possível carregar os dados do personagem.');
-                }
-            } else if (personagemState) {
-                setNome(personagemState.nome || '');
-                setGenero(personagemState.genero || '');
-                setDescricao(personagemState.descricao || '');
-                setFotoia(personagemState.fotoia || '');
-                setPersonalidade(personagemState.personalidade || '');
-                setComportamento(personagemState.comportamento || '');
-                setRegras(personagemState.regras || '');
-                setEstilo(personagemState.estilo || '');
-                setHistoria(personagemState.historia || '');
-                setTipo_personagem(personagemState.tipo_personagem || 'person');
-                setBio(personagemState.bio || '');
-            }
-        };
+                setNome(p.nome || '');
+                setGenero(p.genero || '');
+                setDescricao(p.descricao || '');
+                setFotoia(p.fotoia || '');
+                setPersonalidade(p.personalidade || '');
+                setComportamento(p.comportamento || '');
+                setRegras(p.regras || '');
+                setEstilo(p.estilo || '');
+                setHistoria(p.historia || '');
+                setObra(p.obra || '');
+                setTipo_personagem(p.tipo_personagem || 'person');
+                setBio(p.bio || '');
+            } catch (err) {
+                console.error("Erro ao buscar personagem:", err);
+        }
+    };
 
-        fetchPersonagem();
-    }, [modoEdicao, id, personagemState, token]);
+    fetchPersonagem();
+}, [modoEdicao, id]);
 
     const form = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -78,39 +72,45 @@ function CriacaoPerson() {
         setIsSubmitting(true);
         setErro('');
 
-           // Não pode ter caracteres especiais
         if (/[^A-Za-zÀ-ú0-9 ]/.test(nome)) {
             setErro("O nome contém caracteres inválidos.");
+            setIsSubmitting(false);
             return;
         }
-        // Deve ter pelo menos uma letra
         if (!/[A-Za-zÀ-ú]/.test(nome)) {
             setErro("O nome deve conter letras.");
+            setIsSubmitting(false);
+            return;
+        }
+        if (isFiccional && !obra.trim()) {
+            setErro("O nome da obra não pode estar vazio.");
+            setIsSubmitting(false);
+            return;
+        }
+
+        if (!token) {
+            setErro("Você precisa estar logado.");
+            setIsSubmitting(false);
             return;
         }
 
         try {
-
             const payload = {
-                nome, bio, descricao, fotoia, comportamento, estilo, genero,
-                personalidade, regras, historia, tipo_personagem,
+                nome, bio, descricao, fotoia, personalidade, regras, historia, tipo_personagem,
+                ...(isFiccional
+                    ? { obra }
+                    : { genero, comportamento, estilo }),
             };
 
-            const config = { headers: { Authorization: `Bearer ${token}` } };
-            const url = modoEdicao ? `${API_URL}/character/update-character/${id}` : `${API_URL}/character/create-character/${usuarioId}`;
-            
-            console.log("Token enviado:", token);
             if (modoEdicao) {
-                await axios.put(url, payload, config);
+                await updateCharacter(id, payload, token);
             } else {
-                await axios.post(url, payload, config);
+                await createCharacter(Number(usuarioId), payload, token);
             }
-            
-            console.log("Resposta do servidor:", url, payload);
+
             navigate(`/perfil/${usuarioId}`);
         } catch (err: any) {
             setErro(err.response?.data?.details || "Erro ao salvar.");
-
         } finally {
             setIsSubmitting(false);
         }
@@ -122,9 +122,9 @@ function CriacaoPerson() {
                 <form className='flex flex-col gap-4' onSubmit={form}>
                     <div className='w-full flex justify-center items-center'>
                         <div className='relative'>
-                            <img 
-                                src={fotoia || "/image/semPerfil.jpg"} 
-                                alt="Pré-visualização" 
+                            <img
+                                src={fotoia || "/image/semPerfil.jpg"}
+                                alt="Pré-visualização"
                                 className='w-26 h-26 rounded-full object-cover'
                             />
                             <div className='absolute bottom-0 right-0 bg-gray-900 w-9 h-9 text-xl rounded-full flex justify-center items-center'>
@@ -134,45 +134,55 @@ function CriacaoPerson() {
                                 <input id="foto" type="file" onChange={(e) => converterBase64(e, setFotoia)} accept="image/*" className="hidden" />
                             </div>
                         </div>
-                        <h1 className="text-center text-xl font-bold my-6">{modoEdicao ? "Editar personagem" : "Criar personagem"}</h1>
+                        <h1 className="text-center text-xl font-bold my-6">
+                            {modoEdicao ? "Editar personagem" : isFiccional ? "Crie Seu Personagem fictício" : "Criar personagem"}
+                        </h1>
                         {erro && <p className="text-red-500 text-sm text-center">{erro}</p>}
                     </div>
 
-                    {/* Campos */}
                     <div>
                         <label htmlFor="nome">Nome</label>
-                        <input type="text" id="nome" placeholder="Digite o nome do personagem" value={nome} maxLength={20} onChange={(e) => setNome(e.target.value.replace(/[^A-Za-zÀ-ú0-9 ]/g, ''))} required />
+                        <input type="text" id="nome" placeholder="Digite o nome do personagem" value={nome} maxLength={20} minLength={2} required onChange={(e) => setNome(e.target.value.replace(/[^A-Za-zÀ-ú0-9 ]/g, ''))} />
                         <p className="text-gray-400 text-sm flex justify-end">{nome.length}/20 caracteres</p>
                     </div>
 
-                      <div>
+                    <div>
                         <label htmlFor="bio">Bio</label>
-                        <input
-                            type="text"
-                            placeholder="Digite a bio do personagem"
-                            value={bio}
-                            id="bio"
-                            maxLength={50}
-                            onChange={(e) => setBio(e.target.value)}
-                        />
-                        <p className="text-gray-400 text-sm flex justify-end">
-                            {bio.length}/50 caracteres
-                        </p>
+                        <input type="text" placeholder="Digite a bio do personagem" value={bio} id="bio" maxLength={50} onChange={(e) => setBio(e.target.value)} />
+                        <p className="text-gray-400 text-sm flex justify-end">{bio.length}/50 caracteres</p>
                     </div>
 
-                    <div>
-                        <label htmlFor="genero">Gênero</label>
-                        <input type="text" id="genero" placeholder="Digite o gênero personagem" value={genero} maxLength={20} onChange={(e) => setGenero(e.target.value)} />
-                    </div>
+                    {!isFiccional && (
+                        <div>
+                            <label htmlFor="genero">Gênero</label>
+                            <input type="text" id="genero" placeholder="Digite o gênero personagem" value={genero} maxLength={20} onChange={(e) => setGenero(e.target.value)} />
+                        </div>
+                    )}
+
+                    {isFiccional && (
+                        <div>
+                            <label htmlFor="obra">Obra</label>
+                            <textarea
+                                id="obra"
+                                value={obra}
+                                placeholder='Digite Nome da obra'
+                                required
+                                minLength={2}
+                                maxLength={50}
+                                onChange={(e) => setObra(e.target.value.replace(/[^A-Za-zÀ-ú0-9 ]/g, ''))}
+                            ></textarea>
+                            <p className="text-gray-400 text-sm flex justify-end">{obra.length}/50 caracteres</p>
+                        </div>
+                    )}
 
                     <div>
                         <label htmlFor="descricao">Descrição</label>
                         <textarea
                             placeholder='Digite a descrição do personagem'
-                            id="descricao" 
-                            value={descricao} maxLength={500} 
+                            id="descricao"
+                            value={descricao} maxLength={500}
                             onChange={(e) => setDescricao(e.target.value)} />
-                            <p className="text-gray-400 text-sm flex justify-end">{descricao.length}/200</p>
+                        <p className="text-gray-400 text-sm flex justify-end">{descricao.length}/500 caracteres</p>
                     </div>
 
                     <div>
@@ -185,25 +195,29 @@ function CriacaoPerson() {
                         <textarea value={personalidade} id="personalidade" placeholder='Digite a personalidade do personagem' onChange={(e) => setPersonalidade(e.target.value)} />
                     </div>
 
-                    <div>
-                        <label htmlFor='estilo'>Estilo</label>
-                        <textarea value={estilo} id= "estilo" placeholder="Digite o estilo do personagem" onChange={(e) => setEstilo(e.target.value)} />
-                    </div>
+                    {!isFiccional && (
+                        <div>
+                            <label htmlFor='estilo'>Estilo</label>
+                            <textarea value={estilo} id="estilo" placeholder="Digite o estilo do personagem" onChange={(e) => setEstilo(e.target.value)} />
+                        </div>
+                    )}
 
-                    <div>
-                        <label htmlFor='comportamento'>Comportamento</label>
-                        <textarea value={comportamento} id="comportamento" placeholder="Digite o comportamento do personagem" onChange={(e) => setComportamento(e.target.value)} />
-                    </div>
+                    {!isFiccional && (
+                        <div>
+                            <label htmlFor='comportamento'>Comportamento</label>
+                            <textarea value={comportamento} id="comportamento" placeholder="Digite o comportamento do personagem" onChange={(e) => setComportamento(e.target.value)} />
+                        </div>
+                    )}
 
                     <div>
                         <label htmlFor='regras'>Regras</label>
                         <textarea id="regras" placeholder="Digite as regras para seu personagem" value={regras} onChange={(e) => setRegras(e.target.value)} />
                     </div>
 
-                    <input 
-                        type="submit" 
-                        value={isSubmitting ? "Criando..." : "Criar"} 
-                        disabled={isSubmitting} 
+                    <input
+                        type="submit"
+                        value={isSubmitting ? "Salvando..." : modoEdicao ? "Salvar" : "Criar"}
+                        disabled={isSubmitting}
                         className="bg-blue-500 border rounded-lg py-2 cursor-pointer hover:bg-blue-600 transition"
                     />
                 </form>
@@ -212,4 +226,4 @@ function CriacaoPerson() {
     );
 }
 
-export default CriacaoPerson;
+export default CriacaoPersonagem;

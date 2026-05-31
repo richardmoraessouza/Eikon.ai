@@ -118,8 +118,8 @@ function Menu({ setPersonId, onMenuToggle }: MenuProps) {
                         <nav>
                             <ul className={styles.menuItems}>
                                 <li><Link to={'/explorar'} onClick={closeMenuOnMobile}><i className="fa-solid fa-compass"></i>Buscar</Link></li>
+                                <li><Link to={'/criacao-person'} state={{ tipo: 'ficcional' }} onClick={closeMenuOnMobile}><i className="fa-solid fa-masks-theater"></i> Criar personagem fictício</Link></li>
                                 <li><Link to={'/criacao-person'} onClick={closeMenuOnMobile}><i className="fa-solid fa-user"></i> Criar personagem</Link></li>
-                                <li><Link to={'/person-ficticio'} onClick={closeMenuOnMobile}><i className="fa-solid fa-hat-wizard"></i> Fictício</Link></li>
 
                                 {!estaLogado && (
                                     <>

@@ -1,27 +1,11 @@
+import { FiMessageSquare, FiHeart, FiStar, } from "react-icons/fi"; // Adicionado FiEye aqui
 import React, { useState, useEffect } from 'react';
 import styles from './ProfilePerson.module.css';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { API_URL } from '../../config/api';
 import { useAuth } from '../../hooks/AuthContext/AuthContext';
-import { toggleFavorito, buscarDadosPersonagem, toggleLike, buscarQuantidadeLikes } from '../../services/personagemService';
-
-interface Personagem {
-  id: number;
-  nome: string;
-  fotoia?: string;
-  descricao?: string;
-  usuario_id: number;
-  bio?: string;
-  criador?: string;
-  likes?: number;
-  curtidoPeloUsuario?: boolean;
-  favoritadoPeloUsuario?: boolean;
-}
-
-interface CriadorNome {
-  nome: string;
-}
+import { useCharacters } from '../../hooks/useCharacters/useCharacters';
+import { useSocial } from '../../hooks/useSocial/useSocial';
+import { useUsers } from "../../hooks/useUsers/useUsers";
 
 interface ProfilePersonProps {
   personagemId: number | null;
@@ -35,91 +19,112 @@ const ProfilePerson: React.FC<ProfilePersonProps> = ({
   personagemId,
   menuOpen,
   usuarioIdAtual, 
-  perfilPerson, 
+  perfilPerson,
   setPerfilPerson 
 }) => {
   const { token, usuarioId } = useAuth();
-  const [personagem, setPersonagem] = useState<Personagem | null>(null);
-  const [nome, setNome] = useState<CriadorNome | null>(null);
+  const { searchCharacterById } = useCharacters();
+  
+  const { 
+    getQuantityLikes, 
+    handleToggleLike, 
+    handleToggleFavorite, 
+    isLiked, 
+    isFavorite 
+  } = useSocial();
+  
+  const [personagem, setPersonagem] = useState<any>(null);
   const [status, setStatus] = useState<string>("Online");
+  const [likesCount, setLikesCount] = useState<number>(0);
+  const [isLoadingLike, setIsLoadingLike] = useState<boolean>(false);
+  const [isLoadingFav, setIsLoadingFav] = useState<boolean>(false); 
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
 
-  // Carregar dados do personagem específico
+  const { users } = useUsers(personagem?.usuario_id);
+  const nome = users[0];
+
+  // Busca o personagem específico pelo ID
   useEffect(() => {
-    if (!personagemId) return;
-
-    const carregar = async () => {
-      setLoading(true);
+    if (!personagemId || !searchCharacterById) return;
+    
+    const loadCharacter = async () => {
       try {
-        const dados = await buscarDadosPersonagem(personagemId);
-        setPersonagem(dados);
+        const encontrado = await searchCharacterById(personagemId);
+        if (encontrado) {
+          setPersonagem(encontrado);
+        }
       } catch (err) {
-        console.error('[ProfilePerson] Erro ao carregar personagem:', err);
-      } finally {
-        setLoading(false);
+        console.error('Erro ao carregar personagem:', err);
       }
     };
 
-    carregar();
-  }, [personagemId]);
+    loadCharacter();
+  }, [personagemId, searchCharacterById]);
 
-
+  // Busca a quantidade de likes
   useEffect(() => {
-      // A condição do tamanho da tela fica DENTRO do hook
-      if (personagem && window.innerWidth > 1500) {
-        setPerfilPerson(true);
+    if (!personagem?.id) return;
+
+    const loadLikesCount = async () => {
+      try {
+        const total = await getQuantityLikes(personagem.id);
+        setLikesCount(total);
+      } catch (err) {
+        console.error('Erro ao buscar likes:', err);
       }
-    }, [personagem]);
+    };
+
+    loadLikesCount();
+  }, [personagem?.id, getQuantityLikes]);
 
   const modalPerfil = () => setPerfilPerson(prev => !prev);
 
-  const handleFavorito = async () => {
-    if (!usuarioId || !token || token.trim() === '') {
-      navigate('/entrar');
-      return;
-    }
-    
-    if (!personagem) return;
-    
-    try {
-      await toggleFavorito(usuarioId, personagem.id, token);
-      setPersonagem(prev => prev ? {
-        ...prev,
-        favoritadoPeloUsuario: !prev.favoritadoPeloUsuario
-      } : null);
-    } catch (err: any) {
-      console.error("Erro ao alternar favorito:", err);
-      if (err?.response?.status === 401) {
-        navigate('/entrar');
-      }
-    }
-  };
+  // Gerencia o clique de curtir
+  const handleLikeClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    if (!personagem?.id) return;
 
-  const handleLike = async () => {
-    if (!usuarioId || !token || token.trim() === '') {
+    if (!usuarioId || !token) {
       navigate('/entrar');
       return;
     }
 
-    if (!personagem) return;
+    if (isLoadingLike) return;
 
+    setIsLoadingLike(true);
     try {
-      await toggleLike(usuarioId, personagem.id, token);
-      const novaQuantidade = await buscarQuantidadeLikes(personagem.id);
-      setPersonagem(prev => prev ? {
-        ...prev,
-        curtidoPeloUsuario: !prev.curtidoPeloUsuario,
-        likes: novaQuantidade
-      } : null);
-    } catch (err: any) {
-      console.error("Erro ao dar like:", err);
-      if (err?.response?.status === 401) {
-        navigate('/entrar');
-      }
+      await handleToggleLike(personagem.id);
+      const updatedTotal = await getQuantityLikes(personagem.id);
+      setLikesCount(updatedTotal);
+    } catch (err) {
+      console.error('Erro ao fazer like:', err);
+    } finally {
+      setIsLoadingLike(false);
     }
   };
 
+  // Gerencia o clique de favoritar
+  const handleFavoriteClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    if (!personagem?.id) return;
+
+    if (!usuarioId || !token) {
+      navigate('/entrar');
+      return;
+    }
+
+    if (isLoadingFav) return;
+
+    setIsLoadingFav(true);
+    try {
+      await handleToggleFavorite(personagem.id);
+    } catch (err) {
+      console.error('Erro ao alternar favorito:', err);
+    } finally {
+      setIsLoadingFav(false);
+    }
+  };
+  
   useEffect(() => {
     const intervalo = setInterval(() => {
       setStatus(prev => prev === "Online" ? "Toque aqui, para ver mais detalhes" : "Online");
@@ -127,31 +132,7 @@ const ProfilePerson: React.FC<ProfilePersonProps> = ({
     return () => clearInterval(intervalo);
   }, []);
 
-  useEffect(() => {
-    const nomeCriado = async () => {
-      if (personagem) {
-        try {
-          const res = await axios.get(`${API_URL}/users/name-other-user/${personagem.usuario_id}`);
-          setNome(res.data);
-        } catch (err) {
-          console.error('Erro ao carregar o nome do criador', err);
-        }
-      }
-    };
-    nomeCriado();
-  }, [personagem]);
-
-  if (!personagemId) {
-    console.warn('[ProfilePerson] Nenhum personagemId fornecido');
-    return null;
-  }
-
-  if (loading) {
-    return null;
-  }
-
   if (!personagem) {
-    console.warn('[ProfilePerson] Personagem não encontrado');
     return null;
   }
 
@@ -163,7 +144,7 @@ const ProfilePerson: React.FC<ProfilePersonProps> = ({
         onClick={modalPerfil}
       >
         <img
-          src={personagem.fotoia || '/image/semPerfil.jpg'}
+          src={personagem?.fotoia || '/image/semPerfil.jpg'}
           alt={personagem.nome}
           className='w-10 h-10 rounded-full object-cover'
         />
@@ -174,12 +155,13 @@ const ProfilePerson: React.FC<ProfilePersonProps> = ({
       </header>
 
       {/* Modal Perfil - Desktop */}
-      {perfilPerson && (
+      {/* Correção condicional adicionando o estado perfilPerson */}
+      {perfilPerson && personagem && (
         <div className={styles.modalOverlay} onClick={() => setPerfilPerson(false)}>
           <div className={styles.modalPerfil} onClick={(e) => e.stopPropagation()}>
             <div className={styles.containerPerfil}>
               
-              {/* Botão Fechar (Apenas Desktop Grande) */}
+              {/* Botão Fechar */}
               <button 
                 className={styles.btnMenuProfile} 
                 onClick={() => setPerfilPerson(false)}
@@ -193,42 +175,53 @@ const ProfilePerson: React.FC<ProfilePersonProps> = ({
               {/* Header da Carta */}
               <div className={styles.headerCarta}>
                 <img 
-                  src={personagem.fotoia || '/image/semPerfil.jpg'} 
-                  alt={personagem.nome} 
+                  src={personagem?.fotoia || '/image/semPerfil.jpg'} 
+                  alt={personagem?.nome} 
                   className={styles.fotoPerfilGrande}
                 />
-                <h2 className={styles.nomePersonagem}>{personagem.nome}</h2>
+                <h2 className={styles.nomePersonagem}>{personagem?.nome}</h2>
                 <span className='text-xs text-gray-400'>Personagem Virtual</span>
 
                 {/* Interações */}
                 <div className={styles.interacoes}>
                   {/* Like */}
-                  <button onClick={handleLike} title="Curtir">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill={personagem.curtidoPeloUsuario ? "#ef4444" : "none"} stroke={personagem.curtidoPeloUsuario ? "#ef4444" : "currentColor"} strokeWidth="2">
-                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                    </svg>
-                    <span>{personagem.likes ?? 0}</span>
+                  <button onClick={handleLikeClick} title="Curtir">
+                    <FiHeart
+                      size={18}
+                      style={{
+                        cursor: 'pointer',
+                        color: isLiked(personagem.id) ? '#ef4444' : 'currentColor',
+                        fill: isLiked(personagem.id) ? '#ef4444' : 'none',
+                        transition: 'all 0.2s'
+                      }}
+                    />
+                    <span>{likesCount}</span>
                   </button>
 
                   <span className={styles.divisoria}>|</span>
 
                   {/* Favorito */}
-                  <button onClick={handleFavorito} title={personagem.favoritadoPeloUsuario ? "Remover de favoritos" : "Adicionar aos favoritos"}>
-                    <i 
-                      className={`fa ${personagem.favoritadoPeloUsuario ? "fa-solid fa-star" : "fa-regular fa-star"}`}
-                      style={{ color: personagem.favoritadoPeloUsuario ? "#fbbf24" : "currentColor" }}
-                    ></i>
+                  <button onClick={handleFavoriteClick} title={isFavorite(personagem.id) ? "Remover dos Favoritos" : "Adicionar aos Favoritos"}>
+                    <FiStar
+                      size={18}
+                      style={{
+                        cursor: 'pointer',
+                        color: isFavorite(personagem.id) ? '#eab308' : 'currentColor', 
+                        fill: isFavorite(personagem.id) ? '#eab308' : 'none',
+                        transition: 'all 0.2s'
+                      }}
+                    />
+                    <span>{isFavorite(personagem.id) ? "Salvo" : "Salvar"}</span>
                   </button>
-                  
+
                   <span className={styles.divisoria}>|</span>
 
-                  {/* Comentários */}
-                  <button title="Comentários em breve">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M4 5a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H9l-5 5v-5a3 3 0 0 1-3-3V5z"/>
-                    </svg>
-                    <span>0</span>
-                  </button>
+                  {/* Visualizações corretas com o ícone FiEye */}
+                  <div className="flex items-center gap-1 text-gray-400" title="Visualizações">
+                    <FiMessageSquare size={18} />
+                    <span>{personagem.visualizacoes ?? 0}</span>
+                  </div>
+
                 </div>
               </div>
 

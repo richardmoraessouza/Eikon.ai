@@ -9,10 +9,11 @@
 .containerCriacaoPerson {
     width: 90%;
     max-width: 670px;
-    margin: 20px 0px;
-    border-radius: 20px;
-    padding: 10px 20px 20px 20px;
+    margin: 20px 0;
+    border-radius: 16px;
+    padding: 24px 28px 32px;
     background-color: var(--fundoClaro);
+    border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .containerFoto {
@@ -21,17 +22,24 @@
 
 .containerCriacaoPerson form > div > input {
     width: 100%;
-    height: 55px;
-    border: 1px solid var(--fundoHover);
-    border-radius: 20px;
-    padding-left: 10px;
+    height: 48px;
+    background-color: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding-left: 14px;
+    color: inherit;
+    font-size: 0.9rem;
+    transition: border-color 0.2s;
+}
+
+.containerCriacaoPerson form > div > input::placeholder {
+    color: rgba(255, 255, 255, 0.3);
 }
 
 .containerCriacaoPerson form > div > input:focus {
-    border-color: #fff; 
+    border-color: rgba(255, 255, 255, 0.35);
     outline: none;
 }
-
 
 .containerCriacaoPerson form > input[type='submit'] {
     width: 90px;
@@ -40,15 +48,24 @@
 }
 
 .containerCriacaoPerson textarea {
-    border: 1px solid var(--fundoHover);
-    border-radius: 20px;
-    padding-left: 10px;
-    padding-top: 10px;
+    width: 100%;
+    background-color: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 12px 14px;
     height: 100px;
+    color: inherit;
+    font-size: 0.9rem;
+    resize: vertical;
+    transition: border-color 0.2s;
+}
+
+.containerCriacaoPerson textarea::placeholder {
+    color: rgba(255, 255, 255, 0.3);
 }
 
 .containerCriacaoPerson textarea:focus {
-    border-color: #fff; 
+    border-color: rgba(255, 255, 255, 0.35);
     outline: none;
 }
 
@@ -56,6 +73,14 @@
     display: flex;
     flex-direction: column;
     gap: 5px;
+}
+
+.containerCriacaoPerson label {
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
 }
 
 .tituloFigurinhas {
@@ -76,58 +101,52 @@
     padding: 10px;
 }
 
-/* --- O Cartão da Figurinha --- */
 .figurinhas {
     position: relative;
     width: 100%;
-    aspect-ratio: 3 / 4; 
-    border-radius: 16px;
+    aspect-ratio: 3 / 4;
+    border-radius: 12px;
     overflow: hidden;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); /* Transição suave */
-    
+    transition: all 0.25s ease;
     display: flex;
     justify-content: center;
     align-items: center;
-    
-   
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .figurinhas:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+    transform: translateY(-4px);
 }
 
-/* --- ESTADO 1: Figurinha VAZIA --- */
 .figurinhasVazia {
-    background-color: var(--fundoEscuro, #2d3748); 
-    border: 2px dashed var(--fundoHover, #4a5568);
-    color: var(--textoSecundario, #a0aec0);
-    flex-direction: column; 
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px dashed rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.3);
+    flex-direction: column;
     gap: 10px;
 }
 
 .figurinhasVazia:hover {
-    border-color: var(--corPrimaria, #3b82f6); 
-    color: var(--corPrimaria, #3b82f6);
+    border-color: rgba(255, 255, 255, 0.35);
+    color: rgba(255, 255, 255, 0.6);
 }
 
 .conteudoVazio {
     display: flex;
     flex-direction: column;
     align-items: center;
-    transition: color 0.3s ease;
+    transition: color 0.2s ease;
 }
+
 .iconAdd {
     font-size: 2rem;
 }
+
 .textAdd {
     font-size: 0.9rem;
     font-weight: 500;
 }
 
-/* --- ESTADO 2: Figurinha PREENCHIDA --- */
 .figurinhasPreenchida {
     background-color: transparent;
     border: none;
@@ -136,39 +155,34 @@
 .imgPreview {
     width: 100%;
     height: 100%;
-    object-fit: cover; 
-    transition: transform 0.5s ease; 
+    object-fit: cover;
+    transition: transform 0.4s ease;
 }
 
 .figurinhasPreenchida:hover .imgPreview {
-    transform: scale(1.1);
+    transform: scale(1.08);
 }
-
 
 .figurinhas input[type="file"] {
     position: absolute;
-    inset: 0; 
+    inset: 0;
     opacity: 0;
     cursor: pointer;
-    z-index: 10; 
+    z-index: 10;
 }
-
-
 
 @media (max-width: 768px) {
     .containerFigurinhas {
-
         grid-template-columns: repeat(2, 1fr);
     }
 }
 
 @media (max-width: 480px) {
     .containerFigurinhas {
-
         grid-template-columns: repeat(1, 1fr);
     }
-    .figurinhas {
 
-        aspect-ratio: 4 / 3; 
+    .figurinhas {
+        aspect-ratio: 4 / 3;
     }
 }

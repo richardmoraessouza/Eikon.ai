@@ -21,6 +21,7 @@ interface AuthContextType {
     loading: boolean;
     login: (userData: UserData) => void;
     logout: () => void;
+    updateProfile: (profileData: { nome?: string; foto_perfil?: string; descricao?: string }) => void;
 }
 
 // Inicializamos o contexto com valores nulos e funções vazias
@@ -34,6 +35,7 @@ const initialContextValue: AuthContextType = {
     loading: true,
     login: () => {},
     logout: () => {},
+    updateProfile: () => {},
 };
 
 // --- CRIAÇÃO DO CONTEXTO ---
@@ -108,6 +110,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         window.location.href = '/';
     };
 
+    // --- Função para atualizar perfil ---
+    const updateProfile = (profileData: { nome?: string; foto_perfil?: string; descricao?: string }) => {
+        if (profileData.nome) {
+            setUsuario(profileData.nome);
+            localStorage.setItem('usuario_nome', profileData.nome);
+        }
+        if (profileData.foto_perfil) {
+            setFotoPerfil(profileData.foto_perfil);
+            localStorage.setItem('usuario_foto', profileData.foto_perfil);
+        }
+        if (profileData.descricao !== undefined) {
+            setDescricao(profileData.descricao);
+            localStorage.setItem('usuario_descricao', profileData.descricao);
+        }
+    };
+
     const contextValue: AuthContextType = {
         usuario,
         usuarioId,
@@ -118,6 +136,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         loading,
         login,
         logout,
+        updateProfile,
     };
 
     return (

@@ -5,7 +5,7 @@ import { useSocial } from "../../hooks/useSocial/useSocial";
 import type { Character } from "../../types/characters/characters";
 import styles from "./CardExplore.module.css";
 import { FiTrendingUp, FiMessageSquare, FiHeart } from "react-icons/fi";
-import { searchCreatorName } from "../../services/users/userService";
+import { searchCreatorNameService } from "../../services/users/userService";
 
 const CardExplore = () => {
   const navigate = useNavigate();
@@ -25,7 +25,7 @@ const CardExplore = () => {
           if (character.nome_criador) {
             namesMap[character.id] = character.nome_criador;
           } else if (character.usuario_id) {
-            const creator = await searchCreatorName(character.usuario_id);
+            const creator = await searchCreatorNameService(character.usuario_id);
             namesMap[character.id] = creator.nome;
           } else {
             namesMap[character.id] = "Desconhecido";

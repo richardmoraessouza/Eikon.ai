@@ -3,6 +3,7 @@ import styles from './Menu.module.css';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/AuthContext/AuthContext';
 import { buscarPersonagensRecentes } from '../../services/personagemService';
+import SettingsModal from '../SettingsModal/SettingsModal';
 
 interface MenuProps {
     setPersonId?: React.Dispatch<React.SetStateAction<number>>;
@@ -14,6 +15,7 @@ function Menu({ setPersonId, onMenuToggle }: MenuProps) {
     const [recentes, setRecentes] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
     const location = useLocation();
+    const [settingsModalOpen, setSettingsModalOpen] = useState(false);
     const [abrirConta, setAbrirConta] = useState<boolean>(false);
     const [modalOpen, setModaOpen] = useState<boolean>(true);
     const [procurarPersonagem, setProcurarPersonagem] = useState<string>('');
@@ -103,6 +105,8 @@ function Menu({ setPersonId, onMenuToggle }: MenuProps) {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
             </button>
+            
+            <SettingsModal isOpen={settingsModalOpen} onClose={() => setSettingsModalOpen(false)} />
 
             {modalOpen && (
                 <aside ref={modalRef} className={`fixed top-0 left-0 p-4 ${styles.menu}`}>
@@ -224,6 +228,13 @@ function Menu({ setPersonId, onMenuToggle }: MenuProps) {
                                     {estaLogado ? (
                                         <>
                                             <li><Link to={`/perfil/${usuarioId}`} onClick={closeMenuOnMobile}><i className="fa-solid fa-user"></i> Perfil</Link></li>
+                                            <hr className={styles.separacaoConta} />
+
+                                            <li><button onClick={() => setSettingsModalOpen(true)} className="cursor-pointer">
+                                                <i className="fa-solid fa-gear"></i> Configurações
+                                            </button>
+                                            </li>
+                                            
                                             <hr className={styles.separacaoConta} />
                                             <li onClick={() => {
                                                 sairDaConta();

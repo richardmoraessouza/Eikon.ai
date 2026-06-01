@@ -1,21 +1,21 @@
-import { useEffect, useState } from "react";
-import type { creatorName } from "../../types/users/users";
-import { searchCreatorName } from "../../services/users/userService";
+import { useEffect, useState, useCallback } from "react";
+import type { User } from "../../types/users/users";
+import { searchCreatorNameService, updateUserService } from "../../services/users/userService";
 
-export function useUsers(usuarioId: number) {
-    const [users, setUsers] = useState<creatorName[]>([]);
+export function useUsers(usuarioId: number | null) {
+    const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    // search for the name of the character's creator
+    // Busca os dados do criador do personagem
     useEffect(() => {
-        if (!usuarioId) return;
+        if (usuarioId === null || usuarioId === undefined) return;
         
         async function loadNameUser() {
             setLoading(true);
             setError(null);
             try {
-                const data = await searchCreatorName(usuarioId); // Usa o parâmetro
+                const data = await searchCreatorNameService(usuarioId);
                 setUsers([data]);
             } catch (err: any) {
                 console.error('Error loading name user:', err);
@@ -27,6 +27,10 @@ export function useUsers(usuarioId: number) {
 
         loadNameUser();
     }, [usuarioId]);
- 
-    return { users, loading, error };
+
+    const updateCharacter = useCallback(async (id: number, token: string, userData: { nome: string; foto_perfil?: string; descricao?: string }) => {
+        return await updateUserService(id, token, userData);
+    }, []);
+
+    return { users, loading, error, updateCharacter };
 }

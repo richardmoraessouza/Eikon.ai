@@ -47,6 +47,7 @@ export async function incrementChatViews(personagemId: number, token: string): P
     }
 }
 
+// update character
 export async function updateCharacterService(personagemId: number, payload: any, token: string): Promise<Character> {
     const res = await axios.put(
         `${API_URL}/character/update-character/${personagemId}`, 
@@ -56,6 +57,7 @@ export async function updateCharacterService(personagemId: number, payload: any,
     return res.data;
 }
 
+// create character
 export async function createCharacterService(usuarioId: number, payload: any, token: string): Promise<Character> {
     const res = await axios.post(
         `${API_URL}/character/create-character/${usuarioId}`, 

@@ -4,7 +4,6 @@ import axios from 'axios';
 import { useAuth } from '../../hooks/AuthContext/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import ModalSeguidores from '../../components/ModalSeguidores/ModalSeguidores';
-import { converterBase64 } from '../../utils/CorverteImagem/corverteImagem';
 import { API_URL } from "../../config/api";
 import TapsPerfil from '../../components/TapsPerfil/TapsPerfil';
 
@@ -49,8 +48,7 @@ function Perfil() {
     const [seguindo, setSeguindo] = useState<Seguindor[]>([]);
 
     const [abrirSeguidores, setAbrirSeguidores] = useState<boolean>(false);
-    const [abrirSeguindo, setAbrirSeguindo] = useState<boolean>(false);
-    const [modalDefinicoes, setModalDefinicoes] = useState<boolean>(false); 
+    const [abrirSeguindo, setAbrirSeguindo] = useState<boolean>(false); 
     
     function abrirModalSeguidores() {
         setAbrirSeguidores(prev => !prev);
@@ -58,10 +56,6 @@ function Perfil() {
 
     function abrirModalSeguindo() {
         setAbrirSeguindo(prev => !prev);
-    }
-
-    function definicoes() {
-        setModalDefinicoes(prev => !prev);
     }
 
     useEffect(() => {
@@ -160,8 +154,6 @@ function Perfil() {
                 setNovoNome(dados.nome);
                 setImgPerfil(dados.foto_perfil || null);
                 setDescricao(dados.descricao || '');
-
-                setModalDefinicoes(false);
             } else {
                 setErro(res.data.error || "Erro ao atualizar perfil.");
             }
@@ -210,12 +202,7 @@ function Perfil() {
                     )}
                 </div>
 
-                <button
-                    className={`mt-4 px-4 py-2 rounded-lg hover:bg-gray-700 transition cursor-pointer ${styles.definicoesPerfil}`}
-                    onClick={definicoes}
-                >
-                    <i className="fa-solid fa-pen"></i> Editar Perfil
-                </button>
+
 
                 <div className={styles.descricao}>
                     {descricao ? <p>{descricao}</p> : <p>{nomeAtualContexto} ainda não tem uma descrição</p>}
@@ -224,69 +211,6 @@ function Perfil() {
         </section>
 
         <TapsPerfil />
-
-        {modalDefinicoes && (
-            <section className={`${styles.editarPerfil}`}>
-                <button 
-                    className="absolute top-3.5 right-3 bg-gray-800 hover:bg-gray-900 rounded-full min-w-[2rem] min-h-[2rem] cursor-pointer"
-                    onClick={definicoes}
-                >
-                    <i className="fa-solid fa-xmark"></i>
-                </button>
-
-                <form className="flex flex-col gap-5" onSubmit={handleSubmit}>
-                    <div className={`flex flex-col justify-center items-center ${styles.containerFoto}`}>
-                        <div className="relative">
-                            <img src={imgPerfil || '/image/semPerfil.jpg'} alt="Foto Perfil" className="w-28 h-28 rounded-full object-cover"/>
-                            <div className="absolute bottom-0 right-1 bg-gray-900 w-9 h-9 text-xl rounded-full flex justify-center items-center">
-                                <label htmlFor="foto" title="Alterar foto">
-                                    <i className="fa-solid fa-pen cursor-pointer"></i>
-                                </label>
-                                <input id="foto" type="file" accept="image/*" onChange={(e) => converterBase64(e, setImgPerfil)} className="hidden"/>
-                            </div>
-                        </div>
-                        <p className="text-red-500">{erro}</p>
-                    </div>
-
-                    <div className="flex flex-col gap-2">
-                        <label htmlFor="nome">Nome</label>
-                        <input
-                            type="text"
-                            id="nome"
-                            placeholder="Nome"
-                            value={novoNome}
-                            maxLength={20}
-                            minLength={2}
-                            onChange={e => {
-                                const valor = e.target.value;
-                                const filtrado = valor.replace(/[^A-Za-zÀ-ú0-9 ]/g, '');
-                                setNovoNome(filtrado);
-                            }}
-                        />
-                        <p className="text-gray-400 text-sm flex justify-end">{novoNome.length}/20 caracteres</p>
-                    </div>
-
-                    <div className="flex flex-col gap-2">
-                        <label htmlFor="descricao">Descrição</label>
-                        <textarea
-                            id="descricao"
-                            placeholder="Descrição"
-                            className={styles.editarDescricao}
-                            value={descricao}
-                            onChange={e => setDescricao(e.target.value)}
-                            maxLength={1000}
-                        ></textarea>
-                        <p className="text-gray-400 text-sm flex justify-end">{descricao.length}/1000 caracteres</p>
-                    </div>
-
-                    <input
-                        type="submit"
-                        value="Salvar"
-                        className="bg-blue-500 border rounded-lg py-2 cursor-pointer hover:bg-blue-600 transition"
-                    />
-                </form>
-            </section>
-        )}
     </main>
     );
 }

@@ -5,7 +5,7 @@ import { useSocial } from "../../hooks/useSocial/useSocial";
 import type { PopularCharacter } from "../../types/discovery";
 import styles from "./PopularWeek.module.css";
 import { FiTrendingUp, FiMessageSquare, FiChevronLeft, FiChevronRight, FiHeart } from "react-icons/fi";
-import { searchCreatorName } from "../../services/users/userService";
+import { searchCreatorNameService } from "../../services/users/userService";
 
 const RANK_COLORS = ["#f59e0b", "#9ca3af", "#cd7c2f"];
 
@@ -57,7 +57,7 @@ const PopularWeek = () => {
       
       for (const character of characters) {
         try {
-          const creator = await searchCreatorName(character.usuario_id);
+          const creator = await searchCreatorNameService(character.usuario_id);
           namesMap[character.usuario_id] = creator.nome;
         } catch (err) {
           console.error(`Erro ao buscar nome do criador ${character.usuario_id}:`, err);

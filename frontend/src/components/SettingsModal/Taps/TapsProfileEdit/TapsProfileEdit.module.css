@@ -1,0 +1,69 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.container div > input {
+    width: 100%;
+    height: 48px;
+    background-color: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding-left: 14px;
+    color: inherit;
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+    transition: border-color 0.2s;
+}
+
+
+.container div > input::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+}
+
+.container div > input:focus {
+    border-color: rgba(255, 255, 255, 0.35);
+    outline: none;
+}
+
+.container div > textarea {
+    width: 100%;
+    background-color: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 12px 14px;
+    height: 100px;
+    color: inherit;
+    font-size: 0.9rem;
+    resize: vertical;
+    transition: border-color 0.2s;
+
+    overflow-y: auto;      
+    scrollbar-width: none;
+}
+
+.container div > textarea::-webkit-scrollbar {
+    display: none; /* Chrome, Edge e Safari */
+}
+
+.containerCriacaoPerson div > textarea::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+}
+
+.containerCriacaoPerson div > textarea:focus {
+    border-color: rgba(255, 255, 255, 0.35);
+    outline: none;
+}
+
+.button {
+  display: inline-flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+  border: none;
+  font-size: 14px;
+  width: fit-content;
+  padding: 10px 16px;
+  margin-left: auto;
+}

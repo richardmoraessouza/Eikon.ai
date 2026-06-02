@@ -160,14 +160,13 @@ function App() {
       );
 
       // 2. Registra o personagem nos Recentes do usuário
-     // 2. Registra o personagem nos Recentes do usuário
       if (usuarioId && personagemId) {
-        await recentCharacters(Number(usuarioId), Number(personagemId));
+        await recentCharacters(Number(usuarioId), Number(personagemId), token ?? undefined);
       }
 
       // 3. Executa o incremento de views passando o token necessário
       if (personagemId && token) {
-        await incrementChatViews(personagemId, token); 
+        await incrementChatViews(personagemId, token ?? undefined); 
       }
 
       // 3. Adiciona a resposta da IA na tela

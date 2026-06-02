@@ -281,7 +281,7 @@ function CharacterCard({ type, abaAtiva, usuarioId: externalUsuarioId }: Charact
       setLoading(true);
       
       // Busca personagens visualizados recentemente
-      buscarPersonagensRecentes(usuarioIdFinal)
+      buscarPersonagensRecentes(usuarioIdFinal, token ?? undefined)
         .then(async (data) => {
           // Garante que é um array
           const recentesData = Array.isArray(data) ? data : [];
@@ -380,7 +380,7 @@ function CharacterCard({ type, abaAtiva, usuarioId: externalUsuarioId }: Charact
       // ========== ENVIAR REQUISIÇÃO AO BACKEND ==========
       // 🔒 SEGURANÇA: Sempre usa loggedUsuarioId (JWT user), nunca usuarioIdFinal
       // O backend ignora URL parameters, confia apenas no JWT
-      await toggleFavorito(loggedUsuarioId, p.id, token);
+      await toggleFavorito(loggedUsuarioId, p.id, token ?? undefined);
       
       // ========== NOTIFICAR OUTROS COMPONENTES ==========
       // Seta um marcador no localStorage para triggerar listeners em outros componentes
@@ -490,7 +490,7 @@ function CharacterCard({ type, abaAtiva, usuarioId: externalUsuarioId }: Charact
       // ========== ENVIAR REQUISIÇÃO AO BACKEND ==========
       // 🔒 SEGURANÇA: Usar loggedUsuarioId (JWT user), NUNCA usuarioIdFinal
       // O backend extrai o usuário do JWT, ignora URL parameters
-      await toggleLike(loggedUsuarioId, personagemId, token);
+      await toggleLike(loggedUsuarioId, personagemId, token ?? undefined);
       
       // Se chegou aqui, o backend confirmou - UI está correta
     } catch (err: any) {

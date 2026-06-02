@@ -52,11 +52,11 @@ function Menu({ setPersonId, onMenuToggle }: MenuProps) {
         }
     }
 
-    // Recarregar personagens recentesquando usuário faz login ou logout
+    // Recarregar personagens recentes quando usuário faz login ou logout
     useEffect(() => {
         if (estaLogado && usuarioId && token) {
             setLoading(true);
-            buscarPersonagensRecentes(usuarioId)
+            buscarPersonagensRecentes(usuarioId, token)
                 .then((recentes) => {
                     setRecentes(recentes || []);
                 })

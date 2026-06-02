@@ -95,12 +95,29 @@ function CriacaoPersonagem() {
         }
 
         try {
-            const payload = {
-                nome, bio, descricao, fotoia, personalidade, regras, historia, tipo_personagem,
-                ...(isFiccional
-                    ? { obra }
-                    : { genero, comportamento, estilo }),
+            const payload: any = {
+                nome, 
+                bio, 
+                descricao, 
+                personalidade, 
+                regras, 
+                historia, 
+                tipo_personagem,
             };
+
+            // Só inclui fotoia se tiver valor
+            if (fotoia && fotoia.trim()) {
+                payload.fotoia = fotoia;
+            }
+
+            // Adiciona campos específicos por tipo
+            if (isFiccional) {
+                payload.obra = obra;
+            } else {
+                payload.genero = genero;
+                payload.comportamento = comportamento;
+                payload.estilo = estilo;
+            }
 
             if (modoEdicao) {
                 await updateCharacter(id, payload, token);
@@ -110,7 +127,15 @@ function CriacaoPersonagem() {
 
             navigate(`/perfil/${usuarioId}`);
         } catch (err: any) {
-            setErro(err.response?.data?.details || "Erro ao salvar.");
+            // Se houver detalhes de validação, extrai as mensagens
+            const details = err.response?.data?.details;
+            if (Array.isArray(details) && details.length > 0) {
+                const messages = details.map((d: any) => d.message || d).join('; ');
+                setErro(messages);
+            } else {
+                // Caso contrário, usa a mensagem de erro padrão
+                setErro(err.response?.data?.error || err.message || "Erro ao salvar.");
+            }
         } finally {
             setIsSubmitting(false);
         }

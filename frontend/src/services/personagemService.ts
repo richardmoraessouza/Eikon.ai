@@ -49,9 +49,10 @@ export async function buscarDadosPersonagem(personagemId: number) {
   return res.data;
 }
 
-export async function recentCharacters(usuarioId: number, personagemId: number) {
+export async function recentCharacters(usuarioId: number, personagemId: number, token?: string) {
   try {
-    const res = await axios.post(`${API_URL}/character/recent-characters/${usuarioId}/${personagemId}`);
+    const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
+    const res = await axios.post(`${API_URL}/character/recent-characters/${usuarioId}/${personagemId}`, {}, config);
     return res.data;
 
   } catch (err: any) {
@@ -60,11 +61,12 @@ export async function recentCharacters(usuarioId: number, personagemId: number) 
   }
 }
 
-export async function buscarPersonagensRecentes(usuarioId: number) {
+export async function buscarPersonagensRecentes(usuarioId: number, token?: string) {
   const url = `${API_URL}/character/get-recent-characters/${usuarioId}`;
   
   try {
-    const res = await axios.get(url);
+    const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
+    const res = await axios.get(url, config);
     return res.data;
   } catch (err: any) {
     console.error('[buscarPersonagensRecentes] Erro na URL:', url, err);

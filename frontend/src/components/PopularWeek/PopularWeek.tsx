@@ -6,8 +6,7 @@ import type { PopularCharacter } from "../../types/discovery";
 import styles from "./PopularWeek.module.css";
 import { FiTrendingUp, FiMessageSquare, FiChevronLeft, FiChevronRight, FiHeart } from "react-icons/fi";
 import { searchCreatorNameService } from "../../services/users/userService";
-
-const RANK_COLORS = ["#f59e0b", "#9ca3af", "#cd7c2f"];
+import { RankBadge } from "../RankBadges/RankBadges";
 
 const PopularWeek = () => {
   const navigate = useNavigate();
@@ -29,81 +28,51 @@ const PopularWeek = () => {
     setScrollLeft(trackRef.current.scrollLeft);
   };
 
-  const handleMouseLeave = () => {
-    setIsDragging(false);
-  };
-
-  const handleMouseUp = () => {
-    setIsDragging(false);
-  };
+  const handleMouseLeave = () => setIsDragging(false);
+  const handleMouseUp = () => setIsDragging(false);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!isDragging || !trackRef.current) return;
     e.preventDefault();
     const x = e.pageX - trackRef.current.offsetLeft;
-    const walk = (x - startX);
-    
-    if (Math.abs(walk) > 3) {
-      setHasDragged(true);
-    }
-    
+    const walk = x - startX;
+    if (Math.abs(walk) > 3) setHasDragged(true);
     trackRef.current.scrollLeft = scrollLeft - walk;
   };
 
-  // search for the name of the character's creator
   useEffect(() => {
     async function loadCreatorNames() {
       const namesMap: Record<number, string> = {};
-      
       for (const character of characters) {
         try {
           const creator = await searchCreatorNameService(character.usuario_id);
           namesMap[character.usuario_id] = creator.nome;
-        } catch (err) {
-          console.error(`Erro ao buscar nome do criador ${character.usuario_id}:`, err);
+        } catch {
           namesMap[character.usuario_id] = "Desconhecido";
         }
       }
-      
       setCreatorNames(namesMap);
     }
-
-    if (characters.length > 0) {
-      loadCreatorNames();
-    }
+    if (characters.length > 0) loadCreatorNames();
   }, [characters]);
 
   useEffect(() => {
     async function loadLikesCount() {
       const likesMap: Record<number, number> = {};
-
       for (const character of characters) {
         const total = await getQuantityLikes(character.id);
         likesMap[character.id] = total;
       }
-
       setLikesCount(likesMap);
     }
-
-    if (characters.length > 0) {
-      loadLikesCount();
-    }
+    if (characters.length > 0) loadLikesCount();
   }, [characters]);
 
-  const handleLikeClick = async (
-    e: React.MouseEvent<SVGElement>,
-    characterId: number
-  ) => {
+  const handleLikeClick = async (e: React.MouseEvent<SVGElement>, characterId: number) => {
     e.stopPropagation();
-
     await handleToggleLike(characterId);
-
     const updatedTotal = await getQuantityLikes(characterId);
-
-    setLikesCount(prev => ({
-      ...prev,
-      [characterId]: updatedTotal
-    }));
+    setLikesCount(prev => ({ ...prev, [characterId]: updatedTotal }));
   };
 
   const scroll = (dir: "left" | "right") => {
@@ -112,9 +81,7 @@ const PopularWeek = () => {
   };
 
   const handleCharacterClick = (characterId: number) => {
-    if (!hasDragged) {
-      navigate(`/personagem/${characterId}`);
-    }
+    if (!hasDragged) navigate(`/personagem/${characterId}`);
   };
 
   if (error) return (
@@ -148,16 +115,15 @@ const PopularWeek = () => {
       </div>
 
       <div className={styles.carouselWrapper}>
-
-         <button onClick={() => scroll("left")} className={`${styles.navBtn} ${styles.navLeft}`} aria-label="Anterior">
+        <button onClick={() => scroll("left")} className={`${styles.navBtn} ${styles.navLeft}`} aria-label="Anterior">
           <FiChevronLeft size={16} />
         </button>
         <button onClick={() => scroll("right")} className={`${styles.navBtn} ${styles.navRight}`} aria-label="Próximo">
           <FiChevronRight size={16} />
         </button>
 
-        <div 
-          className={styles.carouselTrack} 
+        <div
+          className={styles.carouselTrack}
           ref={trackRef}
           onMouseDown={handleMouseDown}
           onMouseLeave={handleMouseLeave}
@@ -170,13 +136,8 @@ const PopularWeek = () => {
               className={styles.card}
               onClick={() => handleCharacterClick(character.id)}
             >
-                <span
-                  className={styles.rankBadge}
-                  style={{ background: RANK_COLORS[index] ?? "#6b7280" }}
-                >
-                  #{index + 1}
-                </span>
               <div className={styles.imageWrapper}>
+                <RankBadge index={index} />
                 <img
                   src={character.fotoia || "/image/semPerfil.jpg"}
                   alt={character.nome}
@@ -188,30 +149,27 @@ const PopularWeek = () => {
 
               <div className={styles.info}>
                 <p className={styles.name}>{character.nome}</p>
-
-                {character.bio && (
-                  <p className={styles.bio}>{character.bio}</p>
-                )}
+                {character.bio && <p className={styles.bio}>{character.bio}</p>}
               </div>
 
-                <div className={styles.stats}>
-                  <div className={styles.stat}>
-                    <FiHeart
-                      size={12}
-                      onClick={(e) => handleLikeClick(e, character.id)}
-                      style={{
-                        cursor: 'pointer',
-                        color: isLiked(character.id) ? '#ef4444' : 'currentColor',
-                        fill: isLiked(character.id) ? '#ef4444' : 'none',
-                        transition: 'all 0.2s'
-                      }}
-                    />
-                    <span>{likesCount[character.id] ?? 0}</span>
-                  </div>
-                  <div className={styles.stat}>
-                    <FiMessageSquare size={12} />
-                    <span>{character.visualizacoes}</span>
-                  </div>
+              <div className={styles.stats}>
+                <div className={styles.stat}>
+                  <FiHeart
+                    size={12}
+                    onClick={(e) => handleLikeClick(e, character.id)}
+                    style={{
+                      cursor: "pointer",
+                      color: isLiked(character.id) ? "#ef4444" : "currentColor",
+                      fill: isLiked(character.id) ? "#ef4444" : "none",
+                      transition: "all 0.2s",
+                    }}
+                  />
+                  <span>{likesCount[character.id] ?? 0}</span>
+                </div>
+                <div className={styles.stat}>
+                  <FiMessageSquare size={12} />
+                  <span>{character.visualizacoes}</span>
+                </div>
               </div>
 
               <p className={styles.author}>@{creatorNames[character.usuario_id] || "Desconhecido"}</p>

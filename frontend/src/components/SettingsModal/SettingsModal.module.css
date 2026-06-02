@@ -1,35 +1,207 @@
-/* Fundo do modal com o tom cinza bem escuro fosco */
+/* ===== MODAL CONTAINER ===== */
 .modalContainer {
-  background-color: #121214;
-  border: 1px solid #27272a;
+  position: fixed;
+  width: 95%;
+  max-width: 900px;
+  background-color: var(--settings-bg, #121214);
+  border: 1px solid var(--settings-border, #27272a);
+  color: var(--settings-text, #e4e4e7);
+  z-index: 99999;
 }
 
-/* Sidebar levemente mais escura ou diferenciada */
+.subNav {
+  margin-top: 1px;
+}
+
+/* ===== SIDEBAR ===== */
 .sidebar {
-  background-color: #1c1c1e;
+  background-color: var(--settings-sidebar-bg, #1c1c1e);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 24px 16px;
+  border-right: 1px solid var(--settings-border, #27272a);
+  width: 200px;
+  min-width: 200px;
+  flex-shrink: 0;
+  overflow-y: auto;
 }
 
-/* Botões de navegação lateral padrão */
+.containerBtn {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+
+/* ===== NAV BUTTONS ===== */
 .navButton {
   width: 100%;
   text-align: left;
-  padding: 12px 16px;
-  border-radius: 12px;
-  font-size: 0.95rem;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 0.9rem;
   font-weight: 500;
-  color: #a1a1aa;
+  color: var(--settings-text-muted, #a1a1aa);
   cursor: pointer;
-  transition: all 0.2s ease-in-out;
+  transition: all 0.15s ease-in-out;
+  background: transparent;
+  border: none;
+  white-space: nowrap;
 }
 
-/* Efeito hover nos botões da sidebar */
 .navButton:hover {
-  background-color: rgba(255, 255, 255, 0.05);
-  color: #ffffff;
+  background-color: var(--settings-hover, rgba(255, 255, 255, 0.05));
+  color: var(--settings-text, #ffffff);
 }
 
-/* Estado ATIVO (Selecionado) igual ao do print (fundo cinza médio e texto branco) */
 .navButton.active {
-  background-color: #2d2d30;
-  color: #ffffff;
+  background-color: var(--settings-active, #2d2d30);
+  color: var(--settings-text, #ffffff);
+}
+
+/* ===== CONTENT AREA ===== */
+.content {
+  flex: 1;
+  padding: 32px;
+  background-color: var(--settings-content-bg, #18181b);
+  overflow-y: auto;
+  min-width: 0;
+}
+
+/* ===== MOBILE: TAB BAR NO TOPO ===== */
+.tabBar {
+  display: none;
+  width: 100%;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--settings-border, #27272a);
+  background-color: var(--settings-sidebar-bg, #1c1c1e);
+  flex-shrink: 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--settings-hover, #3f3f46) var(--settings-sidebar-bg, #1c1c1e);
+}
+
+.tabBar::-webkit-scrollbar {
+  height: 8px;
+}
+
+.tabBar::-webkit-scrollbar-track {
+  background: var(--settings-sidebar-bg, #1c1c1e);
+}
+
+.tabBar::-webkit-scrollbar-thumb {
+  background: var(--settings-hover, #3f3f46);
+  border-radius: 4px;
+  border: 2px solid var(--settings-sidebar-bg, #1c1c1e);
+}
+
+.tabBar::-webkit-scrollbar-thumb:hover {
+  background: var(--settings-active, #2d2d30);
+}
+
+.tabBarInner {
+  display: flex;
+  flex-direction: row;
+  padding: 0 12px;
+  gap: 4px;
+  min-width: max-content;
+  white-space: nowrap;
+}
+
+.tabButton {
+  padding: 12px 16px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--settings-text-muted, #a1a1aa);
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.tabButton:hover {
+  color: var(--settings-text, #ffffff);
+}
+
+.tabButton.active {
+  color: var(--settings-text, #ffffff);
+  border-bottom-color: var(--settings-accent, #ffffff);
+}
+
+/* ===== CLOSE BUTTON ===== */
+.closeBtn {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  color: var(--settings-text-muted, #a1a1aa);
+  background: transparent;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: color 0.15s;
+  z-index: 10;
+  line-height: 1;
+  padding: 4px;
+  border-radius: 6px;
+}
+
+.closeBtn:hover {
+  color: var(--settings-text, #ffffff);
+  background-color: var(--settings-hover, rgba(255,255,255,0.05));
+}
+
+/* ===== RESPONSIVE: MOBILE (< 600px) ===== */
+@media (max-width: 600px) {
+  .modalContainer {
+    width: 90%;
+    height: 90dvh !important;
+    max-height: 100dvh !important;
+    border-radius: 0 !important;
+    flex-direction: column !important;
+  }
+
+  /* Esconde sidebar lateral */
+  .sidebar {
+    display: none;
+  }
+
+  /* Mostra tab bar no topo */
+  .tabBar {
+    display: flex;
+    padding-right: 20px;
+  }
+
+  .tabBarInner {
+    padding-right: 20px;
+  }
+
+  .content {
+    padding: 20px 16px;
+  }
+}
+
+/* ===== RESPONSIVE: TABLET (600px - 768px) ===== */
+@media (min-width: 601px) and (max-width: 768px) {
+  .modalContainer {
+    width: 96%;
+    height: 90dvh !important;
+    max-height: 90dvh !important;
+  }
+
+  .sidebar {
+    width: 160px;
+    min-width: 160px;
+    padding: 20px 12px;
+  }
+
+  .navButton {
+    font-size: 0.85rem;
+    padding: 9px 12px;
+  }
+
+  .content {
+    padding: 24px 20px;
+  }
 }

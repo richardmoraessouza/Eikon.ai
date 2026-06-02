@@ -3,6 +3,7 @@ import styles from './CampoDePesquisar.module.css';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { API_URL } from '../../config/api';
+import { FiSearch } from 'react-icons/fi';
 
 interface CampoDePesquisarProps {
   onSearch?: (resultados: any[]) => void;
@@ -77,9 +78,7 @@ function CampoDePesquisar({ onSearch, onSearchStart }: CampoDePesquisarProps) {
                   className={`${styles.botaoPesquisar}`}
                   disabled={isLoading}
                 >
-
-                <i className="fa-solid fa-magnifying-glass"></i>
-             
+                  <FiSearch />
                 </button>
             </div>
         </form>

@@ -14,7 +14,7 @@ body {
   color: #fff;
   font-family: 'Inter', sans-serif;
   height: 100dvh;
-  background-color: var(--fundoEscuro);
+  background-color: var(--bg-main);
 }
 
 

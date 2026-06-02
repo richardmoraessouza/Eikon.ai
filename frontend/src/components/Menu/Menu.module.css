@@ -5,7 +5,7 @@
     z-index: 999;
     padding: 20px 16px 16px 16px;
     border-right: 1px solid rgba(255, 255, 255, 0.08);
-    background-color: var(--fundoClaro);
+    background-color: var(--light-background);
     display: flex;
     flex-direction: column;
     gap: 16px;
@@ -36,7 +36,7 @@
 
 .subTitulo {
     font-size: 11px;
-    color: rgba(148, 163, 184, 0.7);
+    color: var(--menu-caption);
     padding: 12px 8px 8px 8px;
     text-transform: uppercase;
     letter-spacing: 1px;
@@ -54,20 +54,17 @@
     padding: 0;
     cursor: pointer;
     border-radius: 10px;
+    color: var(--text-main);
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    background: rgba(15, 23, 42, 0.8);
-    color: rgba(226, 232, 240, 0.8);
     transition: all 0.3s ease;
     backdrop-filter: blur(8px);
 }
 
 .btnMenu:hover {
-    background: rgba(30, 41, 59, 0.9);
-    border-color: rgba(255, 255, 255, 0.2);
-    color: rgba(226, 232, 240, 1);
+    background-color: var(--menu-hover);
+    transform: scale(1.05);
 }
 
 .btnMenu svg {
@@ -77,7 +74,7 @@
 
 .nomePersonagem {
     font-size: 13px;
-    color: rgba(226, 232, 240, 0.85);
+    color: var(--text-main);
     font-weight: 500;
 }
 
@@ -104,7 +101,7 @@
     transition: all 0.25s ease;
     border-radius: 8px;
     cursor: pointer;
-    color: rgba(226, 232, 240, 0.8);
+    color: var(--text-main);
     text-decoration: none;
     border: none;
     background: transparent;
@@ -113,8 +110,7 @@
 
 .menuItems a:hover,
 .menuItems button:hover {
-    background-color: rgba(226, 232, 240, 0.08);
-    color: rgba(226, 232, 240, 1);
+    background-color: var(--menu-hover);
 }
 
 .menuItems i {
@@ -171,14 +167,13 @@
     gap: 10px;
     padding: 8px 10px;
     border-radius: 8px;
-    color: rgba(226, 232, 240, 0.8);
     text-decoration: none;
     transition: all 0.25s ease;
 }
 
 .containerPerson a:hover {
-    background-color: rgba(226, 232, 240, 0.08);
-    color: rgba(226, 232, 240, 1);
+    background-color: var(--menu-hover);
+    color: var(--text-main);
 }
 
 .containerPerson img {
@@ -220,7 +215,7 @@
     left: 12px;
     top: 50%;
     transform: translateY(-50%);
-    color: rgba(148, 163, 184, 0.6);
+    color: var(--text-main);
     font-size: 14px;
 }
 
@@ -228,23 +223,23 @@
     width: 100%;
     height: 38px;
     padding: 0 14px 0 38px;
-    background: rgba(226, 232, 240, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
     border-radius: 8px;
-    color: rgba(226, 232, 240, 0.9);
+    color: var(--text-main);
     font-size: 13px;
     outline: none;
     transition: all 0.3s ease;
 }
 
 .inputProcurar::placeholder {
-    color: rgba(148, 163, 184, 0.5);
+    color: var(--input-placeholder);
 }
 
 .inputProcurar:focus {
-    background: rgba(226, 232, 240, 0.08);
-    border-color: rgba(226, 232, 240, 0.2);
-    box-shadow: 0 0 0 3px rgba(226, 232, 240, 0.05);
+    background: var(--input-focus-bg);
+    border-color: var(--input-focus-border);
+    box-shadow: var(--input-focus-shadow);
 }
 
 .person {
@@ -272,7 +267,7 @@
 
 .person p {
     margin: 0;
-    color: rgba(226, 232, 240, 0.9);
+    color: var(--text-main);
     font-size: 13px;
     font-weight: 500;
 }
@@ -280,7 +275,7 @@
 .containerConta {
     background-color: transparent;
     padding: 0;
-    background-color: var(--fundoClaro); 
+    background-color: var(--light-background); 
 }
 
 .items {
@@ -292,20 +287,8 @@
 }
 
 .items li {
-    padding: 10px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    color: rgba(226, 232, 240, 0.8);
-    transition: all 0.25s ease;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 13px;
-}
-
-.items li:hover {
-    background-color: rgba(226, 232, 240, 0.08);
-    color: rgba(226, 232, 240, 1);
+    margin: 0;
+    padding: 0;
 }
 
 .items i {
@@ -342,10 +325,75 @@
     left: 16px;
     right: 16px;
     width: auto;
-    border-radius: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    background-color: var(--light-background);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.items {
+    list-style: none;
+    margin: 0;
     padding: 0;
-    background-color: var(--fundoClaro); 
+    border-radius: 8px;
+}
+
+.navItem {
+    margin: 0;
+    padding: 0;
+}
+
+.navLink {
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--text-main);
+    transition: all 0.25s ease;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+    font-weight: 500;
+    border: none;
+    background: transparent;
+    text-decoration: none;
+    outline: none;
+}
+
+.navLink:hover {
+    background-color: rgba(226, 232, 240, 0.08);
+    color: var(--text-main);
+}
+
+.navLink:active {
+    background-color: rgba(226, 232, 240, 0.12);
+}
+
+.navLink i {
+    font-size: 14px;
+    opacity: 0.7;
+    transition: opacity 0.25s ease;
+}
+
+.navLink:hover i {
+    opacity: 1;
+}
+
+.navLink span {
+    display: flex;
+    align-items: center;
 }
 
 @media (max-width: 768px) {

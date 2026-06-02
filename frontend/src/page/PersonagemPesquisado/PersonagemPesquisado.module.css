@@ -59,11 +59,17 @@
   display: flex;
   gap: 12px;
   padding: 12px;
-  background-color: var(--fundoClaro);
+  background-color: var(--bg-card);
+  border: 1px solid var(--card-border);
   border-radius: 10px;
   align-items: flex-start;
-  box-shadow: 0 1px 0 rgba(255,255,255,0.02) inset;
+  box-shadow: var(--card-shadow);
   cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  border-color: var(--border-color-hover);
 }
 
 .cardImageContainer {
@@ -91,20 +97,20 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  color: #f9fafb;
+  color: var(--text-main);
   font-weight: 600;
   font-size: 16px;
 }
 
 .linkIcon {
-  color: #9ca3af;
+  color: var(--menu-caption);
   font-size: 14px;
   margin-left: 8px;
 }
 
 .cardBio {
   margin-top: 6px;
-  color: #9ca3af;
+  color: var(--menu-caption);
   font-size: 13px;
 }
 
@@ -116,7 +122,7 @@
 }
 
 .creator {
-  color: #9ca3af;
+  color: var(--author-color);
   font-size: 12px;
 }
 
@@ -128,7 +134,7 @@
 .actionBtn {
   background: transparent;
   border: none;
-  color: #9ca3af;
+  color: var(--menu-caption);
   cursor: pointer;
   font-size: 16px;
   padding: 6px;
@@ -136,16 +142,17 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  transition: all 0.3s ease;
 }
 
 .actionBtn:hover {
-  background: rgba(255,255,255,0.03);
-  color: #ffffff;
+  background: var(--menu-hover);
+  color: var(--text-main);
 }
 
 .count {
   font-size: 12px;
-  color: #9ca3af;
+  color: var(--menu-caption);
   margin-left: 6px;
 }
 
@@ -162,18 +169,22 @@
   gap: 6px;
   background: transparent;
   border: none;
-  color: #9ca3af;
+  color: var(--menu-caption);
   cursor: pointer;
   padding: 6px;
   border-radius: 8px;
+  transition: all 0.3s ease;
 }
 
 .likeButton span {
   font-size: 13px;
-  color: #cbd5e1;
+  color: var(--text-main);
 }
 
-.likeButton:hover { background: rgba(255,255,255,0.03); color: #fff }
+.likeButton:hover {
+  background: var(--menu-hover);
+  color: var(--text-main);
+}
 
 .active svg { filter: drop-shadow(0 0 2px rgba(255,75,75,0.2)); }
 
@@ -183,10 +194,16 @@
   gap: 6px;
   background: transparent;
   border: none;
-  color: #9ca3af;
+  color: var(--menu-caption);
   cursor: pointer;
   padding: 6px;
   border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.commentButton:hover {
+  background: var(--menu-hover);
+  color: var(--text-main);
 }
 
 .favorito { background: transparent; border: none; padding: 6px; }
@@ -197,11 +214,16 @@
   align-items: center;
   gap: 8px;
   padding: 8px 12px;
-  background: rgba(255,255,255,0.04);
+  background: var(--accent-color);
   color: #fff;
   border: none;
   border-radius: 8px;
   cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btnConversar:hover {
+  background: var(--accent-hover);
 }
 
 
@@ -214,8 +236,9 @@
 }
 
 .emptyMessage {
-  color: #9ca3af;
-  background: rgba(255,255,255,0.02);
+  color: var(--menu-caption);
+  background: var(--bg-card);
+  border: 1px solid var(--card-border);
   padding: 14px 18px;
   border-radius: 8px;
 }

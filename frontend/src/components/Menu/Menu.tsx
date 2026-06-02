@@ -227,27 +227,45 @@ function Menu({ setPersonId, onMenuToggle }: MenuProps) {
                                 <ul className={styles.items}>
                                     {estaLogado ? (
                                         <>
-                                            <li><Link to={`/perfil/${usuarioId}`} onClick={closeMenuOnMobile}><i className="fa-solid fa-user"></i> Perfil</Link></li>
-                                            <hr className={styles.separacaoConta} />
+                                            <li className={styles.navItem}>
+                                                <Link to={`/perfil/${usuarioId}`} onClick={closeMenuOnMobile} className={styles.navLink}>
+                                                    <i className="fa-solid fa-user"></i> 
+                                                    <span>Perfil</span>
+                                                </Link>
+                                            </li>
 
-                                            <li><button onClick={() => setSettingsModalOpen(true)} className="cursor-pointer">
-                                                <i className="fa-solid fa-gear"></i> Configurações
-                                            </button>
+                                            <li className={styles.navItem}>
+                                                <button onClick={() => setSettingsModalOpen(true)} className={styles.navLink}>
+                                                    <i className="fa-solid fa-gear"></i> 
+                                                    <span>Configurações</span>
+                                                </button>
                                             </li>
                                             
-                                            <hr className={styles.separacaoConta} />
-                                            <li onClick={() => {
-                                                sairDaConta();
-                                                closeMenuOnMobile();
-                                            }} className="cursor-pointer">
-                                                <i className="fa-solid fa-right-from-bracket"></i> Sair
+                                            <li className={styles.navItem}>
+                                                <button onClick={() => {
+                                                    sairDaConta();
+                                                    closeMenuOnMobile();
+                                                }} className={styles.navLink}>
+                                                    <i className="fa-solid fa-right-from-bracket"></i> 
+                                                    <span>Sair</span>
+                                                </button>
                                             </li>
                                         </>
                                     ) : (
                                         <>
-                                            <li><Link to={'/entrar'} onClick={closeMenuOnMobile}><i className="fa-solid fa-right-to-bracket"></i> Entrar</Link></li>
-                                            <hr className={styles.separacaoConta} />
-                                            <li><Link to={'/cadastra'} onClick={closeMenuOnMobile}><i className="fa-solid fa-user-plus"></i> Cadastrar</Link></li>
+                                            <li className={styles.navItem}>
+                                                <Link to={'/entrar'} onClick={closeMenuOnMobile} className={styles.navLink}>
+                                                    <i className="fa-solid fa-right-to-bracket"></i> 
+                                                    <span>Entrar</span>
+                                                </Link>
+                                            </li>
+
+                                            <li className={styles.navItem}>
+                                                <Link to={'/cadastra'} onClick={closeMenuOnMobile} className={styles.navLink}>
+                                                    <i className="fa-solid fa-user-plus"></i> 
+                                                    <span>Cadastrar</span>
+                                                </Link>
+                                            </li>
                                         </>
                                     )}
                                 </ul>

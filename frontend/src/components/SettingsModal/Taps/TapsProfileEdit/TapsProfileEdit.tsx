@@ -110,7 +110,7 @@ const TapsProfileEdit: React.FC = () => {
     };
 
     if (loading) {
-        return <div className="text-zinc-400 text-sm text-center py-6">Carregando dados do servidor...</div>;
+        return <div className="text-sm text-center py-6" style={{ color: 'var(--profile-text-muted)' }}>Carregando dados do servidor...</div>;
     }
 
     return (
@@ -126,8 +126,12 @@ const TapsProfileEdit: React.FC = () => {
                             className="w-28 h-28 rounded-full object-cover"
                         />
                         
-                        <div className="absolute bottom-0 right-1 bg-gray-900 w-9 h-9 rounded-full flex justify-center items-center border border-zinc-700 shadow-lg hover:bg-zinc-800 transition-colors">
-                            <label htmlFor="foto" title="Alterar foto" className="cursor-pointer flex items-center justify-center w-full h-full text-white">
+                        <div className="absolute bottom-0 right-1 w-9 h-9 rounded-full flex justify-center items-center shadow-lg transition-colors" style={{
+                        backgroundColor: 'var(--profile-modal-bg)',
+                        borderColor: 'var(--profile-border)',
+                        borderWidth: '1px'
+                    }} onMouseEnter={(e) => e.currentTarget.style.opacity = '0.8'} onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}>
+                            <label htmlFor="foto" title="Alterar foto" className="cursor-pointer flex items-center justify-center w-full h-full" style={{ color: 'var(--text-main)' }}>
                                 <FiEdit2 size={14} />
                             </label>
                             <input 
@@ -141,9 +145,9 @@ const TapsProfileEdit: React.FC = () => {
                     </div>
                     
                     {/* Mensagens de feedback para o desenvolvedor e usuário */}
-                    {error && <p className="text-red-500 text-xs mt-2">{error}</p>}
-                    {erro && <p className="text-red-500 text-xs mt-2">{erro}</p>}
-                    {sucesso && <p className="text-emerald-400 text-xs mt-2">{sucesso}</p>}
+                    {error && <p className="text-xs mt-2" style={{ color: '#ef4444' }}>{error}</p>}
+                    {erro && <p className="text-xs mt-2" style={{ color: '#ef4444' }}>{erro}</p>}
+                    {sucesso && <p className="text-xs mt-2" style={{ color: '#10b981' }}>{sucesso}</p>}
                 </div>
 
                 {/* INPUT NOME */}
@@ -163,7 +167,7 @@ const TapsProfileEdit: React.FC = () => {
                             setNovoNome(filtrado);
                         }}
                     />
-                    <p className="text-gray-400 text-sm flex justify-end">{novoNome.length}/20 caracteres</p>
+                    <p className="text-sm flex justify-end" style={{ color: 'var(--profile-text-muted)' }}>{novoNome.length}/20 caracteres</p>
                 </div>
 
                 {/* TEXTAREA DESCRIÇÃO */}
@@ -174,7 +178,7 @@ const TapsProfileEdit: React.FC = () => {
                         value={descricao}
                         onChange={e => setDescricao(e.target.value)}
                      />
-                     <p className="text-gray-400 text-sm flex justify-end">{descricao.length}/1000 caracteres</p>
+                     <p className="text-sm flex justify-end" style={{ color: 'var(--profile-text-muted)' }}>{descricao.length}/1000 caracteres</p>
                  </div>
 
                 {/* BOTÃO SUBMIT */}

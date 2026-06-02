@@ -119,37 +119,54 @@ function CriacaoPersonagem() {
     return (
         <main className={styles.criacaoPerson}>
             <section className={styles.containerCriacaoPerson}>
-                <form className='flex flex-col gap-4' onSubmit={form}>
-                    <div className='w-full flex justify-center items-center'>
-                        <div className='relative'>
+                <form onSubmit={form}>
+                    <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+                        <div style={{ position: 'relative', width: 'fit-content', margin: '0 auto', marginBottom: '20px' }}>
                             <img
                                 src={fotoia || "/image/semPerfil.jpg"}
                                 alt="Pré-visualização"
-                                className='w-26 h-26 rounded-full object-cover'
+                                style={{
+                                    width: '104px',
+                                    height: '104px',
+                                    borderRadius: '50%',
+                                    objectFit: 'cover',
+                                }}
                             />
-                            <div className='absolute bottom-0 right-0 bg-gray-900 w-9 h-9 text-xl rounded-full flex justify-center items-center'>
-                                <label htmlFor="foto">
-                                    <i className="fa-solid fa-pen cursor-pointer"></i>
+                            <div style={{
+                                position: 'absolute',
+                                bottom: '0',
+                                right: '0',
+                                background: 'var(--bg-main)',
+                                width: '36px',
+                                height: '36px',
+                                borderRadius: '50%',
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                border: '2px solid var(--text-main)'
+                            }}>
+                                <label htmlFor="foto" style={{ cursor: 'pointer', margin: 0, color: 'var(--text-main)' }}>
+                                    <i className="fa-solid fa-pen"></i>
                                 </label>
-                                <input id="foto" type="file" onChange={(e) => converterBase64(e, setFotoia)} accept="image/*" className="hidden" />
+                                <input id="foto" type="file" onChange={(e) => converterBase64(e, setFotoia)} accept="image/*" style={{ display: 'none' }} />
                             </div>
                         </div>
-                        <h1 className="text-center text-xl font-bold my-6">
+                        <h1 style={{ fontSize: '20px', fontWeight: '700', margin: '20px 0 0 0' }}>
                             {modoEdicao ? "Editar personagem" : isFiccional ? "Crie Seu Personagem fictício" : "Criar personagem"}
                         </h1>
-                        {erro && <p className="text-red-500 text-sm text-center">{erro}</p>}
+                        {erro && <p style={{ color: '#ef4444', fontSize: '12px', marginTop: '8px' }}>{erro}</p>}
                     </div>
 
                     <div>
                         <label htmlFor="nome">Nome</label>
                         <input type="text" id="nome" placeholder="Digite o nome do personagem" value={nome} maxLength={20} minLength={2} required onChange={(e) => setNome(e.target.value.replace(/[^A-Za-zÀ-ú0-9 ]/g, ''))} />
-                        <p className="text-gray-400 text-sm flex justify-end">{nome.length}/20 caracteres</p>
+                        <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{nome.length}/20 caracteres</p>
                     </div>
 
                     <div>
                         <label htmlFor="bio">Bio</label>
                         <input type="text" placeholder="Digite a bio do personagem" value={bio} id="bio" maxLength={50} onChange={(e) => setBio(e.target.value)} />
-                        <p className="text-gray-400 text-sm flex justify-end">{bio.length}/50 caracteres</p>
+                        <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{bio.length}/50 caracteres</p>
                     </div>
 
                     {!isFiccional && (
@@ -171,7 +188,7 @@ function CriacaoPersonagem() {
                                 maxLength={50}
                                 onChange={(e) => setObra(e.target.value.replace(/[^A-Za-zÀ-ú0-9 ]/g, ''))}
                             ></textarea>
-                            <p className="text-gray-400 text-sm flex justify-end">{obra.length}/50 caracteres</p>
+                            <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{obra.length}/50 caracteres</p>
                         </div>
                     )}
 
@@ -182,7 +199,7 @@ function CriacaoPersonagem() {
                             id="descricao"
                             value={descricao} maxLength={500}
                             onChange={(e) => setDescricao(e.target.value)} />
-                        <p className="text-gray-400 text-sm flex justify-end">{descricao.length}/500 caracteres</p>
+                        <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{descricao.length}/500 caracteres</p>
                     </div>
 
                     <div>
@@ -218,7 +235,6 @@ function CriacaoPersonagem() {
                         type="submit"
                         value={isSubmitting ? "Salvando..." : modoEdicao ? "Salvar" : "Criar"}
                         disabled={isSubmitting}
-                        className="bg-blue-500 border rounded-lg py-2 cursor-pointer hover:bg-blue-600 transition"
                     />
                 </form>
             </section>

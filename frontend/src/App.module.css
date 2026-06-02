@@ -2,7 +2,7 @@
   display: flex;
   width: 100%;
   margin-top: 30px;
-  background: #0f0f0f;
+  background: var(--bg-main);
 }
 
 .espaco {
@@ -18,7 +18,7 @@
   width: 100vw;
   min-height: 100vh;
   position: relative;
-  background: linear-gradient(180deg, #0f0f0f 0%, #1a1a1a 100%);
+  background: var(--chat-bg);
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -65,15 +65,15 @@
 }
 
 .botMessage .bubble {
-  background: #1e1e1e;
-  border: 1px solid #2a2a2a;
-  color: #e0e0e0;
+  background: var(--bot-bubble-bg);
+  border: 1px solid var(--bot-bubble-border);
+  color: var(--bot-bubble-color);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .botMessage .bubble:hover {
-  background: #242424;
-  border-color: #333;
+  background: var(--bot-bubble-hover);
+  border-color: var(--bot-bubble-hover-border);
 }
 
 /* Mensagens do Usuário (à direita) */
@@ -82,13 +82,13 @@
 }
 
 .userMessage .bubble {
-  background: #3b82f6;
+  background: var(--accent-color);
   color: white;
   box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
 }
 
 .userMessage .bubble:hover {
-  background: #2563eb;
+  background: var(--accent-hover);
 }
 
 /* Mensagem de Erro */
@@ -120,8 +120,8 @@
   transform: translateX(-50%);
   width: 90%;
   max-width: 600px;
-  background: #1a1a1a;
-  border: 1px solid #2a2a2a;
+  background: var(--message-container-bg);
+  border: 1px solid var(--message-container-border);
   border-radius: 12px;
   padding: 8px 12px;
   display: flex;
@@ -136,14 +136,14 @@
   background: transparent;
   border: none;
   outline: none;
-  color: white;
+  color: var(--text-main);
   font-size: 14px;
   font-family: inherit;
-  caret-color: #3b82f6;
+  caret-color: var(--caret-color);
 }
 
 .mensagem::placeholder {
-  color: #666;
+  color: var(--message-placeholder);
 }
 
 .mensagem:disabled {
@@ -155,7 +155,7 @@
   width: 36px;
   height: 36px;
   border-radius: 8px;
-  background: #3b82f6;
+  background: var(--accent-color);
   color: white;
   border: none;
   display: flex;
@@ -168,7 +168,7 @@
 }
 
 .containerMensagem button:hover:not(:disabled) {
-  background: #2563eb;
+  background: var(--accent-hover);
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 

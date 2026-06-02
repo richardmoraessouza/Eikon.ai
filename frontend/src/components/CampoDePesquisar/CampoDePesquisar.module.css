@@ -13,11 +13,22 @@
     width: 100%; 
     padding: 12px 50px 12px 15px;
     border-radius: 20px;
-    color: rgba(255, 255, 255, 0.87);
+    color: var(--text-main);
     outline: none;
-    background: rgba(255, 255, 255, 0.05);
-    transition: border-color 0.2s;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    transition: all 0.3s ease;
     backdrop-filter: blur(6px);
+}
+
+.input::placeholder {
+    color: var(--input-placeholder);
+}
+
+.input:focus {
+    background: var(--input-focus-bg);
+    border-color: var(--input-focus-border);
+    box-shadow: var(--input-focus-shadow);
 }
 
 .botaoPesquisar {
@@ -31,6 +42,18 @@
     align-items: center;
     justify-content: center;
     z-index: 200;
+    color: var(--text-main);
+    transition: all 0.3s ease;
+}
+
+.botaoPesquisar:hover:not(:disabled) {
+    color: var(--accent-hover);
+    transform: scale(1.15);
+}
+
+.botaoPesquisar:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 
 @media (min-width: 1224px) {

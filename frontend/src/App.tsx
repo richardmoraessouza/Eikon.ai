@@ -59,6 +59,38 @@ function App() {
     }
   }, []);
 
+  // Aplica o tema salvo ao iniciar a aplicação
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('appTheme') || 'sistema';
+    const applyTheme = (theme: string) => {
+      const htmlElement = document.documentElement;
+      if (theme === 'claro') {
+        htmlElement.setAttribute('data-theme', 'light');
+        document.body.style.colorScheme = 'light';
+      } else if (theme === 'escuro') {
+        htmlElement.setAttribute('data-theme', 'dark');
+        document.body.style.colorScheme = 'dark';
+      } else {
+        // Sistema - remove o atributo para usar a preferência do SO
+        htmlElement.removeAttribute('data-theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.body.style.colorScheme = prefersDark ? 'dark' : 'light';
+      }
+    };
+    applyTheme(savedTheme);
+    
+    // Listener para mudanças de preferência do sistema
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleChange = () => {
+      const currentTheme = localStorage.getItem('appTheme') || 'sistema';
+      if (currentTheme === 'sistema') {
+        applyTheme('sistema');
+      }
+    };
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
+
   // Sincroniza personId com o param da rota (para chat e menu)
   useEffect(() => {
     if (id != null) {

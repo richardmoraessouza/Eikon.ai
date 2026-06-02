@@ -22,15 +22,16 @@
   height: 130px;
   padding: 16px 12px;
   border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.08);
-  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--card-border);
+  background: var(--bg-card);
   cursor: pointer;
   transition: border-color 0.15s;
   user-select: none;
+  box-shadow: var(--card-shadow);
 }
 
 .card:hover {
-  border-color: rgba(255,255,255,0.2);
+  border-color: var(--border-color-hover);
 }
 
 .imageWrapper {
@@ -72,7 +73,7 @@
 .info {
   width: 100%;
   flex: 1;
-  min-width: 0; /* 🔥 O segredo do Flexbox. Isso força o container a respeitar o limite do card e deixa o texto truncar */
+  min-width: 0; 
   display: flex;
   flex-flow: column nowrap;
   justify-content: flex-start;
@@ -83,19 +84,20 @@
   margin: 0;
   font-size: 16px;
   font-weight: 900;
-  text-align: left; /* 💡 Mudado para left para combinar com o layout horizontal */
-  width: 100%; /* 🔥 Ocupa toda a largura do .info */
+  text-align: left; 
+  width: 100%; 
   overflow: hidden;
-  text-overflow: ellipsis; /* 🔥 Força os três pontinhos (...) */
+  text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
+  color: var(--text-main);
 }
 
 .bio {
   margin: 0;
   font-size: 14px;
-  color: #888;
+  color: var(--text-card);
   text-align: left; /* 💡 Mudado para left */
   width: 100%;
   overflow: hidden;
@@ -135,7 +137,8 @@
 .author {
   position: absolute;
   bottom: 8px;
-  left: 16px; 
+  left: 16px;
+  color: var(--author-color);
   font-size: 11px;
 }
 

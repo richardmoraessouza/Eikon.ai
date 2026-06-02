@@ -149,7 +149,7 @@ const ProfilePerson: React.FC<ProfilePersonProps> = ({
           className='w-10 h-10 rounded-full object-cover'
         />
         <div className='flex-1 min-w-0'>
-          <h2 className='text-sm font-semibold text-white'>{personagem.nome}</h2>
+          <h2 className={`text-sm font-semibold ${styles.nomePersonagemHeader}`}>{personagem.nome}</h2>
           <p className='text-xs text-gray-400'>{status}</p>
         </div>
       </header>

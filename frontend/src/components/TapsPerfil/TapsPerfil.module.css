@@ -1,0 +1,56 @@
+.container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.75rem;
+  margin-bottom: 1rem;
+  flex-direction: column;
+}
+
+.nav {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+}
+
+.tabButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  color: var(--menu-caption);
+  font-size: 0.875rem;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: 500;
+  position: relative;
+}
+
+.tabButton:hover {
+  color: var(--text-main);
+}
+
+.tabButtonActive {
+  color: var(--text-main);
+  font-weight: 600;
+}
+
+.tabButtonActive::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--accent-color);
+  border-radius: 1px;
+}
+
+.contentContainer {
+  width: 100%;
+}

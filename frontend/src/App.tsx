@@ -62,6 +62,8 @@ function App() {
   // Aplica o tema salvo ao iniciar a aplicação
   useEffect(() => {
     const savedTheme = localStorage.getItem('appTheme') || 'sistema';
+    const savedChatStyle = localStorage.getItem('chatStyle') || 'padrao';
+    
     const applyTheme = (theme: string) => {
       const htmlElement = document.documentElement;
       if (theme === 'claro') {
@@ -71,13 +73,34 @@ function App() {
         htmlElement.setAttribute('data-theme', 'dark');
         document.body.style.colorScheme = 'dark';
       } else {
-        // Sistema - remove o atributo para usar a preferência do SO
+        // Sistema - remove o atributo data-theme para usar a preferência do SO
         htmlElement.removeAttribute('data-theme');
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         document.body.style.colorScheme = prefersDark ? 'dark' : 'light';
       }
     };
+
+    const applyChatStyle = (style: string) => {
+      const root = document.documentElement;
+      
+      switch(style) {
+        case 'elegante':
+          root.style.setProperty('--chat-font-family', "'Georgia', 'Times New Roman', serif");
+          root.style.setProperty('--chat-letter-spacing', '0.3px');
+          break;
+        case 'compacto':
+          root.style.setProperty('--chat-font-family', "'Courier New', 'Monaco', monospace");
+          root.style.setProperty('--chat-letter-spacing', '0.5px');
+          break;
+        case 'padrao':
+        default:
+          root.style.setProperty('--chat-font-family', "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif");
+          root.style.setProperty('--chat-letter-spacing', '0.2px');
+      }
+    };
+
     applyTheme(savedTheme);
+    applyChatStyle(savedChatStyle);
     
     // Listener para mudanças de preferência do sistema
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');

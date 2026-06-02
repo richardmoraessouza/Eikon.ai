@@ -11,12 +11,13 @@ const TapsPreferencesTheme: React.FC<TapsPreferencesThemeProps> = ({ onThemeChan
  
   useEffect(() => {
     const savedTheme = localStorage.getItem('appTheme') || 'sistema';
-    const savedStyle = localStorage.getItem('chatStyle') || 'predefinicao';
+    const savedStyle = localStorage.getItem('chatStyle') || 'padrao';
 
     setTheme(savedTheme);
     setStyleChat(savedStyle);
 
     applyTheme(savedTheme);
+    applyChatStyle(savedStyle);
   }, []);
 
   // Função para aplicar o tema globalmente
@@ -49,6 +50,26 @@ const TapsPreferencesTheme: React.FC<TapsPreferencesThemeProps> = ({ onThemeChan
   const handleStyleChange = (newStyle: string) => {
     setStyleChat(newStyle);
     localStorage.setItem('chatStyle', newStyle);
+    applyChatStyle(newStyle);
+  };
+
+  const applyChatStyle = (style: string) => {
+    const root = document.documentElement;
+    
+    switch(style) {
+      case 'elegante':
+        root.style.setProperty('--chat-font-family', "'Georgia', 'Times New Roman', serif");
+        root.style.setProperty('--chat-letter-spacing', '0.3px');
+        break;
+      case 'compacto':
+        root.style.setProperty('--chat-font-family', "'Courier New', 'Monaco', monospace");
+        root.style.setProperty('--chat-letter-spacing', '0.5px');
+        break;
+      case 'padrao':
+      default:
+        root.style.setProperty('--chat-font-family', "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif");
+        root.style.setProperty('--chat-letter-spacing', '0.2px');
+    }
   };
 
   return (
@@ -95,40 +116,43 @@ const TapsPreferencesTheme: React.FC<TapsPreferencesThemeProps> = ({ onThemeChan
       </div>
 
       <div className={styles.section}>
-        <label className={styles.label} style={{ color: 'var(--text-main)' }}>Estilo do chat</label>
+        <label className={styles.label} style={{ color: 'var(--text-main)' }}>Fonte do chat</label>
         <div className={styles.styleOptions}>
           <button
-            onClick={() => handleStyleChange('predefinicao')}
-            className={`${styles.styleButton} ${styleChat === 'predefinicao' ? styles.active : ''}`}
+            onClick={() => handleStyleChange('padrao')}
+            className={`${styles.styleButton} ${styleChat === 'padrao' ? styles.active : ''}`}
             style={{
-              color: styleChat === 'predefinicao' ? 'var(--text-main)' : 'var(--profile-text-muted)',
-              backgroundColor: styleChat === 'predefinicao' ? 'var(--profile-description-bg)' : 'transparent'
+              color: styleChat === 'padrao' ? 'var(--text-main)' : 'var(--profile-text-muted)',
+              backgroundColor: styleChat === 'padrao' ? 'var(--profile-description-bg)' : 'transparent',
+              fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
             }}
           >
-            {styleChat === 'predefinicao' && <span className={styles.checkmark}>●</span>}
-            Predefinição
+            {styleChat === 'padrao' && <span className={styles.checkmark}>●</span>}
+            Padrão
           </button>
           <button
-            onClick={() => handleStyleChange('classico')}
+            onClick={() => handleStyleChange('elegante')}
             className={styles.styleButton}
             style={{
-              color: styleChat === 'classico' ? 'var(--text-main)' : 'var(--profile-text-muted)',
-              backgroundColor: styleChat === 'classico' ? 'var(--profile-description-bg)' : 'transparent'
+              color: styleChat === 'elegante' ? 'var(--text-main)' : 'var(--profile-text-muted)',
+              backgroundColor: styleChat === 'elegante' ? 'var(--profile-description-bg)' : 'transparent',
+              fontFamily: "'Georgia', serif"
             }}
           >
-            {styleChat === 'classico' && <span className={styles.checkmark}>●</span>}
-            Clássico
+            {styleChat === 'elegante' && <span className={styles.checkmark}>●</span>}
+            Elegante
           </button>
           <button
-            onClick={() => handleStyleChange('denso')}
+            onClick={() => handleStyleChange('compacto')}
             className={styles.styleButton}
             style={{
-              color: styleChat === 'denso' ? 'var(--text-main)' : 'var(--profile-text-muted)',
-              backgroundColor: styleChat === 'denso' ? 'var(--profile-description-bg)' : 'transparent'
+              color: styleChat === 'compacto' ? 'var(--text-main)' : 'var(--profile-text-muted)',
+              backgroundColor: styleChat === 'compacto' ? 'var(--profile-description-bg)' : 'transparent',
+              fontFamily: "'Courier New', monospace"
             }}
           >
-            {styleChat === 'denso' && <span className={styles.checkmark}>●</span>}
-            Denso
+            {styleChat === 'compacto' && <span className={styles.checkmark}>●</span>}
+            Compacto
           </button>
         </div>
       </div>

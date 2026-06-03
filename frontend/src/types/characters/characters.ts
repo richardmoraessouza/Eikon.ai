@@ -40,3 +40,10 @@ export interface CharacterbyId {
 export interface views {
   personagemId: number;
 }
+
+
+export interface Tag {
+    id: number;
+    nome: string;
+    slug: string;
+}

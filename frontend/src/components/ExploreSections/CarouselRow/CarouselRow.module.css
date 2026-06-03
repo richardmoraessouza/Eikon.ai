@@ -1,0 +1,187 @@
+.carouselWrapper {
+  position: relative;
+  width: 100%;
+  overflow: hidden; /* Corta o estouro pra salvar teu layout */
+}
+
+.carouselTrack {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  cursor: grab;
+  user-select: none;
+  align-items: stretch;
+  width: 100%;
+  padding: 4px 0;
+}
+
+.carouselTrack:active { 
+  cursor: grabbing; 
+}
+
+.carouselTrack::-webkit-scrollbar { 
+  display: none; 
+}
+
+/* BOTÕES DE SETA */
+.navBtn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--card-border, #27272a);
+  background: var(--bg-card, #18181b);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-main, #ffffff);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  transition: background 0.15s, transform 0.1s;
+}
+
+.navBtn:hover {
+  background: var(--bg-hover, #27272a);
+}
+
+.navBtn:active {
+  transform: translateY(-50%) scale(0.93);
+}
+
+.navLeft  { left: -14px; }
+.navRight { right: -14px; }
+
+/* CARD HORIZONTAL */
+.card {
+  flex-shrink: 0;
+  box-sizing: border-box;
+  scroll-snap-align: start;
+  display: flex;
+  flex-flow: row nowrap;
+  position: relative;
+  align-items: flex-start;
+  gap: 12px;
+  height: 130px;
+  padding: 16px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--card-border, #27272a);
+  background: var(--bg-card, #18181b);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s;
+  user-select: none;
+}
+
+.card:hover {
+  border-color: #3f3f46;
+  background-color: #202023;
+}
+
+.image {
+  height: 50px;
+  width: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  display: block;
+  pointer-events: none;
+}
+
+.info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: flex-start;
+  align-items: flex-start;
+  overflow: hidden;
+}
+
+.name {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  width: 100%;
+  color: #ffffff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bio {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: #a1a1aa;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  line-height: 1.4;
+}
+
+.stats {
+  position: absolute;
+  bottom: 8px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 11px;
+  color: #71717a;
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.author {
+  position: absolute;
+  bottom: 8px;
+  left: 78px;
+  font-size: 11px;
+  color: #a1a1aa;
+  opacity: 0.6;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: calc(100% - 150px);
+}
+
+.empty {
+  color: #71717a;
+  font-size: 14px;
+  padding: 32px 0;
+  text-align: center;
+  width: 100%;
+}
+
+/* RESPONSIVIDADE EM ROTAÇÃO horizontal */
+@media (max-width: 500px) {
+  .card { width: 100%; }
+}
+@media (min-width: 501px) and (max-width: 749px) {
+  .card { width: calc(50% - 6px); }
+}
+@media (min-width: 750px) and (max-width: 1161px) {
+  .card { width: calc(33.333% - 8px); }
+}
+@media (min-width: 1162px) {
+  .card { width: calc(25% - 9px); }
+}
+@media (min-width: 1025px) {
+  .image { height: 60px; width: 60px; }
+  .author { left: 88px; }
+}

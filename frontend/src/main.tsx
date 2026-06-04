@@ -1,6 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
 import "./index.css";
 import "./styles/themes.css";
 import { AuthProvider } from "./hooks/AuthContext/AuthContext.tsx";
@@ -25,6 +25,11 @@ setupAxiosInterceptors();
 const CLIENT_ID =  "468506770340-qbj9keh8dkeu2467qtq207ob1to3esog.apps.googleusercontent.com";
 
 const router = createBrowserRouter([
+  // Rota raiz redireciona para /explorar
+  // {
+  //   path: "/",
+  //   element: <Navigate to="/explorar" replace />,
+  // },
   // Rotas com layout principal
   {
     path: "/",

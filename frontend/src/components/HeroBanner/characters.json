@@ -1,0 +1,42 @@
+[
+  {
+    "id": "elena",
+    "name": "Elena",
+    "image": "/image/elena.png",
+    "messages": [
+      { "from": "char", "text": "Oi, estava esperando você..." },
+      { "from": "user", "text": "Sério? 😮" },
+      { "from": "char", "text": "Claro. Vamos conversar?" }
+    ]
+  },
+  {
+    "id": "ana",
+    "name": "Ana",
+    "image": "/image/ana.png",
+    "messages": [
+      { "from": "char", "text": "Você chegou! Quase desisti de esperar 😅" },
+      { "from": "user", "text": "Haha, desculpa o atraso!" },
+      { "from": "char", "text": "Tudo bem, você vale a pena 💜" }
+    ]
+  },
+  {
+    "id": "noah",
+    "name": "Noah",
+    "image": "/image/noah.png",
+    "messages": [
+      { "from": "char", "text": "Ei... tudo certo por aí?" },
+      { "from": "user", "text": "Mais ou menos, e você?" },
+      { "from": "char", "text": "Melhor agora que você apareceu 🙂" }
+    ]
+  },
+  {
+    "id": "ashley",
+    "name": "Ashley",
+    "image": "/image/ashley.png",
+    "messages": [
+      { "from": "char", "text": "Finalmente! Tenho muito pra te contar 🌟" },
+      { "from": "user", "text": "Me conta tudo!" },
+      { "from": "char", "text": "Então prepara o coração... 🫶" }
+    ]
+  }
+]

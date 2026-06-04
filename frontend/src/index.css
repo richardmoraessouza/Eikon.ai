@@ -11,75 +11,19 @@
 }
 
 html {
-  height: 100%;
-  overflow-x: hidden;
+  overflow-x: hidden; /* Mantém aqui */
 }
 
 body {
-  color: #fff;
-  font-family: 'Inter', sans-serif;
-  background-color: var(--bg-main);
   margin: 0;
   padding: 0;
-  height: 100%;
+  min-height: 100vh;
+  overflow-x: hidden; /* Fundamental */
 }
 
 #root {
-  height: 100%;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow-x: hidden; /* Impede estouro horizontal aqui também */
 }
-
-/* Remove horizontal scrollbars and customize vertical scrollbar */
-* {
-  scrollbar-width: thin;
-}
-
-::-webkit-scrollbar {
-  width: 8px;
-  height: 0;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #404040;
-  border-radius: 4px;
-  border: 2px solid transparent;
-  background-clip: content-box;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background-color: #555;
-  background-clip: content-box;
-}
-
-/* Light theme scrollbar */
-[data-theme="light"]::-webkit-scrollbar-thumb {
-  background-color: #d0dce6;
-  background-clip: content-box;
-}
-
-[data-theme="light"]::-webkit-scrollbar-thumb:hover {
-  background-color: #b8c5d6;
-  background-clip: content-box;
-}
-
-/* Hide horizontal scrollbars */
-[class*="carouselTrack"],
-[class*="carousel"] {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-[class*="carouselTrack"]::-webkit-scrollbar,
-[class*="carousel"]::-webkit-scrollbar {
-  height: 0;
-}
-
-
-

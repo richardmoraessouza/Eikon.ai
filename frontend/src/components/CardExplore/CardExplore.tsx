@@ -68,7 +68,7 @@ const CardExplore = () => {
 
   if (error) return (
     <article className={styles.container}>
-      <div className={styles.header}><h2><FiTrendingUp /> Para Você</h2></div>
+      <div className={styles.header}><h2>Para Você</h2></div>
       <div className={styles.error}>{error}</div>
     </article>
   );
@@ -82,7 +82,7 @@ const CardExplore = () => {
 
   if (!characters || characters.length === 0) return (
     <article className={styles.container}>
-      <div className={styles.header}><h2><FiTrendingUp /> Para Você</h2></div>
+      <div className={styles.header}><h2> Para Você</h2></div>
       <div className={styles.empty}>Nenhum personagem encontrado.</div>
     </article>
   );

@@ -9,8 +9,9 @@ import styles from './Explorar.module.css';
 const Explorar = () => {
     return (
         <main className={styles.explorarContainer}>
-            <HeroBanner />
             <CampoDePesquisar />
+            <div className={styles.espaco}></div>
+            <HeroBanner />
             <PopularWeek/>
             <CardExplore />
             <ExploreSections />

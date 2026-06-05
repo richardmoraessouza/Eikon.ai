@@ -62,27 +62,29 @@ function CampoDePesquisar({ onSearch, onSearchStart }: CampoDePesquisarProps) {
   }
 
   return (
-    <section className={styles.campoPesquisar}>
-        <form action="" onSubmit={handleSubmit}>
-            <div className={styles.campoPesquisarContainer}>
-                <input 
-                  type="text" 
-                  value={nomePersonagem} 
-                  onChange={(e) => setNomePersonagem(e.target.value)} 
-                  placeholder="Procurar personagem" 
-                  className={`${styles.input}`}
-                  disabled={isLoading}
-                />
-                <button 
-                  type='submit' 
-                  className={`${styles.botaoPesquisar}`}
-                  disabled={isLoading}
-                >
-                  <FiSearch />
-                </button>
-            </div>
-        </form>
-    </section>
+    <div className={styles.container}>
+      <section className={styles.campoPesquisar}>
+          <form action="" onSubmit={handleSubmit}>
+              <div className={styles.campoPesquisarContainer}>
+                  <input 
+                    type="text" 
+                    value={nomePersonagem} 
+                    onChange={(e) => setNomePersonagem(e.target.value)} 
+                    placeholder="Procurar personagem" 
+                    className={`${styles.input}`}
+                    disabled={isLoading}
+                  />
+                  <button 
+                    type='submit' 
+                    className={`${styles.botaoPesquisar}`}
+                    disabled={isLoading}
+                  >
+                    <FiSearch />
+                  </button>
+              </div>
+          </form>
+      </section>
+    </div>
   );
 }
 

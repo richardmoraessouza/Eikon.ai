@@ -572,7 +572,7 @@ function CharacterCard({ type, abaAtiva, usuarioId: externalUsuarioId }: Charact
   // Se chegou aqui, há dados para renderizar
   
   return (
-    <article className={`${styles.cardsPersonagens} grid grid-cols-1 gap-3 p-2 w-4/6`}>
+    <article className={`${styles.cardsPersonagens} grid grid-cols-1 gap-3 p-2 w-4/5`}>
       {/* Mapeia cada personagem para um card */}
       {dataToRender.map((p: Personagem) => (
         <div 

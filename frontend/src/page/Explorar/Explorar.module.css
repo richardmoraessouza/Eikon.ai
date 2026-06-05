@@ -9,9 +9,25 @@
 
 }
 
+.espaco {
+  height: 457px;
+}
+
+
+
 
 @media (min-width: 650px) {
   .explorarContainer {
     padding: 80px 0 40px;
   }
+  .espaco {
+    display: none;
+  }
 }
+
+  .searchSection {
+    width: 80%;
+    height: 200px;
+    background-color: aqua;
+    position: relative;
+  }

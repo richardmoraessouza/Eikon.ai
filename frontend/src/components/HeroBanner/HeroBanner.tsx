@@ -10,7 +10,6 @@ const FADE_MS = 400;
 export const HeroBanner = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [fading, setFading] = useState(false);
-  const [modalOpen, setModaOpen] = useState<boolean>(true);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -24,12 +23,6 @@ export const HeroBanner = () => {
   }, []);
 
   const char = characters[activeIndex];
-
-   function closeMenuOnMobile() {
-        if (window.innerWidth <= 768) {
-            setModaOpen(false);
-        }
-    }
 
   return (
     <section className={styles.hero}>
@@ -45,7 +38,7 @@ export const HeroBanner = () => {
         </p>
 
         <div className={styles.btnGroup}>
-          <Link to={'/create-character'}  className={styles.primaryButton} onClick={closeMenuOnMobile}><i className="fa-solid fa-masks-theater"></i> Criar personagem</Link>
+          <Link to={'/create-character'}  className={styles.primaryButton}><i className="fa-solid fa-masks-theater"></i> Criar personagem</Link>
           <button className={styles.secondaryButton}>Explorar →</button>
         </div>
 

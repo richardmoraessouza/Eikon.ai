@@ -7,44 +7,61 @@ interface TapsPreferencesThemeProps {
 
 const TapsPreferencesTheme: React.FC<TapsPreferencesThemeProps> = ({ onThemeChange }) => {
   const [theme, setTheme] = useState<string>('sistema');
-  const [styleChat, setStyleChat] = useState<string>('predefinicao');
+  const [styleChat, setStyleChat] = useState<string>('padrao');
+  const [fontSize, setFontSize] = useState<string>('medium');
  
   useEffect(() => {
     const savedTheme = localStorage.getItem('appTheme') || 'sistema';
     const savedStyle = localStorage.getItem('chatStyle') || 'padrao';
+    const savedFontSize = localStorage.getItem('chatFontSize') || 'medium';
 
     setTheme(savedTheme);
     setStyleChat(savedStyle);
+    setFontSize(savedFontSize);
 
     applyTheme(savedTheme);
     applyChatStyle(savedStyle);
+    applyFontSize(savedFontSize);
   }, []);
 
-  // Função para aplicar o tema globalmente
   const applyTheme = (selectedTheme: string) => {
     const htmlElement = document.documentElement;
-
     if (selectedTheme === 'claro') {
       htmlElement.setAttribute('data-theme', 'light');
-      document.body.style.colorScheme = 'light';
     } else if (selectedTheme === 'escuro') {
       htmlElement.setAttribute('data-theme', 'dark');
-      document.body.style.colorScheme = 'dark';
     } else {
-      // Sistema - remove o atributo data-theme para usar a preferência do SO
       htmlElement.removeAttribute('data-theme');
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      document.body.style.colorScheme = prefersDark ? 'dark' : 'light';
     }
+  };
+
+  const applyChatStyle = (style: string) => {
+    const root = document.documentElement;
+    const stylesMap: { [key: string]: { family: string, spacing: string } } = {
+      elegante: { family: "'Georgia', serif", spacing: '0.3px' },
+      compacto: { family: "'Courier New', monospace", spacing: '0.5px' },
+      padrao: { family: "-apple-system, sans-serif", spacing: '0.2px' }
+    };
+    const s = stylesMap[style] || stylesMap.padrao;
+    root.style.setProperty('--chat-font-family', s.family);
+    root.style.setProperty('--chat-letter-spacing', s.spacing);
+  };
+
+  const applyFontSize = (size: string) => {
+    const root = document.documentElement;
+    const sizes: { [key: string]: string } = {
+      small: '14px',
+      medium: '16px',
+      large: '18px'
+    };
+    root.style.setProperty('--chat-font-size', sizes[size] || '16px');
   };
 
   const handleThemeChange = (newTheme: string) => {
     setTheme(newTheme);
     localStorage.setItem('appTheme', newTheme);
     applyTheme(newTheme);
-    if (onThemeChange) {
-      onThemeChange(newTheme);
-    }
+    onThemeChange?.(newTheme);
   };
 
   const handleStyleChange = (newStyle: string) => {
@@ -53,107 +70,50 @@ const TapsPreferencesTheme: React.FC<TapsPreferencesThemeProps> = ({ onThemeChan
     applyChatStyle(newStyle);
   };
 
-  const applyChatStyle = (style: string) => {
-    const root = document.documentElement;
-    
-    switch(style) {
-      case 'elegante':
-        root.style.setProperty('--chat-font-family', "'Georgia', 'Times New Roman', serif");
-        root.style.setProperty('--chat-letter-spacing', '0.3px');
-        break;
-      case 'compacto':
-        root.style.setProperty('--chat-font-family', "'Courier New', 'Monaco', monospace");
-        root.style.setProperty('--chat-letter-spacing', '0.5px');
-        break;
-      case 'padrao':
-      default:
-        root.style.setProperty('--chat-font-family', "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif");
-        root.style.setProperty('--chat-letter-spacing', '0.2px');
-    }
+  const handleFontSizeChange = (newSize: string) => {
+    setFontSize(newSize);
+    localStorage.setItem('chatFontSize', newSize);
+    applyFontSize(newSize);
   };
 
   return (
     <div className={styles.container}>
+      {/* SEÇÃO TEMA */}
       <div className={styles.section}>
-        <label className={styles.label} style={{ color: 'var(--text-main)' }}>Tema</label>
+        <label className={styles.label}>Tema</label>
         <div className={styles.themeOptions}>
-          <button
-            onClick={() => handleThemeChange('sistema')}
-            className={`${styles.themeButton} ${theme === 'sistema' ? styles.active : ''}`}
-            style={{
-              color: theme === 'sistema' ? 'var(--text-main)' : 'var(--profile-text-muted)',
-              backgroundColor: theme === 'sistema' ? 'var(--profile-description-bg)' : 'transparent'
-            }}
-          >
-            {theme === 'sistema' && <span className={styles.checkmark}>●</span>}
-            Sistema
-          </button>
-
-          <button
-            onClick={() => handleThemeChange('claro')}
-            className={`${styles.themeButton} ${theme === 'claro' ? styles.active : ''}`}
-            style={{
-              color: theme === 'claro' ? 'var(--text-main)' : 'var(--profile-text-muted)',
-              backgroundColor: theme === 'claro' ? 'var(--profile-description-bg)' : 'transparent'
-            }}
-          >
-            {theme === 'claro' && <span className={styles.checkmark}>●</span>}
-            Claro
-          </button>
-
-          <button
-            onClick={() => handleThemeChange('escuro')}
-            className={`${styles.themeButton} ${theme === 'escuro' ? styles.active : ''}`}
-            style={{
-              color: theme === 'escuro' ? 'var(--text-main)' : 'var(--profile-text-muted)',
-              backgroundColor: theme === 'escuro' ? 'var(--profile-description-bg)' : 'transparent'
-            }}
-          >
-            {theme === 'escuro' && <span className={styles.checkmark}>●</span>}
-            Escuro
-          </button>
+          {['sistema', 'claro', 'escuro'].map((t) => (
+            <button key={t} onClick={() => handleThemeChange(t)} className={`${styles.themeButton} ${theme === t ? styles.active : ''}`}>
+              {theme === t && <span className={styles.checkmark}>●</span>}
+              {t.charAt(0).toUpperCase() + t.slice(1)}
+            </button>
+          ))}
         </div>
       </div>
 
+      {/* SEÇÃO FONTE CHAT */}
       <div className={styles.section}>
-        <label className={styles.label} style={{ color: 'var(--text-main)' }}>Fonte do chat</label>
+        <label className={styles.label}>Fonte do chat</label>
         <div className={styles.styleOptions}>
-          <button
-            onClick={() => handleStyleChange('padrao')}
-            className={`${styles.styleButton} ${styleChat === 'padrao' ? styles.active : ''}`}
-            style={{
-              color: styleChat === 'padrao' ? 'var(--text-main)' : 'var(--profile-text-muted)',
-              backgroundColor: styleChat === 'padrao' ? 'var(--profile-description-bg)' : 'transparent',
-              fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
-            }}
-          >
-            {styleChat === 'padrao' && <span className={styles.checkmark}>●</span>}
-            Padrão
-          </button>
-          <button
-            onClick={() => handleStyleChange('elegante')}
-            className={styles.styleButton}
-            style={{
-              color: styleChat === 'elegante' ? 'var(--text-main)' : 'var(--profile-text-muted)',
-              backgroundColor: styleChat === 'elegante' ? 'var(--profile-description-bg)' : 'transparent',
-              fontFamily: "'Georgia', serif"
-            }}
-          >
-            {styleChat === 'elegante' && <span className={styles.checkmark}>●</span>}
-            Elegante
-          </button>
-          <button
-            onClick={() => handleStyleChange('compacto')}
-            className={styles.styleButton}
-            style={{
-              color: styleChat === 'compacto' ? 'var(--text-main)' : 'var(--profile-text-muted)',
-              backgroundColor: styleChat === 'compacto' ? 'var(--profile-description-bg)' : 'transparent',
-              fontFamily: "'Courier New', monospace"
-            }}
-          >
-            {styleChat === 'compacto' && <span className={styles.checkmark}>●</span>}
-            Compacto
-          </button>
+          {['padrao', 'elegante', 'compacto'].map((s) => (
+            <button key={s} onClick={() => handleStyleChange(s)} className={`${styles.styleButton} ${styleChat === s ? styles.active : ''}`}>
+              {styleChat === s && <span className={styles.checkmark}>●</span>}
+              {s.charAt(0).toUpperCase() + s.slice(1)}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* SEÇÃO TAMANHO TEXTO */}
+      <div className={styles.section}>
+        <label className={styles.label}>Tamanho do texto</label>
+        <div className={styles.themeOptions}>
+          {['small', 'medium', 'large'].map((size) => (
+            <button key={size} onClick={() => handleFontSizeChange(size)} className={`${styles.themeButton} ${fontSize === size ? styles.active : ''}`}>
+              {fontSize === size && <span className={styles.checkmark}>●</span>}
+              {size === 'small' ? 'Pequeno' : size === 'medium' ? 'Médio' : 'Grande'}
+            </button>
+          ))}
         </div>
       </div>
     </div>

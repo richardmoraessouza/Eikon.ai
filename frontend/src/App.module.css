@@ -60,6 +60,9 @@
   font-size: 14px;
   line-height: 1.5;
   letter-spacing: var(--chat-letter-spacing);
+  font-size: var(--chat-font-size, 16px); 
+  font-family: var(--chat-font-family, sans-serif);
+  letter-spacing: var(--chat-letter-spacing, 0.2px);
 }
 
 /* Mensagens do Bot (à esquerda) */

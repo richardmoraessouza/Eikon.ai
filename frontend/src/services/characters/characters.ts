@@ -10,8 +10,9 @@ export const getCharacters = async (): Promise<Character[]> => {
         if (response.status !== 200) {
             throw new Error('Error searching characters');
         }
-
+        
         return response.data;
+
     } catch (error) {
         console.log(error);
         throw error;

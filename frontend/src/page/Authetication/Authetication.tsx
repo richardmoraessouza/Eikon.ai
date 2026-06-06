@@ -23,32 +23,23 @@ function Authentication({ verificar }: SituacaoProps) {
     const [nome, setNome] = useState<string>('');
     const [loginErro, setLoginErro] = useState<string>('');
     const [imgPerfil, setImgPerfil] = useState<string>('');
-    const [dados, setDados] = useState<dadosUsuario | null>(null)
+    const [dados, setDados] = useState<dadosUsuario | null>(null);
 
     const onSuccess = async (credentialResponse: any) => {
         try {
             const tokenGoogle = credentialResponse.credential;
-        
             try {
                 const decoded: { email?: string } = jwtDecode(tokenGoogle);
-                if (decoded.email) {
-                    setGmail(decoded.email);
-                }
-
-        
-
+                if (decoded.email) setGmail(decoded.email);
             } catch (decodeErr) {
                 console.error("Erro ao fazer login", decodeErr);
             }
-
         } catch (err) {
             console.error("Erro no login com o Google:", err);
         }
-    }
-
-    const onError = () => {
-        console.error("Erro no login com Google");
     };
+
+    const onError = () => console.error("Erro no login com Google");
 
     const navigate = useNavigate();
     const { login } = useAuth();
@@ -57,22 +48,16 @@ function Authentication({ verificar }: SituacaoProps) {
         const buscarDados = async () => {
             try {
                 const res = await axios.get(`${API_URL}/auth/gmail/${gmail}`);
-                const dados = res.data
-                setDados(dados)
+                setDados(res.data);
             } catch (err) {
                 if (axios.isAxiosError(err) && err.response?.status === 404) {
-                    if (condicaoUsuario) {
-                        setLoginErro("Ops! Parece que você ainda não tem uma conta.");
-                    }
+                    if (condicaoUsuario) setLoginErro("Ops! Parece que você ainda não tem uma conta.");
                 } else {
                     console.error("Erro ao buscar usuário", err);
                 }
             }
-        }
-    
-        if (gmail) {
-            buscarDados();
-        }
+        };
+        if (gmail) buscarDados();
     }, [gmail]);
 
     useEffect(() => {
@@ -81,24 +66,20 @@ function Authentication({ verificar }: SituacaoProps) {
             setImgPerfil(dados.foto_pefil);
         }
     }, [condicaoUsuario, dados]);
-    
-    
 
-   const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoginErro('');
 
         try {
             if (condicaoUsuario) {
-                // --- LOGICA DE LOGIN ---
                 const res = await axios.post(`${API_URL}/auth/login`, { gmail });
-                
+
                 if (!res.data.token) {
                     setLoginErro("Erro: O servidor não enviou o token de acesso.");
                     return;
                 }
 
-                // Aqui chamamos a função login do useAuth()
                 login({
                     id: res.data.id,
                     nome: res.data.nome,
@@ -109,14 +90,8 @@ function Authentication({ verificar }: SituacaoProps) {
                 });
 
                 navigate('/explorar', { replace: true });
-
             } else {
-                // --- LOGICA DE CADASTRO ---
-                const res = await axios.post(`${API_URL}/auth/register`, {
-                    gmail,
-                    nome,
-                    imgPerfil
-                });
+                const res = await axios.post(`${API_URL}/auth/register`, { gmail, nome, imgPerfil });
 
                 if (!res.data.token) {
                     setLoginErro("Erro ao gerar token no cadastro.");
@@ -137,91 +112,148 @@ function Authentication({ verificar }: SituacaoProps) {
             }
         } catch (err: any) {
             console.error("Erro detalhado:", err.response?.data || err.message);
-            const mensagemErro = err.response?.data?.error || "Erro na autenticação.";
-            setLoginErro(mensagemErro);
+            setLoginErro(err.response?.data?.error || "Erro na autenticação.");
         }
     };
+
     return (
-        <main className={`flex flex-col justify-center items-center ${styles.authentication}`}>
+        <main className={styles.authentication}>
+
+            {/* ── Tela inicial: escolha do Google ── */}
             {!gmail && (
-            <div className={styles.modalBemVindoAlt}>
-                <div className={styles.topRow}>
-                    <div className={styles.logoWrap}>
-                        <img src="/image/PersonIA.png" alt="logo" />
-                    </div>
-                    <div className={styles.titleGroup}>
-                        <h2 className={styles.title}>Bem-vindo ao <span>PersonIA</span></h2>
-                        <p className={styles.subtitle}>Crie ou entre na sua conta usando seu Gmail — rápido e seguro.</p>
-                    </div>
-                </div>
+                <div className={styles.authCard}>
 
-                <div className={styles.googleButtonWrapper}>
-                    <GoogleLogin
-                        onSuccess={onSuccess}
-                        onError={onError}
-                        auto_select={true}
-                    />
-                </div>
+                    <div className={styles.authBrand}>
+                        <div className={styles.authBrandLogo}>
+                            <img src="/image/Eikon.ai.svg" alt="logo" />
+                        </div>
+                        <span className={styles.authBrandName}>Eikon.ai</span>
+                    </div>
 
-                <small className={styles.privacy}>Ao entrar, você concorda com nossos termos e política de privacidade.</small>
-            </div>
+                    <div className={styles.authHeadline}>
+                        <h1 className='text-center'>Bem-vindo de volta</h1>
+                        <p className='text-center'>Entre com sua conta Google para continuar criando personagens.</p>
+                    </div>
+
+                    <div className={styles.authDivider} />
+
+                    <div className={styles.googleBtnWrap}>
+                        <GoogleLogin
+                            onSuccess={onSuccess}
+                            onError={onError}
+                            auto_select={true}
+                        />
+                    </div>
+
+                    <div className={styles.authFooter}>
+                        <p className={styles.authPrivacy}>
+                            Ao entrar, você concorda com nossos{' '}
+                            <Link to="/termos">termos</Link> e{' '}
+                            <Link to="/privacidade">política de privacidade</Link>.
+                        </p>
+                        <div className={styles.authDividerRow}>
+                            <span className={styles.authDividerLine} />
+                            <span className={styles.authDividerText}>ou</span>
+                            <span className={styles.authDividerLine} />
+                        </div>
+                        <p className={styles.authSwitch}>
+                            {condicaoUsuario
+                                ? <>Não tem conta? <Link to="/cadastra">Cadastrar</Link></>
+                                : <>Já tem conta? <Link to="/entrar">Entrar</Link></>
+                            }
+                        </p>
+                    </div>
+
+                </div>
             )}
 
+            {/* ── Tela após autenticação Google ── */}
             {gmail && (
-                <section className={`${styles.verificarUsuario}`}>
-                <h1 className={`text-center font-bold`}>{condicaoUsuario ? 'Entrar' : "Cadastra"}</h1>
+                <div className={styles.authCard}>
 
-                <form action="" method="post" className={`flex flex-col`} onSubmit={handleSubmit}>
+                    <div className={styles.authHeadline}>
+                        <h1 className='text-center'>{condicaoUsuario ? 'Confirmar entrada' : 'Criar conta'}</h1>
+                        <p className='text-center'>Confirme seus dados para {condicaoUsuario ? 'entrar' : 'criar sua conta'}.</p>
+                    </div>
 
-                    <div className={`flex flex-col justify-center items-center ${styles.containerFoto}`}>
-                        <div className="relative">
-                            <img src={imgPerfil || '/image/semPerfil.jpg'} alt="Foto Perfil" className="w-28 h-28 rounded-full object-cover"/>
-                            <div className="absolute bottom-0 right-1 bg-gray-900 w-9 h-9 text-xl rounded-full flex justify-center items-center">
-                                <label htmlFor="foto" title="Alterar foto">
-                                    <i className="fa-solid fa-pen cursor-pointer"></i>
+                    {/* Avatar */}
+                    <div className={styles.avatarWrap}>
+                        <div className={styles.avatarRel}>
+                            <img
+                                src={imgPerfil || '/image/semPerfil.jpg'}
+                                alt="Foto de perfil"
+                                className={styles.avatarImg}
+                            />
+                            <div className={styles.avatarEdit}>
+                                <label htmlFor="foto" title="Alterar foto" style={{ cursor: 'pointer', margin: 0 }}>
+                                    <i className="fa-solid fa-pen" style={{ fontSize: '11px' }}></i>
                                 </label>
-                                <input id="foto" type="file" accept="image/*"disabled={condicaoUsuario} onChange={(e) => converterBase64(e, setImgPerfil)} className="hidden"/>
+                                <input
+                                    id="foto"
+                                    type="file"
+                                    accept="image/*"
+                                    disabled={condicaoUsuario}
+                                    onChange={(e) => converterBase64(e, setImgPerfil)}
+                                    style={{ display: 'none' }}
+                                />
                             </div>
                         </div>
                     </div>
-                    <div>{loginErro && <p className={`text-center text-red-500`}>{loginErro}</p>}</div>
 
-                    <label htmlFor="nome">Nome</label>
-                    <input 
-                        type="text" 
-                        name="nome" 
-                        id="" 
-                        required
-                        disabled={condicaoUsuario}
-                        value={nome} 
-                        onChange={(e) => setNome(e.target.value)} 
-                    />
-                
-                    <label htmlFor="gmail">Gmail</label>
-                    <input 
-                        type="email" 
-                        name="gmail" 
-                        id="" 
-                        required
-                        placeholder='Digite seu Gmail' 
-                        value={gmail} 
-                        disabled
-                        onChange={(e) => setGmail(e.target.value)} 
-                    />
-                   
-                    <input type="submit" value={condicaoUsuario ? "Entrar" : "Cadastra"} />
-                </form>
-                
-                {/* Links de navegação */}
-                {
-                    condicaoUsuario ? 
-                    (<p className='text-center'>Não possui conta? <strong><Link to={"/cadastra"}>Cadastra</Link></strong></p>) : 
-                    (<p className='text-center'>Já possui conta? <strong><Link to={"/entrar"}>Entrar</Link></strong></p>)
-                }
-            </section>
+                    {/* Erro */}
+                    {loginErro && (
+                        <div className={styles.errorMsg}>
+                            <i className="fa-solid fa-circle-exclamation"></i>
+                            <span>{loginErro}</span>
+                        </div>
+                    )}
+
+                    {/* Formulário */}
+                    <form onSubmit={handleSubmit} className={styles.authForm}>
+
+                        <div className={styles.formField}>
+                            <label htmlFor="nome">Nome</label>
+                            <input
+                                id="nome"
+                                type="text"
+                                required
+                                disabled={condicaoUsuario}
+                                value={nome}
+                                onChange={(e) => setNome(e.target.value)}
+                                placeholder="Seu nome"
+                            />
+                        </div>
+
+                        <div className={styles.formField}>
+                            <label htmlFor="gmail">Gmail</label>
+                            <input
+                                id="gmail"
+                                type="email"
+                                required
+                                disabled
+                                value={gmail}
+                                placeholder="seu@gmail.com"
+                            />
+                        </div>
+
+                        <button type="submit" className={styles.submitBtn}>
+                            {condicaoUsuario ? 'Entrar' : 'Cadastrar'}
+                        </button>
+
+                    </form>
+
+                    <div className={styles.authDivider} />
+
+                    <p className={styles.authSwitch}>
+                        {condicaoUsuario
+                            ? <>Não tem conta? <strong><Link to="/cadastra">Cadastrar</Link></strong></>
+                            : <>Já tem conta? <strong><Link to="/entrar">Entrar</Link></strong></>
+                        }
+                    </p>
+                </div>
             )}
         </main>
-    )
+    );
 }
 
 export default Authentication;

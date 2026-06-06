@@ -2,7 +2,7 @@
   {
     "id": "elena",
     "name": "Elena",
-    "image": "/image/elena.png",
+    "image": "/image/characters/elena.png",
     "messages": [
       { "from": "char", "text": "Oi, estava esperando você..." },
       { "from": "user", "text": "Sério? 😮" },
@@ -12,7 +12,7 @@
   {
     "id": "ana",
     "name": "Ana",
-    "image": "/image/ana.png",
+    "image": "/image/characters/ana.png",
     "messages": [
       { "from": "char", "text": "Você chegou! Quase desisti de esperar 😅" },
       { "from": "user", "text": "Haha, desculpa o atraso!" },
@@ -22,7 +22,7 @@
   {
     "id": "noah",
     "name": "Noah",
-    "image": "/image/noah.png",
+    "image": "/image/characters/noah.png",
     "messages": [
       { "from": "char", "text": "Ei... tudo certo por aí?" },
       { "from": "user", "text": "Mais ou menos, e você?" },
@@ -32,7 +32,7 @@
   {
     "id": "ashley",
     "name": "Ashley",
-    "image": "/image/ashley.png",
+    "image": "/image/characters/ashley.png",
     "messages": [
       { "from": "char", "text": "Finalmente! Tenho muito pra te contar 🌟" },
       { "from": "user", "text": "Me conta tudo!" },

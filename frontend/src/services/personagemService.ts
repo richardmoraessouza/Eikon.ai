@@ -1,5 +1,12 @@
 import axios from "axios";
 import { API_URL } from "../config/api";
+import { 
+  SearchLikesUser, 
+  SearchQuantityLikes, 
+  toggleLike as socialToggleLike, 
+  SearchFavoritesUser, 
+  toggleFavorite as socialToggleFavorite 
+} from "./socialService";
 
 // Helper para validar e limpar token
 function validateToken(token: string | null): string {
@@ -32,45 +39,75 @@ export async function buscarPersonagensUsuario(usuarioId: number) {
   console.log('[buscarPersonagensUsuario] URL:', url);
   try {
     const res = await axios.get(url);
-    return Array.isArray(res.data) ? res.data : res.data.personagens || [];
+    return Array.isArray(res.data) ? res.data : (res.data?.personagens || []);
   } catch (err: any) {
-    console.error('[buscarPersonagensUsuario] Erro na URL:', url, err);
-    throw err;
+    const status = err.response?.status || 'Conexão';
+    console.error(`[buscarPersonagensUsuario] Erro ${status} em ${url}`);
+    
+    if (err.response?.data) console.error('Resposta da API:', err.response.data);
+    console.error('Mensagem Axios:', err.message);
+    return [];
   }
 }
 
 export async function buscarPersonagens() {
-  const res = await axios.get(`${API_URL}/character/explore`);
-  return Array.isArray(res.data) ? res.data : res.data.personagens || [];
+  const url = `${API_URL}/character/explore`;
+  console.log('[buscarPersonagens] Iniciando busca:', url);
+  try {
+    const res = await axios.get(url);
+    return Array.isArray(res.data) ? res.data : (res.data?.personagens || []);
+  } catch (err: any) {
+    const status = err.response?.status || 'Conexão';
+    console.error(`[buscarPersonagens] Erro ${status} em ${url}`);
+    
+    // Loga separadamente para garantir visibilidade no console
+    if (err.response?.data) console.error('Resposta da API:', err.response.data);
+    console.error('Mensagem Axios:', err.message);
+    return [];
+  }
 }
 
 export async function buscarDadosPersonagem(personagemId: number) {
-  const res = await axios.get(`${API_URL}/character/data-character/${personagemId}`);
-  return res.data;
+  const url = `${API_URL}/character/data-character/${personagemId}`;
+  try {
+    const res = await axios.get(url);
+    return res.data || null;
+  } catch (err: any) {
+    const status = err.response?.status || 'Conexão';
+    console.error(`[buscarDadosPersonagem] Erro ${status} na URL ${url}:`, {
+      message: err.message,
+      apiData: err.response?.data
+    });
+    return null;
+  }
 }
 
-export async function recentCharacters(usuarioId: number, personagemId: number, token?: string) {
+export async function recentCharacters(usuarioId: number, personagemId: number) {
   try {
-    const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
-    const res = await axios.post(`${API_URL}/character/recent-characters/${usuarioId}/${personagemId}`, {}, config);
-    return res.data;
-
+    const res = await axios.post(`${API_URL}/character/recent-characters/${usuarioId}/${personagemId}`, {});
+    return res.data || {};
   } catch (err: any) {
-    console.error('Erro ao atualizar personagens recentes', err);
+    const status = err.response?.status || 'Conexão';
+    console.error(`[recentCharacters] Erro ${status} ao atualizar personagens recentes`);
+    
+    if (err.response?.data) console.error('Resposta da API:', err.response.data);
+    console.error('Mensagem Axios:', err.message);
     throw err;
   }
 }
 
-export async function buscarPersonagensRecentes(usuarioId: number, token?: string) {
+export async function buscarPersonagensRecentes(usuarioId: number) {
   const url = `${API_URL}/character/get-recent-characters/${usuarioId}`;
-  
   try {
-    const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
-    const res = await axios.get(url, config);
-    return res.data;
+    const res = await axios.get(url);
+    return Array.isArray(res.data) ? res.data : (res.data?.personagens || []);
   } catch (err: any) {
-    console.error('[buscarPersonagensRecentes] Erro na URL:', url, err);
-    throw err;
+    const status = err.response?.status || 'Conexão';
+    console.error(`[buscarPersonagensRecentes] Erro ${status} em ${url}`);
+    
+    if (err.response?.data) console.error('Resposta da API:', err.response.data);
+    console.error('Mensagem Axios:', err.message);
+    return []; // Retorna array vazio para evitar crash no .length/.map
   }
 }
 // ==================== USUÁRIOS ====================
@@ -78,7 +115,7 @@ export async function buscarPersonagensRecentes(usuarioId: number, token?: strin
 export async function buscarNomeUsuario(usuarioId: number) {
   try {
     const res = await axios.get(`${API_URL}/users/name-user/${usuarioId}`);
-    return (res.data && (res.data.nome || res.data.name)) ? (res.data.nome || res.data.name) : 'IA';
+    return res.data?.nome || res.data?.name || 'IA';
   } catch (err) {
     console.warn('Erro ao buscar nome do usuário', err);
     return 'IA';
@@ -90,7 +127,7 @@ export async function buscarNomeCriador(usuarioId: number, token: string | null)
     const cleanToken = token ? validateToken(token) : null;
     const config = cleanToken ? { headers: { Authorization: `Bearer ${cleanToken}` } } : {};
     const res = await axios.get(`${API_URL}/users/name-user/${usuarioId}`, config);
-    return (res.data && (res.data.nome || res.data.name)) ? (res.data.nome || res.data.name) : 'IA';
+    return res.data?.nome || res.data?.name || 'IA';
   } catch (err) {
     console.warn('Erro ao buscar nome do criador', err);
     return 'IA';
@@ -99,99 +136,54 @@ export async function buscarNomeCriador(usuarioId: number, token: string | null)
 
 export async function buscarDadosUsuario(usuarioId: number, token: string) {
   const cleanToken = validateToken(token);
-  const res = await axios.get(`${API_URL}/users/user/${usuarioId}`, {
-    headers: { Authorization: `Bearer ${cleanToken}` }
-  });
-  return res.data;
+  try {
+    const res = await axios.get(`${API_URL}/users/user/${usuarioId}`, {
+      headers: { Authorization: `Bearer ${cleanToken}` },
+      // Adicionado timeout para evitar requisições infinitas em caso de erro de rede
+      timeout: 10000 
+    });
+    return res.data || null;
+  } catch (err: any) {
+    if (err.response?.status === 404) return null;
+    console.error(`[buscarDadosUsuario] Erro ao buscar dados do usuário ${usuarioId}:`, err.message);
+    throw err;
+  }
 }
 
 export async function editarPerfilUsuario(usuarioId: number, dados: any, token: string) {
   const cleanToken = validateToken(token);
-  const res = await axios.put(`${API_URL}/users/edit-profile/${usuarioId}`, dados, {
-    headers: { Authorization: `Bearer ${cleanToken}` }
-  });
-  return res.data;
+  try {
+    const res = await axios.put(`${API_URL}/users/edit-profile/${usuarioId}`, dados, {
+      headers: { Authorization: `Bearer ${cleanToken}` }
+    });
+    return res.data || null;
+  } catch (err: any) {
+    console.error(`[editarPerfilUsuario] Erro ao editar perfil do usuário ${usuarioId}:`, err.message);
+    throw err;
+  }
 }
 
 // ==================== LIKES ====================
 
-export async function buscarLikesUsuario(usuarioId: number, token?: string) {
-  try {
-    // Token será adicionado automaticamente pelo interceptor do axios
-    const res = await axios.get(`${API_URL}/social/likes-by-user/${usuarioId}`);
-    return Array.isArray(res.data) ? res.data.map((id: any) => Number(id)) : [];
-  } catch (err: any) {
-    console.error('[buscarLikesUsuario] Erro:', err?.response?.status, err?.message);
-    return [];
-  }
+export async function buscarLikesUsuario(usuarioId: number) {
+  // Reutiliza a lógica centralizada no socialService
+  return SearchLikesUser(usuarioId);
 }
 
 export async function buscarQuantidadeLikes(personagemId: number) {
-  const res = await axios.get(`${API_URL}/social/likes-quantity/${personagemId}`);
-  return res.data.total || res.data.likes || 0;
+  return SearchQuantityLikes(personagemId);
 }
 
 export async function toggleLike(usuarioId: number, personagemId: number, token: string) {
-  const res = await axios.post(
-    `${API_URL}/social/toggle-like/${usuarioId}/${personagemId}`,
-    {},  // ← Mude de null para {}
-    { headers: { Authorization: `Bearer ${token}` } }
-  );
-  return res.data;
+  return socialToggleLike(usuarioId, personagemId, token);
 }
 
 // ==================== FAVORITOS ====================
 
 export async function buscarFavoritosUsuario(usuarioId: number) {
-  const res = await axios.get(`${API_URL}/social/favorites-by-user/${usuarioId}`);
-  // Se a resposta for um array de objetos com dados completos, retorna assim
-  if (Array.isArray(res.data) && res.data.length > 0 && res.data[0].nome) {
-    return res.data;
-  }
-  // Caso contrário, retorna apenas os IDs como antes
-  return Array.isArray(res.data) ? res.data.map((item: any) => Number(item.id || item)) : [];
+  return SearchFavoritesUser(usuarioId);
 }
 
 export async function toggleFavorito(usuarioId: number, personagemId: number, token: string) {
-  const cleanToken = token?.trim() || '';
-  
-  if (!cleanToken) {
-    throw new Error('Token inválido ou vazio');
-  }
-  
-  if (!cleanToken.includes('.')) {
-    console.error('[toggleFavorito] Token não parece ser um JWT válido', {
-      tokenLength: cleanToken.length,
-      tokenStart: cleanToken.substring(0, 20),
-      tokenEnd: cleanToken.substring(cleanToken.length - 20)
-    });
-    throw new Error('Formato de token inválido');
-  }
-  
-  try {
-    const headers = {  // ← Esta linha estava faltando
-      Authorization: `Bearer ${cleanToken}`,
-      'Content-Type': 'application/json'
-    };
-    
-    const res = await axios.post(
-      `${API_URL}/social/favorites/${usuarioId}/${personagemId}`,
-      {},
-      { headers }
-    );
-    return res.data;
-  } catch (error: any) {
-    console.error('[toggleFavorito] Erro na requisição', {
-      usuarioId,
-      personagemId,
-      status: error?.response?.status,
-      message: error?.response?.data?.error || error?.message,
-      tokenExists: !!cleanToken,
-      tokenLength: cleanToken.length,
-      responseData: error?.response?.data,
-      url: error?.config?.url,
-      headers: error?.config?.headers
-    });
-    throw error;
-  }
+  return socialToggleFavorite(usuarioId, personagemId, token);
 }

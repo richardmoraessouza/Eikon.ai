@@ -1,216 +1,277 @@
 .authentication {
     width: 100vw;
-    height: 100vh;
+    min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    background: linear-gradient(180deg, rgba(3,7,18,0.03), rgba(255,255,255,0.02));
+    padding: 2rem 1rem;
+    background: var(--bg-main);
+    box-sizing: border-box;
 }
 
-.authentication h1 {
-    font-size: 35px;
-    margin: 10px 0 20px 0;
-}
-
-.modalBemVindo {
-    width: 92%;
-    max-width: 520px;
-    background: linear-gradient(135deg, rgba(58,50,160,0.95), rgba(37,117,252,0.95));
-    color: #fff;
-    padding: 28px;
+.authCard {
+    width: 100%;
+    max-width: 380px;
+    background: var(--light-background);
+    border: 0.5px solid var(--profile-border);
     border-radius: 16px;
-    box-shadow: 0 12px 40px rgba(12, 24, 60, 0.35);
-    margin: 40px auto;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    padding: 1.75rem;
     display: flex;
     flex-direction: column;
-    gap: 18px;
-    transform: translateY(0);
-    transition: transform .28s ease, box-shadow .28s ease;
+    gap: 1.25rem;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
 }
 
-.modalBemVindo:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 22px 60px rgba(12,24,60,0.45);
-}
-
-.modalBemVindoAlt {
-    width: 92%;
-    max-width: 520px;
-    background: rgba(255,255,255,0.98);
-    color: #0b1220;
-    padding: 26px;
-    border-radius: 14px;
-    box-shadow: 0 10px 30px rgba(2,6,23,0.08);
-    margin: 40px auto;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+/* ── Brand ── */
+.authBrand {
     display: flex;
-    flex-direction: column;
-    gap: 14px;
-    border: 1px solid rgba(15,23,42,0.04);
-}
-
-.modalBemVindoAlt .topRow {
-    gap: 12px;
-    display: flex;
-    flex-direction: column;
-}
-
-.modalBemVindoAlt .logoWrap img {
-    width: 74px;
-    height: 74px;
-    border-radius: 12px;
-    box-shadow: none;
-    border: 1px solid rgba(2,6,23,0.04);
-}
-
-.modalBemVindoAlt .title {
-    color: #071029;
-}
-
-.modalBemVindoAlt .title span {
-    color: #0B5ED7;
-}
-
-.modalBemVindoAlt .subtitle {
-    color: #324055;
-    font-size: 0.95rem;
-}
-
-.modalBemVindoAlt .googleButtonWrapper > * {
-    max-width: 240px;
-}
-
-.modalBemVindoAlt .privacy {
-    color: #66748a;
-}
-
-.topRow {
-    display: flex;
-    gap: 14px;
     align-items: center;
+    gap: 10px;
 }
 
-.logoWrap img {
-    width: 86px;
-    height: 86px;
+.authBrandLogo {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 0.5px solid var(--profile-border);
+    flex-shrink: 0;
+}
+
+.authBrandLogo img {
+    width: 100%;
+    height: 100%;
     object-fit: cover;
-    border-radius: 14px;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.25);
-    border: 1px solid rgba(255,255,255,0.08);
 }
 
-.titleGroup {
-    display: flex;
-    flex-direction: column;
-}
-
-.title {
-    font-size: 1.6rem;
-    margin: 0;
-    font-weight: 700;
+.authBrandName {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-main);
     letter-spacing: -0.2px;
-    text-align: center;
 }
 
-.title span {
-    color: #FFD36E;
+/* ── Headline ── */
+.authHeadline h1 {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-main);
+    margin: 0 0 5px 0;
+    letter-spacing: -0.3px;
 }
 
-.subtitle {
-    margin: 4px 0 0 0;
-    color: rgba(255,255,255,0.92);
-    font-size: 0.95rem;
-    opacity: 0.95;
+.authHeadline p {
+    font-size: 13px;
+    color: var(--profile-text-muted);
+    margin: 0;
+    line-height: 1.5;
 }
 
-.googleButtonWrapper {
-    margin-top: 6px;
+/* ── Divisor simples ── */
+.authDivider {
+    height: 0.5px;
+    background: var(--profile-border);
+}
+
+/* ── Google Button ── */
+.googleBtnWrap {
     width: 100%;
     display: flex;
     justify-content: center;
 }
 
-.googleButtonWrapper > * {
-    width: 100%;
-    max-width: 300px;
-    border-radius: 10px;
+.googleBtnWrap > div {
+    width: 100% !important;
+    border-radius: 8px !important;
     overflow: hidden;
 }
 
-.privacy {
-    display: block;
+/* ── Footer (privacidade + divisor or + switch) ── */
+.authFooter {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+/* ── Privacidade ── */
+.authPrivacy {
+    font-size: 12px;
+    color: var(--profile-text-muted);
     text-align: center;
-    font-size: 0.75rem;
-    color: rgba(255,255,255,0.85);
-    margin-top: 4px;
-    opacity: 0.9;
-}
-
-.verificarUsuario {
-    box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.178);
-    padding: 10px 20px 20px 25px;
-    border-radius: 10px;
-    width: 90%;
-    max-width: 700px;
-    min-width: 200px;
-}
-
-.verificarUsuario input {
-    margin: 2px 0px 10px 0px;
-    height: 45px;
-    padding: 10px;
-    border-radius: 10px;
-    width: 100%;
-    font-size: 1rem;
-    font-weight: 400;
     line-height: 1.5;
-    color: #212529;
-    background-color: #fff;;
+    margin: 0;
+}
+
+.authPrivacy a {
+    color: var(--text-main);
+    text-decoration: none;
+}
+
+.authPrivacy a:hover {
+    text-decoration: underline;
+}
+
+/* ── Divisor com "ou" ── */
+.authDividerRow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.authDividerLine {
+    flex: 1;
+    height: 0.5px;
+    background: var(--profile-border);
+}
+
+.authDividerText {
+    font-size: 12px;
+    color: var(--profile-text-muted);
+}
+
+/* ── Switch de rota ── */
+.authSwitch {
+    font-size: 13px;
+    color: var(--profile-text-muted);
+    text-align: center;
+    margin: 0;
+}
+
+.authSwitch a {
+    color: var(--text-main);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.authSwitch a:hover {
+    text-decoration: underline;
+}
+
+/* ── Avatar ── */
+.avatarWrap {
+    display: flex;
+    justify-content: center;
+}
+
+.avatarRel {
+    position: relative;
+    width: 68px;
+    height: 68px;
+}
+
+.avatarImg {
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 0.5px solid var(--profile-border);
+    display: block;
+}
+
+.avatarEdit {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--bg-main);
+    border: 0.5px solid var(--profile-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-main);
+}
+
+/* ── Erro ── */
+.errorMsg {
+    font-size: 13px;
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.08);
+    border: 0.5px solid rgba(239, 68, 68, 0.2);
+    border-radius: 8px;
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    line-height: 1.4;
+}
+
+/* ── Formulário ── */
+.authForm {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.formField {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.formField label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--profile-text-muted);
+}
+
+.formField input {
+    height: 40px;
+    padding: 0 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    background: var(--input-bg);
+    border: 0.5px solid var(--input-border);
+    color: var(--text-main);
+    width: 100%;
+    box-sizing: border-box;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    outline: none;
+}
+
+.formField input:focus {
+    border-color: var(--input-focus-border);
+    box-shadow: var(--input-focus-shadow);
+    background: var(--input-focus-bg);
+}
+
+.formField input:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+/* ── Submit ── */
+.submitBtn {
+    height: 40px;
+    width: 100%;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
     cursor: pointer;
-    border: 1px solid #ced4da;
-    border-radius: 0.375rem;
-    transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+    border: none;
+    background: var(--text-main);
+    color: var(--bg-main);
+    margin-top: 4px;
+    transition: opacity 0.15s;
 }
 
-.verificarUsuario input:hover {
-    color: #212529;
-    background-color: #fff;
-    border-color: #86b7fe; 
-    outline: 0;
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+.submitBtn:hover {
+    opacity: 0.85;
 }
 
-.verificarUsuario input[type='submit'] {
-    width: 80px;
-    padding: 2px;
-    background-color: #0B5ED7;
-    color: #fff;
+.submitBtn:active {
+    opacity: 0.7;
 }
 
-.espaco2 {
-    padding: 20px;
-    height: 200px;
-}
-
-@media (min-width: 553px) {
-    .modalBemVindoAlt .topRow {
-        gap: 12px;
-        display: flex;
-        flex-direction: row;
+/* ── Responsivo ── */
+@media (max-width: 480px) {
+    .authCard {
+        padding: 1.5rem 1.25rem;
+        border-radius: 12px;
     }
 
-    .title {
-        text-align: left;
-    }
-
-
-}
-
-@media (min-width: 453px) {
-    .modalBemVindoAlt .googleButtonWrapper > * {
-        max-width: 400px !important;
-        display: flex;
-        justify-content: center
+    .authHeadline h1 {
+        font-size: 18px;
     }
 }

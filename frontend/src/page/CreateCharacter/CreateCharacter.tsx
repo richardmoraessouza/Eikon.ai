@@ -35,8 +35,8 @@ function CreateCharacter() {
     const [objetivos, setObjetivos] = useState('');
     const [primeiraMensagem, setPrimeiraMensagem] = useState('');
     const [relacaoUsuario, setRelacaoUsuario] = useState('');
+    const [conversation_style, setConversation_style] = useState<string>('Modo Direto');
     const [cenario, setCenario] = useState('');
-    const [exemplosConversa, setExemplosConversa] = useState('');
     
     // Estados Modo Rápido
     const [modoRapido, setModoRapido] = useState(false);
@@ -76,7 +76,6 @@ function CreateCharacter() {
                     setPrimeiraMensagem(dados.primeiramensagem || '');
                     setRelacaoUsuario(dados.relacaousuario || '');
                     setCenario(dados.cenario || '');
-                    setExemplosConversa(dados.exemplosconversa || '');
                     setModoRapido(dados.is_modo_rapido || false);
                     
                     if (dados.fotoia) {
@@ -136,7 +135,7 @@ function CreateCharacter() {
             aparencia, gostos, desgostos, objetivos, 
             primeiramensagem: primeiraMensagem, 
             relacaousuario: relacaoUsuario, 
-            cenario, exemplosconversa: exemplosConversa
+            cenario, conversation_style
         };
 
         if (fotoia) payload.fotoia = fotoia;
@@ -176,40 +175,41 @@ function CreateCharacter() {
     return (
         <main className={styles.criacaoPerson}>
             <form onSubmit={form} className={styles.containerCriacaoPerson}>
-                
-                <div className={styles.toggleContainer}>
-                    {/* Grupo do Modo de Criação (Rápido vs Detalhado) */}
+                {/* Modo de criação */}
+                <div className={styles.tabRow}>
                     <button
                         type="button"
                         onClick={() => setModoRapido(true)}
-                        className={`${styles.toggleButton} ${modoRapido ? styles.active : ''}`}
+                        className={`${styles.tabBtn} ${modoRapido ? styles.tabActive : ''}`}
                     >
-                        Modo Rápido
+                        <i className="fa-solid fa-bolt" style={{ marginRight: '6px', fontSize: '12px' }}></i>
+                        Criação Rápida
                     </button>
                     <button
                         type="button"
                         onClick={() => setModoRapido(false)}
-                        className={`${styles.toggleButton} ${!modoRapido ? styles.active : ''}`}
+                        className={`${styles.tabBtn} ${!modoRapido ? styles.tabActive : ''}`}
                     >
-                        Modo Detalhado
+                        <i className="fa-solid fa-sliders" style={{ marginRight: '6px', fontSize: '12px' }}></i>
+                        Criação Completa
                     </button>
-                </div>
 
-                <div className={styles.toggleContainer}>
-                    {/* Grupo do Tipo de Personagem */}
                     <button
                         type="button"
                         onClick={() => setTipo_personagem('person')}
-                        className={`${styles.toggleButton} ${tipo_personagem === 'person' ? styles.active : ''}`}
+                        className={`${styles.tabBtn} ${tipo_personagem === 'person' ? styles.tabActive : ''}`}
                     >
-                        Personagem Normal
+                        <i className="fa-solid fa-user" style={{ marginRight: '6px', fontSize: '12px' }}></i>
+                        Original
                     </button>
+
                     <button
                         type="button"
                         onClick={() => setTipo_personagem('ficcional')}
-                        className={`${styles.toggleButton} ${tipo_personagem === 'ficcional' ? styles.active : ''}`}
+                        className={`${styles.tabBtn} ${tipo_personagem === 'ficcional' ? styles.tabActive : ''}`}
                     >
-                        Personagem Fictício
+                        <i className="fa-solid fa-wand-magic-sparkles" style={{ marginRight: '6px', fontSize: '12px' }}></i>
+                        Fictício
                     </button>
                 </div>
 
@@ -252,16 +252,18 @@ function CreateCharacter() {
                 </div>
 
                 {modoRapido ? (
-                    <QuickCreateMode 
+                   <QuickCreateMode 
                         nome={nome}
                         bio={bio}
                         descricao={descricao}
                         obra={obra}
+                        conversation_style={conversation_style}
                         isFiccional={isFiccional}
                         onNomeChange={setNome}
                         onBioChange={setBio}
                         onDescricaoChange={setDescricao}
                         onObraChange={setObra}
+                        onConversationStyleChange={setConversation_style}
                     />
                 ) : (
                     <>
@@ -271,17 +273,15 @@ function CreateCharacter() {
                             <input 
                                 ref={nomeInputRef}
                                 type="text" 
-                                placeholder="Nome" 
+                                placeholder="Nome"
+                                maxLength={20}
                                 value={nome} 
-                                onChange={(e) => {
-                                  const novoNome = validarNome(e.target.value);
-                                  if (contarPalavras(novoNome) <= 20) {
-                                    setNome(novoNome);
-                                  }
-                                }} 
                                 required
+                                onChange={(e) => {
+                                    setNome(validarNome(e.target.value));
+                                }}
                             />
-                            <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{contarPalavras(nome)}/20 palavras</p>
+                            <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{nome.length}/20 palavras</p>
                         </div>
 
                         <div className={styles.formGroup}>
@@ -290,14 +290,12 @@ function CreateCharacter() {
                                 type="text" 
                                 placeholder="Uma descrição breve" 
                                 value={bio} 
+                                maxLength={50}
                                 onChange={(e) => {
-                                  const novaBio = e.target.value;
-                                  if (contarPalavras(novaBio) <= 50) {
-                                    setBio(novaBio);
-                                  }
+                                    setBio(e.target.value);
                                 }} 
                             />
-                            <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{contarPalavras(bio)}/50 palavras</p>
+                            <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{bio.length}/50 palavras</p>
                         </div>
 
                         {/* Campos condicionais */}
@@ -310,15 +308,13 @@ function CreateCharacter() {
                                         value={obra}
                                         placeholder="De qual obra/universo é este personagem?"
                                         required={isFiccional}
+                                        maxLength={50}
                                         onChange={(e) => {
-                                        const novaObra = e.target.value;
-                                        if (contarPalavras(novaObra) <= 50) {
-                                            setObra(novaObra);
-                                        }
+                                            setObra(e.target.value);
                                         }}
                                         className={styles.textarea}
                                     />
-                                    <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{contarPalavras(obra)}/50 palavras</p>
+                                    <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{obra.length}/50 palavras</p>
                                 </div>
 
                                 <div className={styles.formGroup}>
@@ -327,14 +323,12 @@ function CreateCharacter() {
                                         type="text" 
                                         placeholder="Qual é o gênero?" 
                                         value={genero} 
+                                        maxLength={20}
                                         onChange={(e) => {
-                                            const novoGenero = e.target.value;
-                                            if (contarPalavras(novoGenero) <= 20) {
-                                                setGenero(novoGenero);
-                                            }
+                                            setGenero(e.target.value);
                                         }}
                                     />
-                                    <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{contarPalavras(genero)}/20 palavras</p>
+                                    <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{genero.length}/20 palavras</p>
                                 </div>
 
                                 <div className={styles.formGroup}>
@@ -342,16 +336,14 @@ function CreateCharacter() {
                                     <textarea
                                         id="cenário"
                                         value={cenario}
+                                        maxLength={200}
                                         placeholder="Descreva o cenário em que o personagem vive?"
                                         onChange={(e) => {
-                                        const novoCenário = e.target.value;
-                                        if (contarPalavras(novoCenário) <= 200) {
-                                            setCenario(novoCenário);
-                                        }
+                                         setCenario(e.target.value);
                                         }}
                                         className={styles.textarea}
                                     />
-                                    <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{contarPalavras(cenario)}/200 palavras</p>
+                                    <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{cenario.length}/200 palavras</p>
                                 </div>  
                             </>
                         )}
@@ -360,12 +352,9 @@ function CreateCharacter() {
                             <label>Descrição</label>
                             <textarea 
                                 placeholder="Descreva o personagem em detalhes" 
-                                value={descricao} 
+                                value={descricao}
                                 onChange={(e) => {
-                                  const novaDescricao = e.target.value;
-                                  if (novaDescricao.length <= 500) {
-                                    setDescricao(novaDescricao);
-                                  }
+                                    setDescricao(e.target.value);
                                 }}
                                 maxLength={500}
                             />
@@ -378,14 +367,12 @@ function CreateCharacter() {
                             <textarea 
                                 placeholder="Qual é a história deste personagem?" 
                                 value={historia} 
+                                maxLength={500}
                                 onChange={(e) => {
-                                  const novaHistoria = e.target.value;
-                                  if (contarPalavras(novaHistoria) <= 500) {
-                                    setHistoria(novaHistoria);
-                                  }
+                                    setHistoria(e.target.value);
                                 }}
                             />
-                            <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{contarPalavras(historia)}/500 palavras</p>
+                            <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{historia.length}/500 palavras</p>
                         </div>
                         
                         {/* Personalidade e Comportamento */}
@@ -393,15 +380,13 @@ function CreateCharacter() {
                             <label>Personalidade</label>
                             <textarea 
                                 placeholder="Quais são seus traços de personalidade?" 
-                                value={personalidade} 
+                                value={personalidade}
+                                maxLength={200}
                                 onChange={(e) => {
-                                  const novaPersonalidade = e.target.value;
-                                  if (contarPalavras(novaPersonalidade) <= 200) {
-                                    setPersonalidade(novaPersonalidade);
-                                  }
+                                    setPersonalidade(e.target.value);
                                 }}
                             />
-                            <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{contarPalavras(personalidade)}/200 palavras</p>
+                            <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{personalidade.length}/200 palavras</p>
                         </div>
 
                         {/* Aparência */}
@@ -410,14 +395,12 @@ function CreateCharacter() {
                             <textarea 
                                 placeholder="Como o personagem se parece?" 
                                 value={aparencia} 
+                                maxLength={200}
                                 onChange={(e) => {
-                                  const novaAparencia = e.target.value;
-                                  if (contarPalavras(novaAparencia) <= 200) {
-                                    setAparencia(novaAparencia);
-                                  }
+                                    setAparencia(e.target.value);
                                 }}
                             />
-                            <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{contarPalavras(aparencia)}/200 palavras</p>
+                            <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{aparencia.length}/200 palavras</p>
                         </div>
 
                         {/* Gostos */}
@@ -425,15 +408,13 @@ function CreateCharacter() {
                             <label>Gostos</label>
                             <textarea 
                                 placeholder="O que ele gosta?" 
-                                value={gostos} 
+                                value={gostos}
+                                maxLength={200}
                                 onChange={(e) => {
-                                  const novosGostos = e.target.value;
-                                  if (contarPalavras(novosGostos) <= 200) {
-                                    setGostos(novosGostos);
-                                  }
+                                    setGostos(e.target.value);
                                 }}
                             />
-                            <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{contarPalavras(gostos)}/200 palavras</p>
+                            <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{gostos.length}/200 palavras</p>
                         </div>
                         
                         {/* Desgostos */}
@@ -442,14 +423,12 @@ function CreateCharacter() {
                             <textarea 
                                 placeholder="O que ele não gosta?" 
                                 value={desgostos} 
+                                maxLength={200}
                                 onChange={(e) => {
-                                  const novosDesgostos = e.target.value;
-                                  if (contarPalavras(novosDesgostos) <= 200) {
-                                    setDesgostos(novosDesgostos);
-                                  }
+                                    setDesgostos(e.target.value);
                                 }}
                             />
-                            <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{contarPalavras(desgostos)}/200 palavras</p>
+                            <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{desgostos.length}/200 palavras</p>
                         </div>
 
                         {/* Relação com o Usuário */}
@@ -457,30 +436,13 @@ function CreateCharacter() {
                             <label>Relação com o Usuário</label>
                             <textarea 
                                 placeholder="Como o personagem se relaciona com o usuário?" 
-                                value={relacaoUsuario} 
+                                value={relacaoUsuario}
+                                maxLength={200}
                                 onChange={(e) => {
-                                  const novosRelacionamento = e.target.value;
-                                  if (contarPalavras(novosRelacionamento) <= 200) {
-                                    setRelacaoUsuario(novosRelacionamento);
-                                  }
+                                setRelacaoUsuario(e.target.value);
                                 }}
                             />
-                            <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{contarPalavras(relacaoUsuario)}/200 palavras</p>
-                        </div>
-
-                        <div className={styles.formGroup}>
-                            <label>Exemplos de Conversa</label>
-                            <textarea 
-                                placeholder="Exemplos de diálogo ou estilo de fala do personagem" 
-                                value={exemplosConversa} 
-                                onChange={(e) => {
-                                  const novosExemplos = e.target.value;
-                                  if (contarPalavras(novosExemplos) <= 200) {
-                                    setExemplosConversa(novosExemplos);
-                                  }
-                                }}
-                            />
-                            <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{contarPalavras(exemplosConversa)}/200 palavras</p>
+                            <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{relacaoUsuario.length}/200 palavras</p>
                         </div>
 
                         {/* Objetivos */}
@@ -488,15 +450,13 @@ function CreateCharacter() {
                             <label>Objetivos</label>
                             <textarea 
                                 placeholder="Quais são os objetivos deste personagem?" 
-                                value={objetivos} 
+                                value={objetivos}
+                                maxLength={200}
                                 onChange={(e) => {
-                                  const novosObjetivos = e.target.value;
-                                  if (contarPalavras(novosObjetivos) <= 200) {
-                                    setObjetivos(novosObjetivos);
-                                  }
+                                    setObjetivos(e.target.value);
                                 }}
                             />
-                            <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{contarPalavras(objetivos)}/200 palavras</p>
+                            <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{objetivos.length}/200 palavras</p>
                         </div>
 
                         {/* Primeira Mensagem */}
@@ -504,15 +464,13 @@ function CreateCharacter() {
                             <label>Primeira Mensagem</label>
                             <textarea 
                                 placeholder="Como o personagem deve saudar o usuário pela primeira vez?" 
-                                value={primeiraMensagem} 
+                                value={primeiraMensagem}
+                                maxLength={200}
                                 onChange={(e) => {
-                                  const novaPrimeiraMensagem = e.target.value;
-                                  if (contarPalavras(novaPrimeiraMensagem) <= 200) {
-                                    setPrimeiraMensagem(novaPrimeiraMensagem);
-                                  }
+                                   setPrimeiraMensagem(e.target.value);
                                 }}
                             />
-                            <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{contarPalavras(primeiraMensagem)}/200 palavras</p>
+                            <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{primeiraMensagem.length}/200 palavras</p>
                         </div>
                         
                         {/* Regras*/}
@@ -520,17 +478,29 @@ function CreateCharacter() {
                             <label>Regras</label>
                             <textarea 
                                 placeholder="Defina as regras de comportamento do personagem" 
-                                value={regras} 
+                                value={regras}
+                                maxLength={200} 
                                 onChange={(e) => {
-                                  const novasRegras = e.target.value;
-                                  if (contarPalavras(novasRegras) <= 200) {
-                                    setRegras(novasRegras);
-                                  }
+                                    setRegras(e.target.value);
                                 }}
                             />
-                            <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{contarPalavras(regras)}/200 palavras</p>
+                            <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{regras.length}/200 palavras</p>
                         </div>
 
+                         <div className={styles.formGroup}>
+                            <label htmlFor="Como ele conversa?">Como ele conversa?</label>
+                            <select 
+                                id="Como ele conversa?"
+                                value={conversation_style} 
+                                onChange={(e) => setConversation_style(e.target.value)}
+                                className={styles.selectEstilo}
+                            >
+                                <option value="Modo Direto">Estilo Ágil (Casual/Direto)</option>
+                                <option value="narrativo">Estilo Imersivo (Narrativo)</option>
+                                <option value="robotico">Robótico (Lógico/Analítico)</option>
+                                <option value="dinamico">Dinâmico (Híbrido)</option>
+                            </select>
+                        </div>
                     </>
                 )}
                 

@@ -7,16 +7,13 @@ interface QuickCreateModeProps {
   descricao: string;
   obra: string;
   isFiccional: boolean;
+  conversation_style: string;
   onNomeChange: (value: string) => void;
   onBioChange: (value: string) => void;
+  onConversationStyleChange: (value: string) => void;
   onDescricaoChange: (value: string) => void;
   onObraChange: (value: string) => void;
 }
-
-const contarPalavras = (texto: string) => {
-  return texto.trim().split(/\s+/).filter(palavra => palavra.length > 0).length;
-};
-
 const validarNome = (texto: string) => {
   // Remove caracteres especiais, mantendo apenas letras, números e espaços
   const limpo = texto.replace(/[^A-Za-zÀ-ú0-9 ]/g, '');
@@ -26,17 +23,17 @@ const validarNome = (texto: string) => {
 
 export const QuickCreateMode: React.FC<QuickCreateModeProps> = ({ 
   nome, 
-  bio, 
+  bio,
+  conversation_style,
   descricao, 
   obra,
   isFiccional,
   onNomeChange,
   onBioChange,
+  onConversationStyleChange,
   onDescricaoChange,
   onObraChange
 }) => {
-  const palavrasNome = contarPalavras(nome);
-  const caracteresDescricao = descricao.length;
   
   return (
     <div className={styles.modoRapidoContainer}>      
@@ -47,16 +44,14 @@ export const QuickCreateMode: React.FC<QuickCreateModeProps> = ({
           type="text"
           value={nome}
           required
+          maxLength={20}
           placeholder="Ex: Shadow the Hedgehog"
           onChange={(e) => {
-            const novoNome = validarNome(e.target.value);
-            if (contarPalavras(novoNome) <= 20) {
-              onNomeChange(novoNome);
-            }
+            onNomeChange(validarNome(e.target.value));
           }}
           className={styles.input}
         />
-        <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{palavrasNome}/20 palavras</p>
+        <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{nome.length}/20 palavras</p>
       </div>
 
       <div className={styles.formGroup}>
@@ -65,16 +60,14 @@ export const QuickCreateMode: React.FC<QuickCreateModeProps> = ({
           id="bio_rapido"
           type="text"
           value={bio}
+          maxLength={50}
           placeholder="Ex: Um guerreiro ciberpunk"
           onChange={(e) => {
-            const novaBio = e.target.value;
-            if (contarPalavras(novaBio) <= 50) {
-              onBioChange(novaBio);
-            }
+            onBioChange(e.target.value);
           }}
           className={styles.input}
         />
-        <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{contarPalavras(bio)}/50 palavras</p>
+        <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{bio.length}/50 palavras</p>
       </div>
 
       {isFiccional && (
@@ -86,15 +79,13 @@ export const QuickCreateMode: React.FC<QuickCreateModeProps> = ({
             value={obra}
             placeholder="De qual obra/universo é este personagem?"
             required
+            maxLength={50}
             onChange={(e) => {
-              const novaObra = e.target.value;
-              if (contarPalavras(novaObra) <= 50) {
-                onObraChange(novaObra);
-              }
-            }}
+                onObraChange(e.target.value);
+              }}
             className={styles.input}
           />
-          <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{contarPalavras(obra)}/50 palavras</p>
+          <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{obra.length}/50 palavras</p>
         </div>
       )}
 
@@ -103,18 +94,30 @@ export const QuickCreateMode: React.FC<QuickCreateModeProps> = ({
         <textarea
           id="descricao_rapido"
           value={descricao}
+          maxLength={500}
           placeholder="Descreva seu personagem: aparência, personalidade, história..."
           onChange={(e) => {
-            const novaDescricao = e.target.value;
-            if (novaDescricao.length <= 500) {
-              onDescricaoChange(novaDescricao);
-            }
+            onDescricaoChange(e.target.value);
           }}
-          maxLength={500}
           className={styles.textarea}
         />
-        <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{caracteresDescricao}/500 caracteres</p>
+        <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{descricao.length}/500 caracteres</p>
       </div>
+
+       <div className={styles.formGroup}>
+            <label htmlFor="Como ele conversa?">Como ele conversa?</label>
+            <select 
+            id="Como ele conversa?"
+            value={conversation_style} 
+            onChange={(e) => onConversationStyleChange(e.target.value)}
+            className={styles.selectEstilo}
+            >
+            <option value="Modo Direto">Estilo Ágil (Casual/Direto)</option>
+            <option value="narrativo">Estilo Imersivo (Narrativo)</option>
+            <option value="robotico">Robótico (Lógico/Analítico)</option>
+            <option value="dinamico">Dinâmico (Híbrido)</option>
+            </select>
+        </div>
     </div>
   );
 };

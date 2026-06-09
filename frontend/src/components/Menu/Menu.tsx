@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import styles from './Menu.module.css';
+import { FiSearch, FiPlusCircle, FiUserPlus, FiLogIn, FiLogOut, FiSettings, FiUser} from "react-icons/fi";
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/AuthContext/AuthContext';
 import { buscarPersonagensRecentes } from '../../services/personagemService';
@@ -121,13 +122,13 @@ function Menu({ setPersonId, onMenuToggle }: MenuProps) {
                         <h2 className={styles.subTitulo}>Criação</h2>
                         <nav>
                             <ul className={styles.menuItems}>
-                                <li><Link to={'/explorar'} onClick={closeMenuOnMobile}><i className="fa-solid fa-compass"></i>Buscar</Link></li>
-                                <li><Link to={'/create-character'} onClick={closeMenuOnMobile}><i className="fa-solid fa-masks-theater"></i> Criar personagem</Link></li>
+                                <li><Link to={'/explorar'} onClick={closeMenuOnMobile}><FiSearch /> Buscar</Link></li>
+                                <li><Link to={'/create-character'} onClick={closeMenuOnMobile}><FiPlusCircle /> Criar personagem</Link></li>
 
                                 {!estaLogado && (
                                     <>
-                                        <li><Link to={'/entrar'} onClick={closeMenuOnMobile}><i className="fa-solid fa-right-to-bracket"></i> Entrar</Link></li>
-                                        <li><Link to={'/cadastra'} onClick={closeMenuOnMobile}><i className="fa-solid fa-user-plus"></i> Cadastrar</Link></li>
+                                        <li><Link to={'/entrar'} onClick={closeMenuOnMobile}><FiLogIn /> Entrar</Link></li>
+                                        <li><Link to={'/cadastra'} onClick={closeMenuOnMobile}><FiUserPlus /> Cadastrar</Link></li>
                                     </>
                                 )}
                             </ul>
@@ -228,14 +229,14 @@ function Menu({ setPersonId, onMenuToggle }: MenuProps) {
                                         <>
                                             <li className={styles.navItem}>
                                                 <Link to={`/perfil/${usuarioId}`} onClick={closeMenuOnMobile} className={styles.navLink}>
-                                                    <i className="fa-solid fa-user"></i> 
+                                                    <FiUser />
                                                     <span>Perfil</span>
                                                 </Link>
                                             </li>
 
                                             <li className={styles.navItem}>
                                                 <button onClick={() => setSettingsModalOpen(true)} className={styles.navLink}>
-                                                    <i className="fa-solid fa-gear"></i> 
+                                                     <FiSettings />
                                                     <span>Configurações</span>
                                                 </button>
                                             </li>
@@ -245,7 +246,7 @@ function Menu({ setPersonId, onMenuToggle }: MenuProps) {
                                                     sairDaConta();
                                                     closeMenuOnMobile();
                                                 }} className={styles.navLink}>
-                                                    <i className="fa-solid fa-right-from-bracket"></i> 
+                                                    <FiLogOut />
                                                     <span>Sair</span>
                                                 </button>
                                             </li>
@@ -254,14 +255,14 @@ function Menu({ setPersonId, onMenuToggle }: MenuProps) {
                                         <>
                                             <li className={styles.navItem}>
                                                 <Link to={'/entrar'} onClick={closeMenuOnMobile} className={styles.navLink}>
-                                                    <i className="fa-solid fa-right-to-bracket"></i> 
+                                                    <FiLogIn />
                                                     <span>Entrar</span>
                                                 </Link>
                                             </li>
 
                                             <li className={styles.navItem}>
                                                 <Link to={'/cadastra'} onClick={closeMenuOnMobile} className={styles.navLink}>
-                                                    <i className="fa-solid fa-user-plus"></i> 
+                                                    <FiUserPlus />
                                                     <span>Cadastrar</span>
                                                 </Link>
                                             </li>

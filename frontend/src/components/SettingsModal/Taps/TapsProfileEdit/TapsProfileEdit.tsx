@@ -151,7 +151,8 @@ const TapsProfileEdit: React.FC = () => {
                 </div>
 
                 {/* INPUT NOME */}
-                <div>
+                <div className="flex flex-col gap-2">
+                    <label htmlFor="nome">Nome</label>
                     <input 
                         type="text" 
                         id="nome" 
@@ -171,7 +172,8 @@ const TapsProfileEdit: React.FC = () => {
                 </div>
 
                 {/* TEXTAREA DESCRIÇÃO */}
-                 <div>
+                 <div className="flex flex-col gap-2">
+                    <label htmlFor="descricao">Descrição</label>
                      <textarea 
                         placeholder='Descrição' 
                         maxLength={1000}

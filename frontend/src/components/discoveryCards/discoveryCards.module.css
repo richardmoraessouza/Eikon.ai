@@ -1,5 +1,5 @@
 .container {
-  width: 95%;
+  width: 100%;
 }
 
 .header {
@@ -16,8 +16,7 @@
   font-size: 16px;
   font-weight: 500;
   margin: 0;
- color: var(--text-main);
-  background-clip: text;
+  color: var(--text-main);
 }
 
 .headerIcon {
@@ -28,10 +27,11 @@
 }
 
 @keyframes pulse {
-  0%, 100% { transform: scale(1); opacity: 1; }
+  0%, 100% { transform: scale(1);   opacity: 1; }
   50%       { transform: scale(1.2); opacity: 0.7; }
 }
 
+/* ─── BOTÕES NAVEGADORES ───────────────────────────────── */
 .navBtn {
   position: absolute;
   top: 50%;
@@ -77,14 +77,12 @@
 /* ─── CAROUSEL ─────────────────────────────────────────── */
 .carouselWrapper {
   position: relative;
-  overflow: hidden;
-  position: relative;
-  overflow: visible;  
+  overflow: visible;
 }
 
 .carouselTrack {
   display: flex;
-  flex-wrap: nowrap;          /* mantém em linha única = scroll horizontal */
+  flex-wrap: nowrap;
   gap: 12px;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
@@ -93,7 +91,7 @@
   scroll-behavior: smooth;
   cursor: grab;
   user-select: none;
-  align-items: stretch;       /* garante que todos os cards têm a mesma altura */
+  align-items: stretch;
 }
 
 .carouselTrack:active { cursor: grabbing; }
@@ -126,14 +124,9 @@
 }
 
 /* ─── IMAGEM ────────────────────────────────────────────── */
-.medalWrapper {
-  position: absolute;
-  top: 0;
-  right: 0;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  z-index: 4;
+.imageWrapper {
+  position: relative;
+  flex-shrink: 0;
 }
 
 .image {
@@ -167,7 +160,7 @@
   color: var(--text-main);
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;        /* 1 linha sempre */
+  white-space: nowrap;
 }
 
 .bio {
@@ -183,7 +176,7 @@
   line-height: 1.4;
 }
 
-/* ─── STATS e AUTHOR (fixos no rodapé do card) ──────────── */
+/* ─── STATS E AUTHOR ────────────────────────────────────── */
 .stats {
   position: absolute;
   bottom: 8px;
@@ -204,13 +197,18 @@
 .author {
   position: absolute;
   bottom: 8px;
-  left: 76px;               /* alinha depois da imagem */
+  left: 8px;
   font-size: 11px;
   color: var(--author-color);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: calc(100% - 86px);
+}
+
+.author:hover {
+  color: var(--text-main);
+  text-decoration: underline;
 }
 
 /* ─── ESTADOS ───────────────────────────────────────────── */
@@ -220,29 +218,56 @@
   padding: 16px 0;
 }
 
-/* ─── BREAKPOINTS — mesma lógica do CardExplore ────────── */
-
-/* mobile: 1 card visível */
-@media (max-width: 500px) {
-  .card { width: calc(100% - 0px); }
+/* ─── CARD LOADING INDICATOR ───────────────────────────── */
+.cardLoadingIndicator {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px;
+  border-style: dashed;
+  cursor: default;
+  opacity: 0.6;
 }
 
-/* mobile médio: 2 cards */
+.cardLoadingIndicator p {
+  margin: 0;
+  font-size: 11px;
+  color: var(--text-card);
+  font-weight: 500;
+}
+
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--card-border);
+  border-top-color: var(--text-main);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ─── BREAKPOINTS ───────────────────────────────────────── */
+ @media (max-width: 500px) {
+  .card { width: calc(100% - 0px); }
+  .navBtn { display: none; }
+}
+
 @media (min-width: 501px) and (max-width: 749px) {
   .card { width: calc(50% - 6px); }
 }
 
-/* tablet: 3 cards */
 @media (min-width: 750px) and (max-width: 1161px) {
   .card { width: calc(33.333% - 8px); }
 }
 
-/* desktop: 4 cards */
 @media (min-width: 1162px) {
   .card { width: calc(25% - 9px); }
 }
 
-/* imagem maior em desktop */
 @media (min-width: 1025px) {
   .image {
     height: 65px;
@@ -250,8 +275,3 @@
   }
 }
 
-@media (min-width: 750px) {
-.container {
-    width: 80%;
-  }
-}

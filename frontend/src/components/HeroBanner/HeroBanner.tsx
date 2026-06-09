@@ -1,4 +1,4 @@
-'use client';
+import { FiSearch, FiPlusCircle } from "react-icons/fi";
 import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import styles from './HeroBanner.module.css';
@@ -38,8 +38,8 @@ export const HeroBanner = () => {
         </p>
 
         <div className={styles.btnGroup}>
-          <Link to={'/create-character'}  className={styles.primaryButton}><i className="fa-solid fa-masks-theater"></i> Criar personagem</Link>
-          <button className={styles.secondaryButton}>Explorar →</button>
+          <Link to={'/create-character'}  className={styles.primaryButton}><FiPlusCircle /> Criar personagem</Link>
+          <button className={styles.secondaryButton}><FiSearch /> Explorar</button>
         </div>
 
         {/* <div className={styles.stats}>

@@ -65,7 +65,6 @@ export async function updateCharacterService(personagemId: number, payload: any,
 
 // create character
 export async function createCharacterService(usuarioId: number, payload: any, token: string): Promise<Character> {
-    console.log('[createCharacterService] Criando personagem:', { usuarioId, payloadKeys: Object.keys(payload), tokenPresent: !!token });
     try {
         const res = await axios.post(
             `${API_URL}/character/create-character/${usuarioId}`, 

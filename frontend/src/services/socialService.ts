@@ -1,6 +1,6 @@
 import axios from "axios";
 import { API_URL } from "../config/api";
-import type { Favorite, FavoriteResponse, LikeResponse, LikesQuantityResponse } from "../types/social";
+import type { Favorite, FavoriteResponse, LikeResponse, LikesQuantityResponse } from "../types/social/social";
 
 // ==================== LIKES ====================
 //// Route to show likes that the user has given 

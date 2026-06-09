@@ -6,6 +6,7 @@ import { recentCharacters } from './services/personagemService';
 import Menu from './components/Menu/Menu';
 import ProfilePerson from './components/ProfilePerson/ProfilePerson';
 import { useParams } from 'react-router-dom';
+import { FiSend } from "react-icons/fi";
 import { API_URL } from './config/api';
 import { useCharacters } from './hooks/useCharacters/useCharacters';
 
@@ -154,7 +155,7 @@ function App() {
 
       // 1. Envia a mensagem para a IA
       const res = await axios.post<ChatResponse>(
-        `${API_URL}/chat/${personagemId}`,
+        `${API_URL}/chat/chat/${personagemId}`,
         { message: userMsg },
         config
       );
@@ -279,7 +280,7 @@ function App() {
               disabled={isLoading || !message.trim()}
               title='Enviar (Enter)'
             >
-              <i className='fa-solid fa-paper-plane'></i>
+              <FiSend size={20} />
             </button>
           </div>
         </main>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { SearchFavoritesUser, SearchLikesUser, SearchQuantityLikes, toggleFavorite, toggleLike } from "../../services/socialService";
 import { useAuth } from "../AuthContext/AuthContext";
-import type { SocialContextType } from "../../types/social";
+import type { SocialContextType } from "../../types/social/social";
 
 export function useSocial(): SocialContextType {
   const { usuarioId: userId, token } = useAuth();

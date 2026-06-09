@@ -1,14 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import styles from './CreateCharacter.module.css';
+import { FiEdit2 } from "react-icons/fi";
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/AuthContext/AuthContext';
 import { useCharacters } from '../../hooks/useCharacters/useCharacters';
 import { converterBase64 } from '../../utils/CorverteImagem/corverteImagem';
 import { QuickCreateMode } from '../../components/quick-create/quick-create';
-
-const contarPalavras = (texto: string) => {
-  return texto.trim().split(/\s+/).filter(palavra => palavra.length > 0).length;
-};
 
 const validarNome = (texto: string) => {
   // Remove caracteres especiais, mantendo apenas letras, números e espaços
@@ -140,17 +137,11 @@ function CreateCharacter() {
 
         if (fotoia) payload.fotoia = fotoia;
         
-        console.log('[CreateCharacter] Enviando payload:', { nome, tipo_personagem, payloadSize: JSON.stringify(payload).length });
-        
-        const operacao = location.state?.editar ? 'editar' : 'criar';
-        console.log(`[CreateCharacter] ${operacao.toUpperCase()} personagem...`);
         
         await (location.state?.editar 
             ? updateCharacter(location.state.personagem.id, payload, token) 
             : createCharacter(usuarioId, payload, token)
         );
-        
-        console.log('[CreateCharacter] ✓ Operação concluída com sucesso');
         
         navigate(`/perfil/${usuarioId}`);
     } catch (err: any) {
@@ -226,7 +217,9 @@ function CreateCharacter() {
                                 objectFit: 'cover',
                             }}
                         />
-                        <div style={{
+                    <div
+                        onClick={() => document.getElementById('fotoia')?.click()}
+                        style={{
                             position: 'absolute',
                             bottom: '0',
                             right: '0',
@@ -237,13 +230,19 @@ function CreateCharacter() {
                             display: 'flex',
                             justifyContent: 'center',
                             alignItems: 'center',
-                            border: '2px solid var(--text-main)'
-                        }}>
-                            <label htmlFor="foto" style={{ cursor: 'pointer', margin: 0, color: 'var(--text-main)' }}>
-                                <i className="fa-solid fa-pen"></i>
-                            </label>
-                            <input id="foto" type="file" onChange={(e) => converterBase64(e, setFotoia)} accept="image/*" style={{ display: 'none' }} />
-                        </div>
+                            border: '2px solid var(--text-main)',
+                            cursor: 'pointer'
+                        }}
+                    >
+                        <FiEdit2 size={16}/>
+                        <input 
+                            id="fotoia" 
+                            type="file" 
+                            onChange={(e) => converterBase64(e, setFotoia)} 
+                            accept="image/*" 
+                            style={{ display: 'none' }} 
+                        />
+                    </div>
                     </div>
                     <h1 style={{ fontSize: '20px', fontWeight: '700', margin: '20px 0 0 0' }}>
                         {modoEdicao ? "Editar personagem" : isFiccional ? "Crie Seu Personagem fictício" : "Criar personagem"}
@@ -347,7 +346,19 @@ function CreateCharacter() {
                                 </div>  
                             </>
                         )}
-
+                        <div className={styles.formGroup}>
+                                <label>Gênero</label>
+                                <input 
+                                    type="text" 
+                                    placeholder="Qual é o gênero?" 
+                                    value={genero} 
+                                    maxLength={20}
+                                    onChange={(e) => {
+                                        setGenero(e.target.value);
+                                    }}
+                                />
+                                <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{genero.length}/20 palavras</p>
+                        </div>
                         <div className={styles.formGroup}>
                             <label>Descrição</label>
                             <textarea 
@@ -445,6 +456,7 @@ function CreateCharacter() {
                             <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{relacaoUsuario.length}/200 palavras</p>
                         </div>
 
+
                         {/* Objetivos */}
                         <div className={styles.formGroup}>
                             <label>Objetivos</label>
@@ -499,6 +511,7 @@ function CreateCharacter() {
                                 <option value="narrativo">Estilo Imersivo (Narrativo)</option>
                                 <option value="robotico">Robótico (Lógico/Analítico)</option>
                                 <option value="dinamico">Dinâmico (Híbrido)</option>
+                                <option value="assistente">Assistente (Prestativo/Formal)</option>
                             </select>
                         </div>
                     </>

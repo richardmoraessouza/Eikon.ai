@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styles from './SettingsModal.module.css';
+import { FiImage, FiLogIn, FiSliders, FiUser } from "react-icons/fi";
 import TapsProfileEdit from './Taps/TapsProfileEdit/TapsProfileEdit';
 import TapsPreferencesTheme from './Taps/TapsPreferencesTheme/TapsPreferencesTheme';
 
@@ -9,10 +10,10 @@ interface SettingsModalProps {
 }
 
 const TABS = [
-  { id: 'perfil', label: 'Perfil' },
-  { id: 'conta', label: 'Conta' },
-  { id: 'preferencias', label: 'Preferências' },
-  { id: 'molduras', label: 'Molduras' },
+   { id: 'perfil', label: 'Perfil', icon: <FiUser size={15} /> },
+  { id: 'conta', label: 'Conta', icon: <FiLogIn size={15} /> },
+  { id: 'preferencias', label: 'Preferências', icon: <FiSliders size={15} /> },
+  { id: 'molduras', label: 'Molduras', icon: <FiImage size={15} /> },
 ];
 
 const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {

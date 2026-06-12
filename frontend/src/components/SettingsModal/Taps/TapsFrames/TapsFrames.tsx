@@ -11,6 +11,7 @@ const FRAMES = [
   { id: 'frameFoxy', file: 'frameFoxy.png', label: 'Foxy' },
   { id: 'frameDark', file: 'frameDark.png', label: 'Dark' },
   { id: 'frameRainbow', file: 'frameRainbow.png', label: 'Rainbow' },
+  { id: 'frameHorror', file: 'frameHorror.png', label: 'Horror' },
 ];
 
 const TapsFrames = () => {
@@ -51,6 +52,39 @@ const TapsFrames = () => {
     }
   };
 
+  // 1. Estado de Carregamento Inicial (Skeleton enquanto o contexto do Auth carrega o usuarioId)
+  if (!usuarioId) {
+    return (
+      <section className={styles.section} aria-busy="true">
+        <div className={styles.previewBig}>
+          <div className={styles.previewBigWrapper}>
+            <div className={`${styles.previewBigAvatar} ${styles.skeletonCircle}`} />
+          </div>
+          <div className={styles.skeletonTextRow} style={{ width: '150px', margin: '0 auto' }} />
+        </div>
+
+        <div className={styles.divider} />
+
+        <div className={styles.grid}>
+          {/* Renderiza skeletons para a opção "Nenhuma" + os 5 frames fixos */}
+          {Array.from({ length: FRAMES.length + 1 }).map((_, index) => (
+            <div key={`frame-skeleton-${index}`} className={`${styles.frameCard} ${styles.skeletonCard}`}>
+              <div className={styles.previewWrapper}>
+                <div className={`${styles.previewAvatar} ${styles.skeletonCircle}`} />
+              </div>
+              <div className={styles.skeletonTextRow} style={{ width: '60px', marginTop: '8px' }} />
+            </div>
+          ))}
+        </div>
+
+        <div className={styles.footer}>
+          <div className={styles.skeletonButton} />
+        </div>
+      </section>
+    );
+  }
+
+  // 2. Renderização Principal do Componente
   return (
     <section className={styles.section}>
       <div className={styles.previewBig}>

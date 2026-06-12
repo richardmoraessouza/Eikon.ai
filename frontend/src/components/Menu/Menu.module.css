@@ -422,3 +422,24 @@
         max-height: 35vh; 
     }
 }
+
+.skeletonCircle {
+  width: 28px; /* Equivalente ao w-7 */
+  height: 28px; /* Equivalente ao h-7 */
+  background-color: #2a2a2a;
+  border-radius: 50%;
+  animation: pulseMenu 1.5s infinite ease-in-out;
+}
+
+.skeletonNameRow {
+  height: 12px;
+  background-color: #2a2a2a;
+  border-radius: 4px;
+  animation: pulseMenu 1.5s infinite ease-in-out;
+}
+
+@keyframes pulseMenu {
+  0% { opacity: 0.6; }
+  50% { opacity: 0.3; }
+  100% { opacity: 0.6; }
+}

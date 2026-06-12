@@ -113,13 +113,38 @@ const TapsProfileEdit: React.FC = () => {
         }
     };
 
+    // 1. Estado de Carregamento estruturado com Skeletons miméticos
     if (loading) return (
-        <div className={styles.loadingState}>
-            <div className={styles.spinner} />
-            <span>Carregando dados...</span>
-        </div>
+        <section className={styles.section} aria-busy="true">
+            <div className={styles.container}>
+                
+                {/* Skeleton do Avatar */}
+                <div className={styles.avatarSection}>
+                    <div className={styles.avatarWrapOuter}>
+                        <div className={`${styles.avatarWrapper} ${styles.skeletonCircle}`} />
+                    </div>
+                </div>
+
+                {/* Skeleton do Campo de Nome */}
+                <div className={styles.field}>
+                    <div className={styles.skeletonLabel} />
+                    <div className={styles.skeletonInput} />
+                </div>
+
+                {/* Skeleton do Campo de Descrição */}
+                <div className={styles.field}>
+                    <div className={styles.skeletonLabel} />
+                    <div className={`${styles.skeletonInput} ${styles.skeletonTextarea}`} />
+                </div>
+
+                {/* Skeleton do Botão de Submit */}
+                <div className={styles.skeletonButton} />
+                
+            </div>
+        </section>
     );
 
+    // 2. Renderização Principal do Formulário
     return (
         <section className={styles.section}>
             <form onSubmit={handleSubmit} className={styles.container}>

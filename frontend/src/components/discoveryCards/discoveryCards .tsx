@@ -10,6 +10,9 @@ import MiniProfile from "../MiniProfile/MiniProfile";
 import type { MiniProfileType } from "../../types/users/users";
 import styles from "./discoveryCards.module.css";
 
+// Define quantos skeletons vão aparecer na tela no primeiro carregamento
+const SKELETON_COUNT = 5;
+
 interface DiscoveryCharacter {
   id: number;
   nome: string;
@@ -174,13 +177,34 @@ export const DiscoveryCards = ({
     </article>
   );
 
+  // 2. Renderização do Skeleton no Primeiro Carregamento (Substituído o texto fixo)
   if (loading && characters.length === 0) return (
     <article className={styles.container}>
-      <div className={styles.header}><h2>{icon} {title}</h2></div>
-      <div className={styles.loading}>Carregando...</div>
+      <div className={styles.header}>
+        <h2>
+          <span className={styles.headerIcon}>{icon}</span>
+          {title}
+        </h2>
+      </div>
+      <div className={styles.carouselWrapper}>
+        <div className={styles.carouselTrack} aria-busy="true" aria-label="Carregando conteúdos">
+          {Array.from({ length: SKELETON_COUNT }).map((_, index) => (
+            <div key={index} className={`${styles.card} ${styles.skeletonCard}`}>
+              <div className={styles.imageWrapper}>
+                <div className={styles.skeletonImage} />
+              </div>
+              <div className={styles.info}>
+                <div className={styles.skeletonName} />
+                <div className={styles.skeletonBio} />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </article>
   );
 
+  // 3. Renderização de Estado Vazio
   if (!characters || characters.length === 0) return (
     <article className={styles.container}>
       <div className={styles.header}><h2>{icon} {title}</h2></div>
@@ -188,6 +212,7 @@ export const DiscoveryCards = ({
     </article>
   );
 
+  // 4. Renderização Principal
   return (
     <article className={styles.container}>
       <div className={styles.header}>

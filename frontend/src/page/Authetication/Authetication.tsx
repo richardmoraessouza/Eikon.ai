@@ -118,10 +118,7 @@ function Authentication({ verificar }: SituacaoProps) {
             setLoginErro(err.response?.data?.error || "Erro na autenticação.");
         }
     };
-
-     console.log(dados);
-
-
+    
     return (
         <main className={styles.authentication}>
 

@@ -14,11 +14,13 @@ export const ExploreSections = () => {
   const [activeTag, setActiveTag] = useState<string>('');
   const [characters, setCharacters] = useState<Character[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [loadingTags, setLoadingTags] = useState<boolean>(true);
 
   // 1. Busca as tags do banco
   useEffect(() => {
     async function fetchSystemTags() {
       try {
+        setLoadingTags(true);
         const data = await loadTags();
         setTags(data);
         if (data.length > 0) {
@@ -26,6 +28,8 @@ export const ExploreSections = () => {
         }
       } catch (err) {
         console.error("Error loading tags:", err);
+      } finally {
+        setLoadingTags(false);
       }
     }
     fetchSystemTags();
@@ -60,23 +64,29 @@ export const ExploreSections = () => {
         ref={tagsRef}
         {...tagsDragProps}
       >
-        {tags.map((tag) => (
-          <button
-            key={tag.id}
-            onClick={() => setActiveTag(tag.slug)}
-            className={`${styles.tagBtn} ${activeTag === tag.slug ? styles.tagBtnActive : ''}`}
-          >
-            {tag.nome}
-          </button>
-        ))}
+        {/* Renderiza Skeletons das tags caso o banco esteja lendo a primeira chamada */}
+        {loadingTags ? (
+          Array.from({ length: 6 }).map((_, index) => (
+            <div key={`tag-skeleton-${index}`} className={`${styles.tagBtn} ${styles.skeletonTag}`} />
+          ))
+        ) : (
+          tags.map((tag) => (
+            <button
+              key={tag.id}
+              onClick={() => setActiveTag(tag.slug)}
+              className={`${styles.tagBtn} ${activeTag === tag.slug ? styles.tagBtnActive : ''}`}
+            >
+              {tag.nome}
+            </button>
+          ))
+        )}
       </div>
 
-      {/* Carrossel de Cards Abaixo */}
-      {loading ? (
-        <div className={styles.loading}>Sincronizando entidades...</div>
-      ) : (
-        <CarouselRow characters={characters} />
-      )}
+      {/* === ATUALIZADO AQUI ===
+        Passamos o loading direto para o carrossel interno. 
+        Não quebramos mais o fluxo renderizando divs estáticas de "Carregando...".
+      */}
+      <CarouselRow characters={characters} loading={loading} />
     </div>
   );
 };

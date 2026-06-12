@@ -8,6 +8,9 @@ import styles from "./CardExplore.module.css";
 import { FiMessageSquare, FiHeart, FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { searchCreatorNameService } from "../../services/users/userService";
 
+// Define quantos skeletons vão aparecer na tela no primeiro carregamento
+const SKELETON_COUNT = 5; 
+
 const CardExplore = () => {
   const navigate = useNavigate();
   const { carouselRef, hasDragged, dragProps } = useDragScroll();
@@ -16,36 +19,51 @@ const CardExplore = () => {
   const [likesCount, setLikesCount] = useState<Record<number, number>>({});
   const [creatorNames, setCreatorNames] = useState<Record<number, string>>({});
 
+  // Busca nomes dos criadores evitando duplicar chamadas
   useEffect(() => {
     async function loadCreatorNames() {
-      const namesMap: Record<number, string> = {};
+      const namesMap: Record<number, string> = { ...creatorNames };
+      let changed = false;
+
       for (const character of exploreCharacters) {
+        if (namesMap[character.id] !== undefined) continue;
+
         try {
           if (character.nome_criador) {
             namesMap[character.id] = character.nome_criador;
+            changed = true;
           } else if (character.usuario_id) {
             const creator = await searchCreatorNameService(character.usuario_id);
             namesMap[character.id] = creator.nome;
+            changed = true;
           } else {
             namesMap[character.id] = "Desconhecido";
+            changed = true;
           }
         } catch {
           namesMap[character.id] = "Desconhecido";
+          changed = true;
         }
       }
-      setCreatorNames(namesMap);
+      if (changed) setCreatorNames(namesMap);
     }
     if (exploreCharacters.length > 0) loadCreatorNames();
   }, [exploreCharacters]);
 
+  // Busca contagem de likes evitando duplicar chamadas
   useEffect(() => {
     async function loadLikesCount() {
-      const likesMap: Record<number, number> = {};
+      const likesMap: Record<number, number> = { ...likesCount };
+      let changed = false;
+
       for (const character of exploreCharacters) {
+        if (likesMap[character.id] !== undefined) continue;
+        
         const total = await getQuantityLikes(character.id);
         likesMap[character.id] = total;
+        changed = true;
       }
-      setLikesCount(likesMap);
+      if (changed) setLikesCount(likesMap);
     }
     if (exploreCharacters.length > 0) loadLikesCount();
   }, [exploreCharacters]);
@@ -74,6 +92,7 @@ const CardExplore = () => {
     if (!hasDragged) navigate(`/personagem/${characterId}`);
   };
 
+  // 1. Tratamento de Erro
   if (exploreError) return (
     <article className={styles.container}>
       <div className={styles.header}><h2>Para Você</h2></div>
@@ -81,13 +100,29 @@ const CardExplore = () => {
     </article>
   );
 
+  // 2. Estado de Carregamento Inicial (Skeleton)
   if (exploreLoading && exploreCharacters.length === 0) return (
     <article className={styles.container}>
-      <div className={styles.header}><h2>Para Você</h2></div>
-      <div className={styles.loading}>Carregando...</div>
+      <div className={styles.header}>
+        <h2>Para Você</h2>
+      </div>
+      <div className={styles.carouselWrapper}>
+        <div className={styles.carouselTrack} aria-busy="true" aria-label="Carregando conteúdos">
+          {Array.from({ length: SKELETON_COUNT }).map((_, index) => (
+            <div key={index} className={styles.skeletonCard}>
+              <div className={styles.skeletonImage} />
+              <div className={styles.skeletonInfo}>
+                <div className={styles.skeletonName} />
+                <div className={styles.skeletonBio} />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </article>
   );
 
+  // 3. Estado de Lista Vazia (Caso a API responda e não venha nada)
   if (!exploreCharacters || exploreCharacters.length === 0) return (
     <article className={styles.container}>
       <div className={styles.header}><h2>Para Você</h2></div>
@@ -95,6 +130,7 @@ const CardExplore = () => {
     </article>
   );
 
+  // 4. Renderização Principal do Conteúdo
   return (
     <article className={styles.container}>
       <div className={styles.header}>

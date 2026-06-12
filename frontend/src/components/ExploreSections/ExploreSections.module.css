@@ -78,3 +78,19 @@
     width: 80%;
   }
 }
+
+.skeletonTag {
+  width: 90px;
+  height: 36px;
+  background-color: #2a2a32; /* Um cinza escuro correspondente ao seu layout */
+  border-radius: 20px;
+  border: none;
+  pointer-events: none;
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.6; }
+  50% { opacity: 0.3; }
+  100% { opacity: 0.6; }
+}

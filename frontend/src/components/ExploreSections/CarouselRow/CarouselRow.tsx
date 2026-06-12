@@ -1,17 +1,21 @@
 import { useNavigate } from "react-router-dom";
 import { useSocial } from "../../../hooks/useSocial/useSocial";
-import { useDragScroll } from "../../../hooks/useDragScroll/useDragScroll"; // Importando seu hook de scroll
+import { useDragScroll } from "../../../hooks/useDragScroll/useDragScroll";
 import type { Character } from "../../../types/characters/characters";
 import styles from "./CarouselRow.module.css"; 
 import { FiMessageSquare, FiHeart, FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { useEffect, useState } from "react";
 import { searchCreatorNameService } from "../../../services/users/userService";
 
+// Quantidade de esquetos exibidos no carregamento
+const SKELETON_COUNT = 5;
+
 interface CarouselRowProps {
   characters: Character[];
+  loading?: boolean; // Adicionado para controlar o estado do Skeleton externo
 }
 
-export const CarouselRow = ({ characters }: CarouselRowProps) => {
+export const CarouselRow = ({ characters, loading = false }: CarouselRowProps) => {
   const navigate = useNavigate();
   const { carouselRef, dragProps, hasDragged } = useDragScroll();
   const { isLiked, handleToggleLike, getQuantityLikes } = useSocial();
@@ -41,7 +45,6 @@ export const CarouselRow = ({ characters }: CarouselRowProps) => {
     if (characters.length > 0) loadCreatorNames();
   }, [characters]);
 
-  // Carrega quantidade real de curtidas
   useEffect(() => {
     async function loadLikesCount() {
       const likesMap: Record<number, number> = {};
@@ -66,13 +69,33 @@ export const CarouselRow = ({ characters }: CarouselRowProps) => {
     carouselRef.current.scrollBy({ left: dir === "right" ? 240 : -240, behavior: "smooth" });
   };
 
+  // 1. Estado de Carregamento Inicial (Skeleton do Carrossel)
+  if (loading && characters.length === 0) {
+    return (
+      <div className={styles.carouselWrapper}>
+        <div className={styles.carouselTrack} aria-busy="true">
+          {Array.from({ length: SKELETON_COUNT }).map((_, index) => (
+            <div key={`skeleton-${index}`} className={`${styles.card} ${styles.skeletonCard}`}>
+              <div className={styles.skeletonImage} />
+              <div className={styles.info}>
+                <div className={styles.skeletonName} />
+                <div className={styles.skeletonBio} />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // 2. Estado de Categoria Vazia
   if (!characters || characters.length === 0) {
     return <div className={styles.empty}>Nenhum personagem encontrado nessa categoria.</div>;
   }
 
+  // 3. Renderização Principal do Carrossel
   return (
     <div className={styles.carouselWrapper}>
-      {/* Setas de navegação lateral */}
       <button onClick={() => scroll("left")} className={`${styles.navBtn} ${styles.navLeft}`} aria-label="Anterior">
         <FiChevronLeft size={16} />
       </button>
@@ -80,7 +103,6 @@ export const CarouselRow = ({ characters }: CarouselRowProps) => {
         <FiChevronRight size={16} />
       </button>
 
-      {/* Esteira arrastável */}
       <div
         className={styles.carouselTrack}
         ref={carouselRef}

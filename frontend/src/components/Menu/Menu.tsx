@@ -156,13 +156,14 @@ function Menu({ setPersonId, onMenuToggle }: MenuProps) {
                         <h2 className={styles.subTitulo}>Recentes</h2>
                         <ul className={`${styles.menuItems} ${styles.containerPerson}`}>
                             {loading ? (
-                                <div className={styles.loaderContainer}>
-                                    <div className={styles.spinner}></div>
-                                    <p>Carregando...</p>
-                                </div>
+                                Array.from({ length: 4 }).map((_, index) => (
+                                    <li key={`recent-skeleton-${index}`} className="flex items-center gap-2 p-1">
+                                        <div className={`${styles.skeletonAvatar} ${styles.skeletonCircle}`} />
+                                        <div className={styles.skeletonNameRow} style={{ width: index % 2 === 0 ? '60%' : '45%' }} />
+                                    </li>
+                                ))
                             ) : personagensRecentesFiltrados.length > 0 ? (
                                 personagensRecentesFiltrados.map((item) => {
-                                    // Verifica se item é um objeto com dados ou apenas um ID numérico
                                     const itemId = typeof item === 'number' ? item : item?.id;
                                     const itemNome = typeof item === 'string' || typeof item === 'number' ? `Personagem ${itemId}` : item?.nome || `Personagem ${itemId}`;
                                     const itemFoto = typeof item === 'string' || typeof item === 'number' ? '/image/semPerfil.jpg' : item?.fotoia || '/image/semPerfil.jpg';

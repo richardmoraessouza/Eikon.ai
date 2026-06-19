@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useSocial } from "../../hooks/useSocial/useSocial";
 import { useDragScroll } from "../../hooks/useDragScroll/useDragScroll";
 import { FiMessageSquare, FiChevronLeft, FiChevronRight, FiHeart } from "react-icons/fi";
@@ -250,7 +250,16 @@ export const DiscoveryCards = ({
               </div>
 
               <div className={styles.info}>
-                <p className={styles.name}>{character.nome}</p>
+               <Link 
+                  to={`/perfil/${character.usuario_id}`} 
+                  className={styles.name}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (hasDragged) e.preventDefault();
+                  }}
+                >
+                  {character.nome}
+                </Link>
                 {character.bio && <p className={styles.bio}>{character.bio}</p>}
               </div>
 

@@ -30,22 +30,21 @@ export const useDragScroll = () => {
   };
 
   const onMouseMove = (e: MouseEvent<HTMLDivElement>) => {
-    if (!isDown.current || !carouselRef.current) return;
+  if (!isDown.current || !carouselRef.current) return;
+  const x = e.pageX - carouselRef.current.offsetLeft;
+  const walk = (x - startX.current) * 1.5; 
+    
+  if (Math.abs(walk) > 3) {
+    setHasDragged(true);
     e.preventDefault();
-    const x = e.pageX - carouselRef.current.offsetLeft;
-    const walk = (x - startX.current) * 1.5; 
+  }
     
-    // Se moveu mais de 3 pixels, ativa a flag de que o usuário arrastou a lista
-    if (Math.abs(walk) > 3) {
-      setHasDragged(true);
-    }
-    
-    carouselRef.current.scrollLeft = scrollLeft.current - walk;
-  };
+  carouselRef.current.scrollLeft = scrollLeft.current - walk;
+};
 
   return {
     carouselRef,
-    hasDragged, // Exportando para o componente saber se pode ou não abrir a rota
+    hasDragged,
     dragProps: {
       onMouseDown,
       onMouseLeave,

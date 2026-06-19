@@ -117,7 +117,11 @@ function Menu({ setPersonId, onMenuToggle }: MenuProps) {
                 <aside ref={modalRef} className={`fixed top-0 left-0 p-4 ${styles.menu}`}>
                     <h1>
                         <a href="/explorar" onClick={closeMenuOnMobile} className='flex justify-center items-center w-full'>
-                            <img src="/image/Eikon.ai.svg" alt="Eikon.ai" className={styles.logo} />
+                            <img src="/image/darkEikon.png" alt="Eikon.ai" className={`${styles.logo} ${styles.darkLogo}`} />
+                        </a>
+
+                        <a href="/explorar" onClick={closeMenuOnMobile} className='flex justify-center items-center w-full'>
+                            <img src="/image/lightEikon.png" alt="Eikon.ai" className={`${styles.logo} ${styles.lightLogo}`} />
                         </a>
                     </h1>
 

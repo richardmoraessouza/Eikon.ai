@@ -56,3 +56,9 @@ export interface Tag {
     nome: string;
     slug: string;
 }
+
+// registra um personagem como recentemente acessado pelo usuário
+export interface RecentCharacter {
+  usuarioId: number;
+  personagemId: number;
+}

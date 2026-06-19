@@ -86,8 +86,8 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
-  flex: 1;
-  min-width: 0;
+  /* flex: 1; */
+  /* min-width: 0; */
 }
 
 .nome {
@@ -103,8 +103,10 @@
   font-size: 11px;
   color: var(--text-main);
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  width: 20px;
+  height: 200px;
+  /* overflow: hidden; */
+  /* text-overflow: ellipsis; */
 }
 
 .statusRow {

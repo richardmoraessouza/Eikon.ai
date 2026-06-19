@@ -14,6 +14,11 @@
   --bg-main: #1e1e1e;
   --text-main: #e4e4e7;
   
+  /* chatInput */
+  --quotePreviewInput-bg: rgba(255, 255, 255, 0.05);
+  --sender-name-user: rgba(228, 228, 231, 0.5);
+  --sender-name-bot: rgba(228, 228, 231, 0.5);
+  
   /* profile */
   --profile-header-bg: linear-gradient(to bottom, #1a1a1a, #0f0f0f);
   --profile-modal-bg: #1a1a1a;
@@ -75,6 +80,84 @@
   --settings-accent: #ffffff;
   
   scrollbar-color: #404040 #1a1a1a;
+
+  --dark-logo: none;
+  --light-logo: block;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --bg-main: #1e1e1e;
+    --text-main: #e4e4e7;
+    
+    /* chatInput */
+    --quotePreviewInput-bg: rgba(255, 255, 255, 0.05);
+    --sender-name-user: rgba(228, 228, 231, 0.5);
+    --sender-name-bot: rgba(228, 228, 231, 0.5);
+    
+    /* profile */
+    --profile-header-bg: linear-gradient(to bottom, #1a1a1a, #0f0f0f);
+    --profile-modal-bg: #1a1a1a;
+    --profile-border: #2a2a2a;
+    --profile-divider: #333;
+    --profile-text-muted: #999;
+    --profile-text-secondary: #d0d0d0;
+    --profile-text-accent: #888;
+    --profile-accent-hover: rgba(59, 130, 246, 0.1);
+    --profile-description-bg: rgba(59, 130, 246, 0.05);
+    --profile-description-border: rgba(59, 130, 246, 0.1);
+
+    /* bot */
+    --chat-bg: linear-gradient(180deg, #0f0f0f 0%, #1a1a1a 100%);
+    --bot-bubble-message-bg: #1a1a1a;
+    --bot-bubble-message-border: #1a1a1a;
+    --bot-bubble-hover-border: #333;
+
+    /* user */
+    --user-bubble-message-border: #3b82f6;
+    --user-bubble-message-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
+    --user-bubble-message-bg: #3b82f6;
+    --user-bubble-hover: #2563eb;
+
+    --send-message: #1a1a1a;
+    --send-message-border: #2a2a2a;
+    --message-placeholder: #666;
+
+    /* menu */
+    --light-background: #232323;
+    --menu-magnifying-glass: rgba(226, 232, 240, 0.05);
+    --menu-hover: rgba(226, 232, 240, 0.08);
+    --menu-caption: rgba(148, 163, 184, 0.7);
+    
+    /* input */
+    --input-bg: rgba(226, 232, 240, 0.05);
+    --input-border: rgba(255, 255, 255, 0.1);
+    --input-placeholder: rgba(148, 163, 184, 0.5);
+    --input-focus-bg: rgba(226, 232, 240, 0.08);
+    --input-focus-border: rgba(226, 232, 240, 0.2);
+    --input-focus-shadow: 0 0 0 3px rgba(226, 232, 240, 0.05);
+    
+    /* styles card */
+    --bg-card: rgba(255,255,255,0.03);
+    --card-border: rgba(255,255,255,0.08);
+    --border-color-hover: rgba(255,255,255,0.2);
+    --card-shadow: 0 4px 20px transparent;
+    --author-color: #555;
+    
+    /* settings modal */
+    --settings-bg: #121214;
+    --settings-sidebar-bg: #1c1c1e;
+    --settings-border: #27272a;
+    --settings-text: #e4e4e7;
+    --settings-text-muted: #a1a1aa;
+    --settings-hover: rgba(255, 255, 255, 0.05);
+    --settings-active: #2d2d30;
+    --settings-content-bg: #18181b;
+    --settings-accent: #ffffff;
+
+    --dark-logo: none;
+    --light-logo: block;
+  }
 }
 
 /* ==========================================================================
@@ -83,6 +166,11 @@
 [data-theme="light"] {
   --bg-main: #fafbfc;
   --text-main: #1a1a1a;
+  
+  /* chatInput */
+  --quotePreviewInput-bg: rgba(0, 0, 0, 0.08);
+  --sender-name-user: #1d4ed8;
+  --sender-name-bot: #374151;
 
   /* profile */
   --profile-header-bg: linear-gradient(to bottom, #f8faff, #f0f4ff);
@@ -144,8 +232,12 @@
   --settings-active: #f0f4f9;
   --settings-content-bg: #fafbfc;
   --settings-accent: #3b82f6;
-  
+  --dark-logo: none;
+  --light-logo: block;
   scrollbar-color: #d0dce6 #f3f6fb;
+
+  --dark-logo: block;
+  --light-logo: none;
 }
 
 /* ==========================================================================
@@ -155,6 +247,11 @@
   :root:not([data-theme]) {
     --bg-main: #fafbfc;
     --text-main: #1a1a1a;
+
+    /* chatInput */
+    --quotePreviewInput-bg: rgba(0, 0, 0, 0.08);
+    --sender-name-user: #1d4ed8;
+    --sender-name-bot: #374151;
     
     /* profile */
     --profile-header-bg: linear-gradient(to bottom, #f8faff, #f0f4ff);
@@ -216,73 +313,9 @@
     --settings-active: #f0f4f9;
     --settings-content-bg: #fafbfc;
     --settings-accent: #3b82f6;
-  }
-}
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme]) {
-    --bg-main: #1e1e1e;
-    --text-main: #e4e4e7;
-    
-    /* profile */
-    --profile-header-bg: linear-gradient(to bottom, #1a1a1a, #0f0f0f);
-    --profile-modal-bg: #1a1a1a;
-    --profile-border: #2a2a2a;
-    --profile-divider: #333;
-    --profile-text-muted: #999;
-    --profile-text-secondary: #d0d0d0;
-    --profile-text-accent: #888;
-    --profile-accent-hover: rgba(59, 130, 246, 0.1);
-    --profile-description-bg: rgba(59, 130, 246, 0.05);
-    --profile-description-border: rgba(59, 130, 246, 0.1);
-
-    /* bot */
-    --chat-bg: linear-gradient(180deg, #0f0f0f 0%, #1a1a1a 100%);
-    --bot-bubble-message-bg: #1a1a1a;
-    --bot-bubble-message-border: #1a1a1a;
-    --bot-bubble-hover-border: #333;
-
-    /* user */
-    --user-bubble-message-border: #3b82f6;
-    --user-bubble-message-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
-    --user-bubble-message-bg: #3b82f6;
-    --user-bubble-hover: #2563eb;
-
-    --send-message: #1a1a1a;
-    --send-message-border: #2a2a2a;
-    --message-placeholder: #666;
-
-    /* menu */
-    --light-background: #232323;
-    --menu-magnifying-glass: rgba(226, 232, 240, 0.05);
-    --menu-hover: rgba(226, 232, 240, 0.08);
-    --menu-caption: rgba(148, 163, 184, 0.7);
-    
-    /* input */
-    --input-bg: rgba(226, 232, 240, 0.05);
-    --input-border: rgba(255, 255, 255, 0.1);
-    --input-placeholder: rgba(148, 163, 184, 0.5);
-    --input-focus-bg: rgba(226, 232, 240, 0.08);
-    --input-focus-border: rgba(226, 232, 240, 0.2);
-    --input-focus-shadow: 0 0 0 3px rgba(226, 232, 240, 0.05);
-    
-    /* styles card */
-    --bg-card: rgba(255,255,255,0.03);
-    --card-border: rgba(255,255,255,0.08);
-    --border-color-hover: rgba(255,255,255,0.2);
-    --card-shadow: 0 4px 20px transparent;
-    --author-color: #555;
-    
-    /* settings modal */
-    --settings-bg: #121214;
-    --settings-sidebar-bg: #1c1c1e;
-    --settings-border: #27272a;
-    --settings-text: #e4e4e7;
-    --settings-text-muted: #a1a1aa;
-    --settings-hover: rgba(255, 255, 255, 0.05);
-    --settings-active: #2d2d30;
-    --settings-content-bg: #18181b;
-    --settings-accent: #ffffff;
+    --dark-logo: block;
+    --light-logo: none;
   }
 }
 

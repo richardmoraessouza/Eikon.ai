@@ -1,8 +1,7 @@
 import { API_URL } from "../../config/api";
 import axios from "axios";
-import type { Character, CharacterbyId, views, Tag} from "../../types/characters/characters";
+import type { Character, CharacterbyId, views, Tag, RecentCharacter } from "../../types/characters/characters";
 
-// show all characters in the explore page
 export const getCharactersPaginated = async (
     limit = 20,
     offset = 0,
@@ -22,11 +21,9 @@ export const getCharactersPaginated = async (
     }
 };
 
-// Search for the character data by id
 export async function searchCharacterById(personagemId: number): Promise<CharacterbyId> {
     try {
         const res = await axios.get(`${API_URL}/character/data-character-by-id/${personagemId}`);
-
         return res.data;
     } catch (error) {
         console.error(`Error searching character data for ${personagemId}:`, error);
@@ -34,16 +31,13 @@ export async function searchCharacterById(personagemId: number): Promise<Charact
     }
 }
 
-// Increments the chat view count for a character — requires a valid token
 export async function incrementChatViews(personagemId: number, token: string): Promise<views> {
     try {
-        const config = {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        };
-        const res = await axios.post<views>(`${API_URL}/character/increment-chat-views/${personagemId}`, {}, config);
-
+        const res = await axios.post<views>(
+            `${API_URL}/character/increment-chat-views/${personagemId}`,
+            {},
+            { headers: { Authorization: `Bearer ${token}` } }
+        );
         return res.data;
     } catch (err: any) {
         console.error('Error incrementing chat views:', err);
@@ -51,38 +45,29 @@ export async function incrementChatViews(personagemId: number, token: string): P
     }
 }
 
-// update character
 export async function updateCharacterService(personagemId: number, payload: any, token: string): Promise<Character> {
     const res = await axios.put(
-        `${API_URL}/character/update-character/${personagemId}`, 
+        `${API_URL}/character/update-character/${personagemId}`,
         payload,
         { headers: { Authorization: `Bearer ${token}` } }
     );
     return res.data;
 }
 
-// create character
 export async function createCharacterService(usuarioId: number, payload: any, token: string): Promise<Character> {
     try {
         const res = await axios.post(
-            `${API_URL}/character/create-character/${usuarioId}`, 
+            `${API_URL}/character/create-character/${usuarioId}`,
             payload,
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            }
+            { headers: { Authorization: `Bearer ${token}` } }
         );
         return res.data;
     } catch (err: any) {
-        console.error('[createCharacterService] ❌ Erro ao criar:', err?.response?.data || err?.message);
+        console.error('[createCharacterService] Erro ao criar:', err?.response?.data || err?.message);
         throw err;
     }
 }
 
-/**
- * Fetches all available categories/tags to render the filter buttons on the UI
- */
 export const fetchTagsService = async (): Promise<Tag[]> => {
     try {
         const res = await axios.get<Tag[]>(`${API_URL}/ratings/tags`);
@@ -93,9 +78,6 @@ export const fetchTagsService = async (): Promise<Tag[]> => {
     }
 };
 
-/**
- * Fetches characters for a specific category slug using your global Character type
- */
 export const fetchCharactersByCategoryService = async (
     slug: string,
     limit = 20,
@@ -131,5 +113,21 @@ export async function getRecentCharacters(usuarioId: number): Promise<Character[
     } catch (error) {
         console.error(`Error fetching recent characters for user ${usuarioId}:`, error);
         return [];
+    }
+}
+
+export async function recentCharactersService(
+    usuarioId: number,
+    personagemId: number
+): Promise<RecentCharacter> {
+    try {
+        const res = await axios.post<RecentCharacter>(
+            `${API_URL}/character/recent-characters/${usuarioId}/${personagemId}`,
+            {}
+        );
+        return res.data;
+    } catch (err: any) {
+        console.error('[recentCharactersService] Erro ao registrar personagem recente:', err);
+        throw err;
     }
 }

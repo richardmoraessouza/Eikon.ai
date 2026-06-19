@@ -6,15 +6,17 @@ interface QuickCreateModeProps {
   bio: string;
   descricao: string;
   obra: string;
-  quickPrompt: string;
+  quick_prompt: string;
   isFiccional: boolean;
   conversation_style: string;
+  is_modo_rapido: boolean;
   onNomeChange: (value: string) => void;
   onBioChange: (value: string) => void;
   onConversationStyleChange: (value: string) => void;
   onDescricaoChange: (value: string) => void;
   onObraChange: (value: string) => void;
-  onQuickPrompt: (value: string) => void;
+  onQuick_prompt: (value: string) => void;
+  onIs_modo_rapido: (value: boolean) => void;
 }
 const validarNome = (texto: string) => {
   // Remove caracteres especiais, mantendo apenas letras, números e espaços
@@ -29,15 +31,21 @@ export const QuickCreateMode: React.FC<QuickCreateModeProps> = ({
   conversation_style,
   descricao, 
   obra,
-  quickPrompt,
+  quick_prompt,
   isFiccional,
+  onIs_modo_rapido,
   onNomeChange,
-  onQuickPrompt,
+  onQuick_prompt,
   onBioChange,
   onConversationStyleChange,
   onDescricaoChange,
   onObraChange
 }) => {
+
+  React.useEffect(() => {
+    onIs_modo_rapido(true);
+    return () => onIs_modo_rapido(false);
+  }, [])
   
   return (
     <div className={styles.modoRapidoContainer}>      
@@ -109,18 +117,18 @@ export const QuickCreateMode: React.FC<QuickCreateModeProps> = ({
       </div>
 
       <div className={styles.formGroup}>
-        <label htmlFor="quick-prompt">Defina seu Personagem</label>
+        <label htmlFor="quick_prompt">Defina seu Personagem</label>
         <textarea
-          id="quick-prompt"
-          value={quickPrompt}
+          id="quick_prompt"
+          value={quick_prompt}
           maxLength={500}
           placeholder="Escreva em poucas palavras como você imagina o personagem. Ex: Um guerreiro de poucas palavras, ranzinza, mas com um coração gigante..."
           className={styles.textarea}
           onChange={(e) => {
-            onQuickPrompt(e.target.value);
+            onQuick_prompt(e.target.value);
           }}
         />
-        <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{quickPrompt.length}/500 caracteres</p>
+        <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{quick_prompt.length}/500 caracteres</p>
       </div>
 
        <div className={styles.formGroup}>

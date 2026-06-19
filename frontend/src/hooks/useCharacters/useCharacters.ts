@@ -1,4 +1,4 @@
-import type { Character, CharacterbyId, views, Tag } from "../../types/characters/characters";
+import type { Character, CharacterbyId, views, Tag, RecentCharacter } from "../../types/characters/characters";
 import type { Favorite } from "../../types/social/social";
 import {
   getCharactersPaginated,
@@ -10,6 +10,7 @@ import {
   fetchCharactersByCategoryService,
   getCharactersByUserId,
   getRecentCharacters,
+  recentCharactersService,
 } from "../../services/characters/characters";
 import { SearchFavoritesUser } from "../../services/socialService";
 import { useEffect, useState, useCallback, useRef } from "react";
@@ -121,6 +122,19 @@ export function useCharacters() {
     return await fetchCharactersByCategoryService(slug, limit, offset);
   }, []);
 
+  // search for characters recently accessed by the user, ordered by most recent
+  const recentCharacters = useCallback(async (
+  usuarioId: number,
+  personagemId: number
+  ): Promise<RecentCharacter | null> => {
+    try {
+      return await recentCharactersService(usuarioId, personagemId);
+    } catch (err) {
+      console.error('Erro ao registrar personagem recente:', err);
+      return null;
+    }
+  }, []);
+
   return {
     exploreCharacters,
     exploreLoading,
@@ -132,7 +146,8 @@ export function useCharacters() {
     createCharacter,
     updateCharacter,
     loadTags,
-    loadCharactersByCategory
+    loadCharactersByCategory,
+    recentCharacters
   };
 }
 

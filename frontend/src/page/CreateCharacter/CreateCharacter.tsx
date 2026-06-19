@@ -34,7 +34,8 @@ function CreateCharacter() {
     const [relacaoUsuario, setRelacaoUsuario] = useState('');
     const [conversation_style, setConversation_style] = useState<string>('Modo Direto');
     const [cenario, setCenario] = useState('');
-    const [quickPrompt, setQuickPrompt] = useState('');
+    const [quick_prompt, setQuick_prompt] = useState('');
+    const [is_modo_rapido, setIs_modo_rapido] = useState(false);
 
     // Estados Modo Rápido
     const [modoRapido, setModoRapido] = useState(false);
@@ -74,9 +75,9 @@ function CreateCharacter() {
                     setPrimeiraMensagem(dados.primeiramensagem || '');
                     setRelacaoUsuario(dados.relacaousuario || '');
                     setCenario(dados.cenario || '');
-                    setQuickPrompt(dados.quick_prompt || '');
-                    setModoRapido(dados.is_modo_rapido || false);
-                    
+                    setQuick_prompt(dados.quick_prompt || '');
+                    setIs_modo_rapido(dados.is_modo_rapido || false);
+
                     if (dados.fotoia) {
                         setFotoia(dados.fotoia);
                     }
@@ -127,6 +128,7 @@ function CreateCharacter() {
     setErro('');
 
     try {
+        console.log('modoRapido antes do payload:', modoRapido);
         const payload: any = {
             nome, bio, descricao, personalidade, regras, historia, 
             tipo_personagem, is_modo_rapido: modoRapido,
@@ -134,7 +136,7 @@ function CreateCharacter() {
             aparencia, gostos, desgostos, objetivos, 
             primeiramensagem: primeiraMensagem, 
             relacaousuario: relacaoUsuario, 
-            cenario, conversation_style, quick_prompt: quickPrompt
+            cenario, conversation_style, quick_prompt
         };
 
         if (fotoia) payload.fotoia = fotoia;
@@ -258,15 +260,17 @@ function CreateCharacter() {
                         bio={bio}
                         descricao={descricao}
                         obra={obra}
-                        quickPrompt={quickPrompt}
+                        quick_prompt={quick_prompt}
                         conversation_style={conversation_style}
                         isFiccional={isFiccional}
+                        is_modo_rapido={is_modo_rapido}
                         onNomeChange={setNome}
                         onBioChange={setBio}
                         onDescricaoChange={setDescricao}
                         onObraChange={setObra}
                         onConversationStyleChange={setConversation_style}
-                        onQuickPrompt={setQuickPrompt}
+                        onQuick_prompt={setQuick_prompt}
+                        onIs_modo_rapido={setIs_modo_rapido}
 
                     />
                 ) : (
@@ -302,6 +306,19 @@ function CreateCharacter() {
                             <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{bio.length}/50 palavras</p>
                         </div>
 
+                             <div className={styles.formGroup}>
+                                <label>Gênero</label>
+                                <input 
+                                    type="text" 
+                                    placeholder="Qual é o gênero?" 
+                                    value={genero} 
+                                    maxLength={20}
+                                    onChange={(e) => {
+                                        setGenero(e.target.value);
+                                    }}
+                                />
+                                <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{genero.length}/20 palavras</p>
+                        </div>
                         {/* Campos condicionais */}
                         {isFiccional && (
                             <>
@@ -320,21 +337,6 @@ function CreateCharacter() {
                                     />
                                     <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{obra.length}/50 palavras</p>
                                 </div>
-
-                                <div className={styles.formGroup}>
-                                    <label>Gênero</label>
-                                    <input 
-                                        type="text" 
-                                        placeholder="Qual é o gênero?" 
-                                        value={genero} 
-                                        maxLength={20}
-                                        onChange={(e) => {
-                                            setGenero(e.target.value);
-                                        }}
-                                    />
-                                    <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{genero.length}/20 palavras</p>
-                                </div>
-
                                 <div className={styles.formGroup}>
                                     <label>Cenário</label>
                                     <textarea
@@ -364,6 +366,7 @@ function CreateCharacter() {
                                 />
                                 <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{genero.length}/20 palavras</p>
                         </div>
+
                         <div className={styles.formGroup}>
                             <label>Descrição</label>
                             <textarea 

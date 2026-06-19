@@ -9,6 +9,16 @@
       { "from": "char", "text": "Claro. Vamos conversar?" }
     ]
   },
+   {
+    "id": "jack",
+    "name": "Jack",
+    "image": "/image/characters/jack.png",
+    "messages": [
+      { "from": "char", "text": "E aí... de boa? 🤙" },
+      { "from": "user", "text": "Suave, e tu?" },
+      { "from": "char", "text": "Tudo certo! Bora conversar?" }
+    ]
+  },
   {
     "id": "ana",
     "name": "Ana",

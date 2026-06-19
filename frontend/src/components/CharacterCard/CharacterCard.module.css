@@ -3,6 +3,8 @@
   width: 100%;
   max-width: 640px;
   display: flex;
+  gap: 8px;
+  padding: 0px 10px;
   flex-direction: column;
 }
 
@@ -22,10 +24,6 @@
 
 .character:hover {
   background: var(--menu-hover);
-}
-
-.character + .character {
-  border-top: 1px solid var(--profile-divider);
 }
 
 /* ─── AVATAR ────────────────────────────────────────────── */

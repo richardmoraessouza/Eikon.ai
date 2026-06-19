@@ -80,7 +80,7 @@ const MiniProfile = ({
                 {badge.icon ?? '🏅'}
               </div>
               <div className={styles.badgeInfo}>
-                <span className={styles.badgeName}>{badge.nome}fsds</span>
+                <span className={styles.badgeName}>{badge.nome}</span>
                 <span className={styles.badgeXp}>
                   {badge.xp.toLocaleString('pt-BR')} XP acumulados
                 </span>

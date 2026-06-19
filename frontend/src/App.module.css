@@ -6,7 +6,7 @@
 }
 
 .espaco {
-  width: 270px;
+  width: 230px;
   display: none;
 }
 
@@ -16,28 +16,25 @@
 
 .chat {
   width: 100%;
-  min-height: auto;
+  height: calc(100vh - 30px);
   position: relative;
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
   flex: 1;
 }
 
 .conversas {
-  padding-left: 20px;
+  padding-left: 10px;
   padding-right: 10px;
   padding-bottom: 20px;
   overflow-y: auto;
   flex: 1;
-
-  scrollbar-width: none; 
-  -ms-overflow-style: none; 
+  scrollbar-width: none;
+  -ms-overflow-style: none;
   font-family: var(--chat-font-family);
   letter-spacing: var(--chat-letter-spacing);
 }
 
-/* Chrome/Safari */
 .conversas::-webkit-scrollbar {
   display: none;
 }
@@ -51,20 +48,16 @@
 }
 
 .bubble {
-  max-width: 65%;
+  max-width: 75%;
   padding: 12px 16px;
   border-radius: 12px;
   word-wrap: break-word;
-  font-family: var(--chat-font-family);
-  font-size: 14px;
   line-height: 1.5;
-  letter-spacing: var(--chat-letter-spacing);
-  font-size: var(--chat-font-size, 16px); 
+  font-size: var(--chat-font-size, 16px);
   font-family: var(--chat-font-family, sans-serif);
   letter-spacing: var(--chat-letter-spacing, 0.2px);
 }
 
-/* Mensagens do Bot (à esquerda) */
 .botMessage {
   justify-content: flex-start;
 }
@@ -77,11 +70,10 @@
 }
 
 .botMessage .bubble:hover {
-  background: var(--bot-bubble-hover);
-  border-color: var(--bot-bubble-hover-border);
+  background-color: var(--bot-bubble-message-bg);
+  border: 1px solid var(--bot-bubble-message-border);
 }
 
-/* Mensagens do Usuário (à direita) */
 .userMessage {
   justify-content: flex-end;
 }
@@ -89,14 +81,17 @@
 .userMessage .bubble {
   background-color: var(--user-bubble-message-bg);
   color: var(--text-main);
-  box-shadow: var(--user-bubble-message-shadow);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .userMessage .bubble:hover {
-  background: var(--user-bubble-hover);
+  background-color: var(--user-bubble-message-bg);
 }
 
-/* Mensagem de Erro */
+.userMessage .wrapper {
+  justify-content: flex-end;
+}
+
 .erroMensagem {
   background: rgba(239, 68, 68, 0.1) !important;
   border: 1px solid rgba(239, 68, 68, 0.3) !important;
@@ -104,7 +99,7 @@
 }
 
 @keyframes slideUp {
-  from { 
+  from {
     transform: translateY(10px);
     opacity: 0;
   }
@@ -112,79 +107,6 @@
     transform: translateY(0);
     opacity: 1;
   }
-}
-
-/* ============================================================ */
-/* INPUT DE MENSAGEM */
-/* ============================================================ */
-
-.containerMensagem {
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 90%;
-  max-width: 600px;
-  background-color: var(--send-message);
-  border: 1px solid var(--send-message-border);
-  border-radius: 12px;
-  padding: 8px 12px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
-}
-
-.mensagem {
-  flex: 1;
-  padding: 10px 14px;
-  background: transparent;
-  border: none;
-  outline: none;
-  color: var(--text-main);
-  font-size: 14px;
-  font-family: inherit;
-  caret-color: var(--caret-color);
-}
-
-.mensagem::placeholder {
-  color: var(--message-placeholder);
-}
-
-.mensagem:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.containerMensagem button {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  background: var(--accent-color);
-  color: white;
-  border: none;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  font-size: 16px;
-  transition: all 0.2s ease;
-  flex-shrink: 0;
-}
-
-.containerMensagem button:hover:not(:disabled) {
-  background: var(--accent-hover);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-}
-
-.containerMensagem button:active:not(:disabled) {
-  transform: scale(0.95);
-}
-
-.containerMensagem button:disabled {
-  background: #444;
-  cursor: not-allowed;
-  opacity: 0.5;
 }
 
 /* ============================================================ */
@@ -209,35 +131,18 @@
   animation: blink 1.4s infinite both;
 }
 
-.typingIndicator span:nth-child(1) {
-  animation-delay: 0s;
-}
-
-.typingIndicator span:nth-child(2) {
-  animation-delay: 0.2s;
-}
-
-.typingIndicator span:nth-child(3) {
-  animation-delay: 0.4s;
-}
+.typingIndicator span:nth-child(1) { animation-delay: 0s; }
+.typingIndicator span:nth-child(2) { animation-delay: 0.2s; }
+.typingIndicator span:nth-child(3) { animation-delay: 0.4s; }
 
 @keyframes blink {
-  0% {
-    opacity: 0.3;
-    transform: translateY(0px);
-  }
-  50% {
-    opacity: 1;
-    transform: translateY(-4px);
-  }
-  100% {
-    opacity: 0.3;
-    transform: translateY(0px);
-  }
+  0%   { opacity: 0.3; transform: translateY(0px); }
+  50%  { opacity: 1;   transform: translateY(-4px); }
+  100% { opacity: 0.3; transform: translateY(0px); }
 }
 
 /* ============================================================ */
-/* FIGURINHA (IMAGEM) */
+/* FIGURINHA */
 /* ============================================================ */
 
 .figurinha {
@@ -268,7 +173,6 @@
 /* RESPONSIVE */
 /* ============================================================ */
 
-/* Quando o menu está aberto em desktop */
 @media (min-width: 800px) {
   .espaco {
     display: block;
@@ -279,29 +183,16 @@
     padding-left: 60px;
   }
 
-  /* .containerChat.menuAberto .containerMensagem {
-    left: calc(50% + 135px);
-  } */
+  .conversas {
+    max-width: 1000px;
+    margin: 0 auto;
+    width: 100%;
+    padding-left: 24px;
+    padding-right: 24px;
+  }
 }
 
 @media (max-width: 640px) {
-  .containerMensagem {
-    width: 95%;
-    bottom: 12px;
-    padding: 6px 8px;
-  }
-
-  .mensagem {
-    font-size: 13px;
-    padding: 8px 10px;
-  }
-
-  .containerMensagem button {
-    width: 32px;
-    height: 32px;
-    font-size: 14px;
-  }
-
   .bubble {
     max-width: 85%;
   }
@@ -318,14 +209,10 @@
   }
 }
 
-/* ============================================================ */
-/* UTILITÁRIOS */
-/* ============================================================ */
-
-.btnCarrinho {
-  background-color: transparent;
-}
-
-.containerMeuCar {
-  background-color: transparent;
+@media (min-width: 1500px) {
+  .containerChat.perfilAberto {
+    padding-right: 300px;
+    box-sizing: border-box;
+    transition: padding-right 0.3s ease;
+  }
 }

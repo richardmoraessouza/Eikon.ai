@@ -67,6 +67,7 @@
   --border-color-hover: rgba(255,255,255,0.2);
   --card-shadow: 0 4px 20px transparent;
   --author-color: #555;
+  --bg-card-hover: rgba(255, 255, 255, 0.02);
 
   /* settings modal */
   --settings-bg: #121214;
@@ -143,6 +144,7 @@
     --border-color-hover: rgba(255,255,255,0.2);
     --card-shadow: 0 4px 20px transparent;
     --author-color: #555;
+    --bg-card-hover: rgba(255, 255, 255, 0.02);
     
     /* settings modal */
     --settings-bg: #121214;
@@ -221,6 +223,7 @@
   --card-shadow: 0 4px 16px rgba(59, 130, 246, 0.08);
   --text-card: #1a1a1a;
   --author-color: #6b7280;
+  --bg-card-hover: rgba(0, 0, 0, 0.03);
 
   /* settings modal */
   --settings-bg: #ffffff;
@@ -302,6 +305,7 @@
     --card-shadow: 0 4px 16px rgba(59, 130, 246, 0.08);
     --text-card: #1a1a1a;
     --author-color: #6b7280;
+    --bg-card-hover: rgba(0, 0, 0, 0.03);
     
     /* settings modal */
     --settings-bg: #ffffff;

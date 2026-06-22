@@ -11,6 +11,7 @@ import {
   getCharactersByUserId,
   getRecentCharacters,
   recentCharactersService,
+  searchCharacterByNameService
 } from "../../services/characters/characters";
 import { SearchFavoritesUser } from "../../services/socialService";
 import { useEffect, useState, useCallback, useRef } from "react";
@@ -30,8 +31,18 @@ function normalizeFavorites(favData: number[] | Favorite[]): ProfileCharacter[] 
 
 const EXPLORE_LIMIT = 20;
 const EXPLORE_SEED = Math.random();
+const SEARCH_LIMIT = 20;
 
 export function useCharacters() {
+
+ // Holds the list of characters found during the name-based search
+  const [searchResults, setSearchResults] = useState<Character[]>([]);
+
+  // True while a name-based search request is actively fetching data
+  const [searchLoading, setSearchLoading] = useState<boolean>(false);
+
+  // Holds any error message resulting from a failed name-based search
+  const [searchError, setSearchError] = useState<string | null>(null);
 
   // Stores the list of characters loaded for the Explore feed (paginated)
   const [exploreCharacters, setExploreCharacters] = useState<Character[]>([]);
@@ -50,6 +61,13 @@ export function useCharacters() {
 
   // Ref-based guard to prevent duplicate in-flight requests (avoids race conditions)
   const exploreLoadingRef = useRef(false);
+
+
+  const [searchOffset, setSearchOffset] = useState(0);
+  const [searchHasMore, setSearchHasMore] = useState(true);
+  const searchLoadingRef = useRef(false);
+  const lastSearchParamsRef = useRef<{ nome: string; tag: string }>({ nome: '', tag: '' });
+
 
   // Fetches the next page of explore characters and appends them to the list
   const loadMoreExplore = useCallback(async () => {
@@ -135,19 +153,93 @@ export function useCharacters() {
     }
   }, []);
 
+  // Fetches a list of characters matching a specific name from the service
+   const searchCharacterByName = useCallback(async (
+    nomePersonagem: string,
+    tag = ''
+  ): Promise<Character[]> => {
+    setSearchLoading(true);
+    setSearchError(null);
+    lastSearchParamsRef.current = { nome: nomePersonagem, tag };
+    try {
+      const data = await searchCharacterByNameService(nomePersonagem, tag, SEARCH_LIMIT, 0);
+      const resultados = data.resultados ?? [];
+      setSearchResults(resultados);
+      setSearchOffset(SEARCH_LIMIT);
+      setSearchHasMore(resultados.length === SEARCH_LIMIT);
+      return resultados;
+    } catch (err) {
+      console.error('Erro ao buscar personagem por nome:', err);
+      setSearchError('Erro ao buscar personagens.');
+      setSearchResults([]);
+      setSearchHasMore(false);
+      return [];
+    } finally {
+      setSearchLoading(false);
+    }
+  }, []);
+
+  // Fetches the next page of search results for the current name/tag query and appends them
+  // to the existing list (infinite scroll). Uses lastSearchParamsRef to know which name/tag
+  // to keep querying, and searchLoadingRef as a guard against duplicate in-flight requests.
+    const loadMoreSearchResults = useCallback(async () => {
+    const { nome, tag } = lastSearchParamsRef.current;
+    if (searchLoadingRef.current || !searchHasMore || !nome) return;
+
+    searchLoadingRef.current = true;
+    setSearchLoading(true);
+    try {
+      const data = await searchCharacterByNameService(nome, tag, SEARCH_LIMIT, searchOffset);
+      const novos = data.resultados ?? [];
+      setSearchResults(prev => [...prev, ...novos]);
+      setSearchOffset(prev => prev + SEARCH_LIMIT);
+      if (novos.length < SEARCH_LIMIT) setSearchHasMore(false);
+    } catch (err) {
+      console.error('Erro ao carregar mais personagens:', err);
+      setSearchError('Erro ao buscar personagens.');
+    } finally {
+      setSearchLoading(false);
+      searchLoadingRef.current = false;
+    }
+  }, [searchOffset, searchHasMore]);
+
+  // Seeds the search state with results that arrived ready-made from another page
+  // (e.g. Home / Sidebar navigation via location.state), instead of fetching from the API.
+  // Also resets pagination based on the seeded data, so loadMoreSearchResults works correctly afterwards.
+  const seedSearchResults = useCallback((resultados: Character[], nome: string, tag: string = '') => {
+    setSearchResults(resultados);
+    setSearchOffset(resultados.length);
+    setSearchHasMore(resultados.length >= SEARCH_LIMIT);
+    lastSearchParamsRef.current = { nome, tag };
+  }, []);
+
+
   return {
+    // Explore feed data and pagination controls
     exploreCharacters,
     exploreLoading,
     exploreError,
     exploreHasMore,
     loadMoreExplore,
+    
+    // Core character management actions and filters
     searchCharacterById,
     incrementChatViews,
     createCharacter,
     updateCharacter,
     loadTags,
     loadCharactersByCategory,
-    recentCharacters
+    recentCharacters,
+
+    // State and functions for character name-based searching
+    searchResults,
+    searchLoading,
+    searchError,
+    searchHasMore,
+    searchCharacterByName,
+    setSearchResults,
+    seedSearchResults,
+    loadMoreSearchResults,
   };
 }
 
@@ -211,3 +303,4 @@ export function useProfileCharacters(
 
   return { characters, loading, load, removeCharacter };
 }
+

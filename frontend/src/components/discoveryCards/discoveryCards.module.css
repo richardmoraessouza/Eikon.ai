@@ -105,7 +105,7 @@
   display: flex;
   flex-flow: row nowrap;
   position: relative;
-  align-items: flex-start;
+  align-items: stretch;
   gap: 8px;
   height: 130px;
   overflow: visible;
@@ -157,6 +157,7 @@
   justify-content: flex-start;
   align-items: flex-start;
   overflow: hidden;
+  height: 100%;
 }
 
 
@@ -165,6 +166,7 @@
   font-size: 14px;
   font-weight: 900;
   width: 100%;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   color: var(--text-main);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -175,13 +177,13 @@
   margin: 4px 0 0;
   font-size: 12px;
   color: var(--text-card);
-  width: 100%;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   line-height: 1.4;
+  width: 90%;
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
   line-clamp: 2;
-  overflow: hidden;
   text-overflow: ellipsis;
 }
 

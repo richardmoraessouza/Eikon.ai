@@ -1,5 +1,5 @@
 import { FiTrendingUp, FiStar } from 'react-icons/fi'; 
-import CampoDePesquisar from '../../components/CampoDePesquisar/CampoDePesquisar';
+import SearchBar from '../../components/SearchBar/SearchBar';
 import CardExplore from '../../components/CardExplore/CardExplore';
 import ExploreSections from '../../components/ExploreSections/ExploreSections';
 import { HeroBanner } from '../../components/HeroBanner/HeroBanner';
@@ -23,7 +23,7 @@ const Explorar = () => {
 
     return (
         <main className={styles.explorarContainer}>
-            <CampoDePesquisar />
+            <SearchBar />
             <div className={styles.espaco}></div>
             <HeroBanner />
             <CardExplore />
@@ -35,7 +35,6 @@ const Explorar = () => {
                     characters={popularData.characters}
                     loading={popularData.loading}
                     error={popularData.error}
-                    showRank={true}
                     emptyMessage="Nenhum personagem popular esta semana."
                 />
 
@@ -45,14 +44,13 @@ const Explorar = () => {
                     characters={recCharacters}
                     loading={recLoading}
                     error={recError}
-                    showRank={false}
                     onLoadMore={recFetchNextPage} 
                     hasMore={recHasMore}
                     emptyMessage="Converse com mais bots para podermos personalizar suas recomendações!"
                 />
             </div>
             
-            <ExploreSections />
+            <ExploreSections router='explore'/>
         </main>
     );
 };

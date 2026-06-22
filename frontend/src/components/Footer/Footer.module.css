@@ -5,7 +5,6 @@
 .footer {
   background-color: var(--bg-main);
   color: var(--text-main);
-  font-family: var(--chat-font-family);
   letter-spacing: var(--chat-letter-spacing);
   margin-top: 40px;
   width: 100%;

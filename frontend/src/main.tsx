@@ -16,7 +16,7 @@ import ProtectedRouter from "./components/BloqueamentoNoLogin/BloqueamentoNoLogi
 import PublicRoute from "./components/BloqueamentoLogin/BloqueamentoLogin.tsx";
 import UserProfile from "./page/UserProfile/UserProfile.tsx";
 import Explorar from "./page/Explorar/Explorar.tsx";
-import PersonagemPesquisado from "./page/PersonagemPesquisado/PersonagemPesquisado.tsx";
+import SearchResults from "./page/SearchResults/SearchResults.tsx";
 import CreateCharacter from "./page/CreateCharacter/CreateCharacter.tsx";
 import TermsPage from "./page/TermsPage/TermsPage.tsx";
 import PrivacyPage from "./page/PrivacyPage/PrivacyPage.tsx";
@@ -45,7 +45,7 @@ const router = createBrowserRouter([
       },
       {
         path: "procurar",
-        element: <PersonagemPesquisado />,
+        element: <SearchResults />,
       },
       {
         element: <ProtectedRouter />,

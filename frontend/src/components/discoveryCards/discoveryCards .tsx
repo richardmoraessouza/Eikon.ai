@@ -5,7 +5,6 @@ import { useDragScroll } from "../../hooks/useDragScroll/useDragScroll";
 import { FiMessageSquare, FiChevronLeft, FiChevronRight, FiHeart } from "react-icons/fi";
 import { searchCreatorNameService, getMiniProfileService } from "../../services/users/userService";
 import { FRAME_UPDATED_EVENT, type FrameUpdatedDetail } from "../../utils/frame";
-import { RankBadge } from "../RankBadges/RankBadges";
 import MiniProfile from "../MiniProfile/MiniProfile";
 import type { MiniProfileType } from "../../types/users/users";
 import styles from "./discoveryCards.module.css";
@@ -28,7 +27,6 @@ interface DiscoveryCardsProps {
   characters: DiscoveryCharacter[];
   loading: boolean;
   error: string | null;
-  showRank?: boolean;
   emptyMessage?: string;
   onLoadMore?: () => void;
   hasMore?: boolean;
@@ -40,7 +38,6 @@ export const DiscoveryCards = ({
   characters,
   loading,
   error,
-  showRank = false,
   emptyMessage = "Nenhum personagem encontrado.",
   onLoadMore,
   hasMore = false
@@ -236,10 +233,10 @@ export const DiscoveryCards = ({
           onScroll={handleScroll}
           {...dragProps}
         >
-          {characters.map((character, index) => (
+          {characters.map((character) => (
             <div key={character.id} className={styles.card} onClick={() => handleCharacterClick(character.id)}>
+
               <div className={styles.imageWrapper}>
-                {showRank && <RankBadge index={index} />}
                 <img
                   src={character.fotoia || "/image/semPerfil.jpg"}
                   alt={character.nome}

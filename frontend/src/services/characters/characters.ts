@@ -131,3 +131,24 @@ export async function recentCharactersService(
         throw err;
     }
 }
+
+// search for characters by name
+export async function searchCharacterByNameService(
+    nomePersonagem: string, 
+    tag = '',
+    limit: number = 20,
+    offset: number = 0
+): Promise<{ success: boolean; resultados: Character[] }> {
+    try {
+        // Se houver tag, concatena &tag=nome-da-tag, senão deixa vazio
+        const filtroTag = tag ? `&tag=${encodeURIComponent(tag)}` : '';
+        const url = `${API_URL}/character/search-character?nomePersonagem=${encodeURIComponent(nomePersonagem)}${filtroTag}&limit=${limit}&offset=${offset}`;
+        
+        const res = await axios.get<{ success: boolean; resultados: Character[] }>(url);
+        console.log('Resultados da busca por nome:', res.data);
+        return res.data;
+    } catch (error) {
+        console.error('Error searching character by name:', error);
+        throw error;
+    }
+}

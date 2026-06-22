@@ -1,0 +1,214 @@
+/* Container Principal do Card - Layout de Linha */
+.polyCard {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 12px;
+  background-color: transparent; 
+  cursor: pointer;
+  transition: background 0.2s ease;
+  width: 100%;
+  border-radius: 12px;
+}
+
+.polyCard:hover {
+  background-color: var(--bg-card-hover);
+}
+
+.polyImageContainer {
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+}
+
+.polyImage {
+  width: 100%;
+  height: 100%;
+  border-radius: 6px;
+  object-fit: cover;
+  -webkit-user-select: none; 
+  -ms-user-select: none;    
+  user-select: none;       
+  -webkit-user-drag: none;
+}
+
+/* Coluna de Conteúdo */
+.polyContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.polyHeaderCol {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.polyName {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-main);
+  width: 50%;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.polyStats {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.statIcon {
+  color: #666;
+}
+
+.polyAuthor {
+  font-size: 12px;
+  color: var(--author-color);
+}
+
+.polyAuthor:hover {
+  text-decoration: underline;
+  color: var(--text-main);
+}
+
+.polyTagsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 2px 0;
+}
+
+.polyTagItem {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: #9ca3af;
+  font-size: 12px;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+/* Descrição Bio */
+.polyBio {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 13px;
+  color: var(--text-main);
+  line-height: 1.4;
+  margin: 0;
+  width: 100%;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+/* Ações na Extrema Direita */
+.polyActionsContainer {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: flex-end;
+  align-self: stretch; 
+  gap: 6px;
+  flex-shrink: 0;
+  padding-left: 8px;
+}
+
+.polyFavButton {
+  order: 1;
+}
+
+.polyLikeButton {
+  order: 2;
+  margin-top: auto;
+}
+
+.polyStats {
+  order: 3;
+}
+
+.polyLikeButton, .polyFavButton {
+  background: transparent;
+  border: none;
+  color: #6b7280;
+  cursor: pointer;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  font-size: 11px;
+  gap: 2px;
+  transition: color 0.2s;
+}
+
+.polyActiveLike { 
+  color: #ff4b4b; 
+}
+
+.nameWrapper {
+  position: relative;
+  display: inline-block;
+  padding-bottom: 8px;
+}
+
+.miniProfilePopup {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 50;
+  cursor: default;
+}
+
+/* ==========================================
+   CLASSES EXCLUSIVAS DO SKELETON
+========================================== */
+
+/* Animação de pulsação base do Skeleton */
+.skeletonPulse {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.04) 25%,
+    rgba(255, 255, 255, 0.12) 50%,
+    rgba(255, 255, 255, 0.04) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeletonLoading 1.5s infinite ease-in-out;
+}
+
+@keyframes skeletonLoading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Desativa interações e hover no card de loading */
+.skeletonCard {
+  cursor: default !important;
+  pointer-events: none;
+}
+
+/* Transforma as divs vazias do skeleton em placeholders visuais */
+.skeletonBlock {
+  display: inline-block;
+  border-radius: 4px;
+  border: none !important;
+  color: transparent !important;
+}
+
+/* ==========================================
+   RESPONSIVIDADE BÁSICA
+========================================== */
+@media (max-width: 640px) {
+  .polyCard { 
+    gap: 10px; 
+    padding: 10px; 
+  }
+  .polyImageContainer { 
+    width: 48px; 
+    height: 48px; 
+  }
+  .polyName { 
+    font-size: 14px; 
+  }
+}

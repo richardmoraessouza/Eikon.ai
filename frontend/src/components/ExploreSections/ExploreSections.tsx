@@ -6,7 +6,12 @@ import { CarouselRow } from "./CarouselRow/CarouselRow";
 import { useDragScroll } from "../../hooks/useDragScroll/useDragScroll";
 import styles from "./ExploreSections.module.css";
 
-export const ExploreSections = () => {
+interface ExploreSectionsProps {
+  router: string;
+  onTagChange?: (slug: string) => void;
+}
+
+export const ExploreSections = ({ router, onTagChange }: ExploreSectionsProps) => {
   const { loadTags, loadCharactersByCategory } = useCharacters();
   const { carouselRef: tagsRef, dragProps: tagsDragProps } = useDragScroll();
   
@@ -23,9 +28,12 @@ export const ExploreSections = () => {
         setLoadingTags(true);
         const data = await loadTags();
         setTags(data);
-        if (data.length > 0) {
+        
+        // Se for no feed 'explore', bota a primeira ativa por padrão
+        if (router === 'explore' && data && data.length > 0) {
           setActiveTag(data[0].slug);
         }
+        // Se for 'search', deixa vazio ('') por padrão para vir "Todos"
       } catch (err) {
         console.error("Error loading tags:", err);
       } finally {
@@ -33,11 +41,18 @@ export const ExploreSections = () => {
       }
     }
     fetchSystemTags();
-  }, [loadTags]);
+  }, [loadTags, router]);
 
-  // 2. Busca os bots da tag ativa
+  // 2. Notifica o componente pai quando a tag muda
   useEffect(() => {
-    if (!activeTag) return;
+    if (onTagChange) {
+      onTagChange(activeTag);
+    }
+  }, [activeTag, onTagChange]);
+
+  // 3. Busca os bots da tag ativa (apenas se for a tela de explore)
+  useEffect(() => {
+    if (router !== 'explore' || !activeTag) return;
 
     async function fetchCategoryFeed() {
       try {
@@ -51,12 +66,19 @@ export const ExploreSections = () => {
       }
     }
     fetchCategoryFeed();
-  }, [activeTag, loadCharactersByCategory]);
+  }, [activeTag, router, loadCharactersByCategory]);
+
+  const views: Record<string, React.ReactNode> = {
+    explore: <CarouselRow characters={characters} loading={loading} />,
+    search: null // Retorna null porque o grid já renderiza direto na tela de busca
+  };
 
   return (
     <div className={styles.container}>
       <div className={styles.titleWrapper}>
-        <h3 className={styles.sectionTitle}>Encontre sua Vibe</h3>
+        {router === 'explore' && (
+          <h3 className={styles.sectionTitle}>Encontre sua Vibe</h3>
+        )}
       </div>
 
       <div 
@@ -64,29 +86,36 @@ export const ExploreSections = () => {
         ref={tagsRef}
         {...tagsDragProps}
       >
-        {/* Renderiza Skeletons das tags caso o banco esteja lendo a primeira chamada */}
         {loadingTags ? (
           Array.from({ length: 6 }).map((_, index) => (
             <div key={`tag-skeleton-${index}`} className={`${styles.tagBtn} ${styles.skeletonTag}`} />
           ))
         ) : (
-          tags.map((tag) => (
-            <button
-              key={tag.id}
-              onClick={() => setActiveTag(tag.slug)}
-              className={`${styles.tagBtn} ${activeTag === tag.slug ? styles.tagBtnActive : ''}`}
-            >
-              {tag.nome}
-            </button>
-          ))
+          <>
+            {/* Se for a tela de busca, adiciona um botão para resetar o filtro */}
+            {router === 'search' && (
+              <button
+                onClick={() => setActiveTag('')}
+                className={`${styles.tagBtn} ${activeTag === '' ? styles.tagBtnActive : ''}`}
+              >
+                Todos
+              </button>
+            )}
+
+            {tags.map((tag) => (
+              <button
+                key={tag.id}
+                onClick={() => setActiveTag(tag.slug)}
+                className={`${styles.tagBtn} ${activeTag === tag.slug ? styles.tagBtnActive : ''}`}
+              >
+                {tag.nome}
+              </button>
+            ))}
+          </>
         )}
       </div>
 
-      {/* === ATUALIZADO AQUI ===
-        Passamos o loading direto para o carrossel interno. 
-        Não quebramos mais o fluxo renderizando divs estáticas de "Carregando...".
-      */}
-      <CarouselRow characters={characters} loading={loading} />
+      {views[router]}
     </div>
   );
 };

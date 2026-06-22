@@ -80,3 +80,4 @@ export async function updateFrameService (usuarioId: number, frame: string): Pro
         throw error;
     }
 }
+

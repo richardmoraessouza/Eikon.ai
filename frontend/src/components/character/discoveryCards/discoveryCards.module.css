@@ -1,0 +1,288 @@
+.container {
+  width: 100%;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.header h2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 16px;
+  font-weight: 500;
+  margin: 0;
+  color: var(--text-main);
+}
+
+.headerIcon {
+  display: flex;
+  align-items: center;
+  color: var(--text-main);
+  animation: pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1);   opacity: 1; }
+  50%       { transform: scale(1.2); opacity: 0.7; }
+}
+
+/* ─── BOTÕES NAVEGADORES ───────────────────────────────── */
+.navBtn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-main);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.navBtn:hover {
+  background: transparent;
+}
+
+.carouselWrapper:hover .navBtn {
+  opacity: 1;
+}
+
+.navBtn svg {
+  transition: transform 0.3s ease;
+}
+
+.navBtn:hover svg {
+  transform: scale(1.2);
+}
+
+.navBtn:active svg {
+  transform: scale(0.95);
+}
+
+.navLeft  { left: 8px; }
+.navRight { right: 8px; }
+
+/* ─── CAROUSEL ─────────────────────────────────────────── */
+.carouselWrapper {
+  position: relative;
+  overflow: visible;
+}
+
+.carouselTrack {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  scroll-behavior: smooth;
+  cursor: grab;
+  user-select: none;
+  align-items: stretch;
+}
+
+.carouselTrack:active { cursor: grabbing; }
+.carouselTrack::-webkit-scrollbar { display: none; }
+
+/* ─── CARD ──────────────────────────────────────────────── */
+.card {
+  flex-shrink: 0;
+  box-sizing: border-box;
+  scroll-snap-align: start;
+  display: flex;
+  flex-flow: row nowrap;
+  position: relative;
+  align-items: stretch;
+  gap: 8px;
+  height: 130px;
+  overflow: visible;
+  padding: 16px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--card-border);
+  background: var(--bg-card);
+  box-shadow: var(--card-shadow);
+  cursor: pointer;
+  transition: border-color 0.15s;
+  user-select: none;
+}
+
+.card:hover {
+  border-color: var(--border-color-hover);
+}
+
+/* ─── IMAGEM ────────────────────────────────────────────── */
+.imageWrapper {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.image {
+  height: 50px;
+  width: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  display: block;
+  user-select: none;
+  -webkit-user-drag: none;
+  pointer-events: none;
+}
+
+.popoverWrapper {
+  position: absolute;
+  bottom: calc(100% + 8px); /* aparece acima do autor */
+  left: 0;
+  z-index: 100;
+}
+
+/* ─── INFO ──────────────────────────────────────────────── */
+.info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: flex-start;
+  align-items: flex-start;
+  overflow: hidden;
+  height: 100%;
+}
+
+
+.name {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 900;
+  width: 100%;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: var(--text-main);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bio {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--text-card);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.4;
+  width: 90%;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  text-overflow: ellipsis;
+}
+
+/* ─── STATS E AUTHOR ────────────────────────────────────── */
+.stats {
+  position: absolute;
+  bottom: 8px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 11px;
+  color: #666;
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.author {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  font-size: 11px;
+  color: var(--author-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: calc(100% - 86px);
+}
+
+.author:hover {
+  color: var(--text-main);
+  text-decoration: underline;
+}
+
+/* ─── ESTADOS ───────────────────────────────────────────── */
+.loading, .error, .empty {
+  color: #888;
+  font-size: 14px;
+  padding: 16px 0;
+}
+
+/* ─── CARD LOADING INDICATOR ───────────────────────────── */
+.cardLoadingIndicator {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px;
+  border-style: dashed;
+  cursor: default;
+  opacity: 0.6;
+}
+
+.cardLoadingIndicator p {
+  margin: 0;
+  font-size: 11px;
+  color: var(--text-card);
+  font-weight: 500;
+}
+
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--card-border);
+  border-top-color: var(--text-main);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ─── BREAKPOINTS ───────────────────────────────────────── */
+ @media (max-width: 500px) {
+  .card { width: calc(100% - 0px); }
+  .navBtn { display: none; }
+}
+
+@media (min-width: 501px) and (max-width: 749px) {
+  .card { width: calc(50% - 6px); }
+}
+
+@media (min-width: 750px) and (max-width: 1161px) {
+  .card { width: calc(33.333% - 8px); }
+}
+
+@media (min-width: 1162px) {
+  .card { width: calc(25% - 9px); }
+}
+
+@media (min-width: 1025px) {
+  .image {
+    height: 65px;
+    width: 65px;
+  }
+}
+

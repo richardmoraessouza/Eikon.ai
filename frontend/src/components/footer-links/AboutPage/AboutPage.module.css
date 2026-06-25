@@ -1,0 +1,119 @@
+/* ==========================================================================
+   EIKON.AI - ABOUT PAGE LAYOUT (Fluid Minimalist Style)
+   ========================================================================== */
+
+.container {
+  width: 100%;
+  min-height: 100vh;
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  font-family: var(--chat-font-family);
+  letter-spacing: var(--chat-letter-spacing);
+}
+
+.content {
+  max-width: 960px; /* Alinhado com o padrão de leitura da Character.AI */
+  margin: 0 auto;
+  padding: 60px 24px;
+}
+
+/* Seta de Voltar / Navegação Superior */
+.backButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  color: var(--text-main);
+  text-decoration: none;
+  margin-bottom: 32px;
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
+  cursor: pointer;
+}
+
+.backButton:hover {
+  opacity: 1;
+}
+
+/* Cabeçalho Principal */
+.content h1 {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0 0 8px 0;
+}
+
+.lastUpdated {
+  font-size: 14px;
+  color: var(--settings-text-muted);
+  margin-bottom: 28px;
+}
+
+/* Seções de Conteúdo */
+.content section {
+  margin-bottom: 28px;
+}
+
+.content h2 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0 0 12px 0;
+}
+
+.content p {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-main);
+  opacity: 0.85;
+  margin: 0 0 16px 0;
+  text-align: justify;
+}
+
+.content strong {
+  color: var(--text-main);
+  font-weight: 600;
+}
+
+/* Listas Limpas com Bullet Padrão */
+.content ul {
+  list-style-type: disc;
+  padding-left: 24px;
+  margin: 0 0 16px 0;
+}
+
+.content li {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-main);
+  opacity: 0.85;
+  margin-bottom: 8px;
+}
+
+/* Rodapé da Página */
+.footer {
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 1px solid var(--settings-border);
+}
+
+.footer p {
+  font-size: 13px;
+  color: var(--settings-text-muted);
+  margin: 4px 0 0 0;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .content {
+    padding: 40px 16px;
+  }
+
+  .content h1 {
+    font-size: 20px;
+  }
+
+  .content h2 {
+    font-size: 15px;
+  }
+}

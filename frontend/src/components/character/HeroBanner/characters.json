@@ -1,0 +1,52 @@
+[
+  {
+    "id": "elena",
+    "name": "Elena",
+    "image": "/image/characters/elena.png",
+    "messages": [
+      { "from": "char", "text": "Oi, estava esperando você..." },
+      { "from": "user", "text": "Sério? 😮" },
+      { "from": "char", "text": "Claro. Vamos conversar?" }
+    ]
+  },
+   {
+    "id": "jack",
+    "name": "Jack",
+    "image": "/image/characters/jack.png",
+    "messages": [
+      { "from": "char", "text": "E aí... de boa? 🤙" },
+      { "from": "user", "text": "Suave, e tu?" },
+      { "from": "char", "text": "Tudo certo! Bora conversar?" }
+    ]
+  },
+  {
+    "id": "ana",
+    "name": "Ana",
+    "image": "/image/characters/ana.png",
+    "messages": [
+      { "from": "char", "text": "Você chegou! Quase desisti de esperar 😅" },
+      { "from": "user", "text": "Haha, desculpa o atraso!" },
+      { "from": "char", "text": "Tudo bem, você vale a pena 💜" }
+    ]
+  },
+  {
+    "id": "noah",
+    "name": "Noah",
+    "image": "/image/characters/noah.png",
+    "messages": [
+      { "from": "char", "text": "Ei... tudo certo por aí?" },
+      { "from": "user", "text": "Mais ou menos, e você?" },
+      { "from": "char", "text": "Melhor agora que você apareceu 🙂" }
+    ]
+  },
+  {
+    "id": "ashley",
+    "name": "Ashley",
+    "image": "/image/characters/ashley.png",
+    "messages": [
+      { "from": "char", "text": "Finalmente! Tenho muito pra te contar 🌟" },
+      { "from": "user", "text": "Me conta tudo!" },
+      { "from": "char", "text": "Então prepara o coração... 🫶" }
+    ]
+  }
+]

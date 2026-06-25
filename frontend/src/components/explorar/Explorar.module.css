@@ -1,0 +1,45 @@
+.explorarContainer{
+  min-height: 100vh;
+  width: 100vw;
+  gap: 50px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+}
+.containerDiscovery {
+  width: 95%;
+  gap: 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (min-width: 750px) {
+  .containerDiscovery {
+    width: 80%;
+  }
+}
+
+.espaco {
+  height: 457px;
+}
+
+@media (min-width: 650px) {
+  .explorarContainer {
+    padding: 40px 0 40px;
+  }
+
+  .espaco {
+    display: none;
+  }
+}
+
+  .searchSection {
+    width: 80%;
+    height: 200px;
+    background-color: aqua;
+    position: relative;
+  }

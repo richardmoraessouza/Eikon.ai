@@ -1,0 +1,125 @@
+.containerPerfil {
+  width: 100vw;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-y: auto;
+  background: var(--bg-main);
+}
+
+/* ── HERO ── */
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 48px 20px 32px;
+  width: 100%;
+  max-width: 640px;
+}
+
+/* ── AVATAR ── */
+.avatarWrapper {
+  position: relative;
+  width: 130px;   
+  height: 130px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-user-select: none; 
+  -ms-user-select: none;     
+  user-select: none;        
+  -webkit-user-drag: none;
+}
+
+.avatar {
+  width: 83%;  
+  height: 81%;
+  border-radius: 50%; 
+  object-fit: cover;
+  position: relative;
+  z-index: 1; 
+  border: none;
+  -webkit-user-select: none; 
+  -ms-user-select: none;    
+  user-select: none;       
+  -webkit-user-drag: none;
+}
+
+.frame {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain; 
+  pointer-events: none;
+  z-index: 2; 
+}
+
+/* ── NOME ── */
+.nome {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0;
+}
+
+/* ── DESCRIÇÃO ── */
+.descricao {
+  font-size: 0.875rem;
+  color: var(--profile-text-muted);
+  text-align: center;
+  max-width: 400px;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+/* ── STATS ── */
+.stats {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: var(--bg-card);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.statBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 12px 28px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.statBtn:hover {
+  background: var(--profile-accent-hover);
+}
+
+.statNumber {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.statLabel {
+  font-size: 0.7rem;
+  color: var(--profile-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.statDivider {
+  width: 1px;
+  height: 32px;
+  background: var(--card-border);
+}

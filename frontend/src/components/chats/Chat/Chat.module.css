@@ -1,0 +1,101 @@
+.containerChat {
+  position: absolute;
+  display: flex;
+  width: 100%;
+  margin-top: 30px;
+  background: var(--chat-bg);
+  transition: padding-left 0.3s ease;
+}
+
+.chat {
+  width: 100%;
+  height: calc(100vh - 30px);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.conversas {
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-bottom: 20px;
+  overflow-y: auto;
+  flex: 1;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  font-family: var(--chat-font-family);
+  letter-spacing: var(--chat-letter-spacing);
+}
+
+.conversas::-webkit-scrollbar {
+  display: none;
+}
+
+/* ============================================================ */
+/* ESPAÇAMENTO */
+/* ============================================================ */
+
+.containerEmCima {
+  padding: 20px;
+}
+
+.espaco2 {
+  height: 70px;
+}
+
+/* ============================================================ */
+/* FIGURINHA */
+/* ============================================================ */
+
+.figurinha {
+  display: block;
+  max-width: 300px;
+  max-height: 300px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 10px;
+  margin-top: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* ============================================================ */
+/* RESPONSIVE */
+/* ============================================================ */
+
+@media (min-width: 800px) {
+  .containerChat.menuAberto {
+    padding-left: 280px;
+  }
+
+  .conversas {
+    max-width: 1000px;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+}
+
+@media (max-width: 640px) {
+  .figurinha {
+    max-width: 250px;
+    max-height: 250px;
+  }
+}
+
+@media (max-width: 400px) {
+  .figurinha {
+    max-width: 90vw;
+  }
+}
+
+@media (min-width: 1500px) {
+  .containerChat.perfilAberto {
+    padding-right: 300px;
+    box-sizing: border-box;
+    transition: padding-right 0.3s ease;
+  }
+}

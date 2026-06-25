@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+
+
+html, body {
+  background-color: var(--bg-main);
+}
+
+html {
+  overflow-x: hidden; /* Mantém aqui */
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-main);
+  min-height: 100vh;
+  overflow-x: hidden; /* Fundamental */
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  background-color: var(--bg-main);
+  color: var(--text-main); /* Se tiver essa variável */
+}

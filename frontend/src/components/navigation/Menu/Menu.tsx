@@ -1,0 +1,311 @@
+"use client";
+
+import { useEffect, useState, useRef } from 'react';
+import styles from './Menu.module.css';
+import Image from 'next/image';
+import { FiSearch, FiPlusCircle, FiUserPlus, FiLogIn, FiLogOut, FiSettings, FiUser} from "react-icons/fi";
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useAuth } from '@/hooks/AuthContext/AuthContext';
+import { normalizeFrame } from '@/utils/frame';
+import { buscarPersonagensRecentes } from '@/services/personagemService';
+import SettingsModal from '@/components/navigation/SettingsModal/SettingsModal';
+
+interface MenuProps {
+    setPersonId?: React.Dispatch<React.SetStateAction<number>>;
+    onMenuToggle?: (isOpen: boolean) => void;
+}
+
+function Menu({ setPersonId, onMenuToggle }: MenuProps) {
+    const { usuario, fotoPerfil, estaLogado, logout, usuarioId, token, frame } = useAuth();
+    const [recentes, setRecentes] = useState<any[]>([]);
+    const [loading, setLoading] = useState(false);
+    const pathname = usePathname();
+    const [settingsModalOpen, setSettingsModalOpen] = useState(false);
+    const [abrirConta, setAbrirConta] = useState<boolean>(false);
+    const [modalOpen, setModaOpen] = useState<boolean>(true);
+    const [procurarPersonagem, setProcurarPersonagem] = useState<string>('');
+
+    const frameAtivo = normalizeFrame(frame);
+    const caminhoFrame = frameAtivo ? `/image/frames/${frameAtivo}` : null;
+
+    const modalRef = useRef<HTMLDivElement>(null);
+    const buttonRef = useRef<HTMLButtonElement>(null);
+
+    const personagensRecentesFiltrados = recentes.filter((personagem) => {
+        if (!personagem || !personagem.nome) return false;
+        return personagem.nome.toLocaleLowerCase().includes(procurarPersonagem.toLocaleLowerCase());
+    });
+
+    useEffect(() => {
+        if (onMenuToggle) onMenuToggle(modalOpen);
+    }, [modalOpen, onMenuToggle]);
+
+    function sairDaConta() {
+        logout();
+        setAbrirConta(false);
+    }
+
+    function sobreConta() {
+        setAbrirConta(prev => !prev);
+    }
+
+    function modalCondicao() {
+        setModaOpen(prev => !prev);
+    }
+
+    function closeMenuOnMobile() {
+        if (window.innerWidth <= 768) {
+            setModaOpen(false);
+        }
+    }
+
+    useEffect(() => {
+        if (estaLogado && usuarioId && token) {
+            setLoading(true);
+            buscarPersonagensRecentes(usuarioId)
+                .then((recentes) => {
+                    setRecentes(recentes || []);
+                })
+                .catch((err) => {
+                    console.error("Erro ao buscar os últimos personagens:", err);
+                    setRecentes([]);
+                })
+                .finally(() => setLoading(false));
+        } else {
+            setRecentes([]);
+        }
+    }, [usuarioId, estaLogado, token]);
+
+    // Fecha o menu em mobile quando a rota muda
+    useEffect(() => {
+        if (window.innerWidth <= 768) {
+            setModaOpen(false);
+        }
+    }, [pathname]);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (window.innerWidth > 768) return;
+            const target = event.target as Node;
+            const clickedOutsideModal = modalRef.current && !modalRef.current.contains(target);
+            const clickedMenuButton = buttonRef.current && buttonRef.current.contains(target);
+
+            if (clickedOutsideModal && !clickedMenuButton) {
+                setModaOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
+    return (
+        <>
+            <button ref={buttonRef} onClick={modalCondicao} className={styles.btnMenu}>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                    strokeWidth="2" stroke="currentColor" className="w-6 h-6">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+
+            <SettingsModal isOpen={settingsModalOpen} onClose={() => setSettingsModalOpen(false)} />
+
+            {modalOpen && (
+                <aside ref={modalRef} className={`fixed top-0 left-0 p-4 ${styles.menu}`}>
+                        <h1>
+                            <Link href="/" onClick={closeMenuOnMobile} className='flex justify-center items-center w-full'>
+                                <img
+                                    src="/image/darkEikon.png"
+                                    alt="Eikon.ai"
+                                    className={`${styles.logo} ${styles.darkLogo}`}
+                                />
+                            </Link>
+
+                            <Link href="/" onClick={closeMenuOnMobile} className='flex justify-center items-center w-full'>
+                                <img
+                                    src="/image/lightEikon.png"
+                                    alt="Eikon.ai"
+                                    className={`${styles.logo} ${styles.lightLogo}`}
+                                />
+                            </Link>
+                        </h1>
+                                            <section>
+                        <h2 className={styles.subTitulo}>Criação</h2>
+                        <nav>
+                            <ul className={styles.menuItems}>
+                                <li><Link href='/' onClick={closeMenuOnMobile}><FiSearch /> Buscar</Link></li>
+                                <li><Link href='/create-character' onClick={closeMenuOnMobile}><FiPlusCircle /> Criar personagem</Link></li>
+
+                                {!estaLogado && (
+                                    <>
+                                        <li><Link href='/login' onClick={closeMenuOnMobile}><FiLogIn /> Entrar</Link></li>
+                                        <li><Link href='/register' onClick={closeMenuOnMobile}><FiUserPlus /> Cadastrar</Link></li>
+                                    </>
+                                )}
+                            </ul>
+                        </nav>
+                    </section>
+
+                    <hr className={styles.separacaoCriacao} />
+
+                    <div className={styles.containerBusca}>
+                       
+                        <FiSearch className={styles.iconProcurar} /> 
+                        
+                        <input
+                            type="text"
+                            onChange={(e) => setProcurarPersonagem(e.target.value)}
+                            placeholder="Procurar"
+                            className={styles.inputProcurar}
+                        />
+                    </div>
+
+                    <section>
+                        <h2 className={styles.subTitulo}>Recentes</h2>
+                        <ul className={`${styles.menuItems} ${styles.containerPerson}`}>
+                            {loading ? (
+                                Array.from({ length: 4 }).map((_, index) => (
+                                    <li key={`recent-skeleton-${index}`} className="flex items-center gap-2 p-1">
+                                        <div className={`${styles.skeletonAvatar} ${styles.skeletonCircle}`} />
+                                        <div className={styles.skeletonNameRow} style={{ width: index % 2 === 0 ? '60%' : '45%' }} />
+                                    </li>
+                                ))
+                            ) : personagensRecentesFiltrados.length > 0 ? (
+                                personagensRecentesFiltrados.map((item) => {
+                                    const itemId = typeof item === 'number' ? item : item?.id;
+                                    const itemNome = typeof item === 'string' || typeof item === 'number' ? `Personagem ${itemId}` : item?.nome || `Personagem ${itemId}`;
+                                    const itemFoto = typeof item === 'string' || typeof item === 'number' ? '/image/semPerfil.jpg' : item?.fotoia || '/image/semPerfil.jpg';
+
+                                    return (
+                                        <li key={itemId}>
+                                            <Link
+                                                href={`/chat/${itemId}`}
+                                                className="w-full flex items-center gap-2 p-1 hover:bg-[#2a2a2a] rounded transition-colors"
+                                                onClick={() => {
+                                                    setPersonId && setPersonId(itemId);
+                                                    closeMenuOnMobile();
+                                                }}
+                                            >
+                                                <Image
+                                                    src={itemFoto}
+                                                    alt={itemNome}
+                                                    className={`${styles.avatarRecent} w-7 h-7 rounded-full object-cover`}
+                                                    width={28}
+                                                    height={28}
+                                                />
+                                                <p className={styles.nomePersonagem}>{itemNome}</p>
+                                            </Link>
+                                        </li>
+                                    );
+                                })
+                            ) : (
+                                <li>
+                                    <p className='text-center text-sm text-gray-400 p-4'>
+                                        {estaLogado ? "Nenhum personagem recente encontrado." : "Entre para ver seus personagens recentes!"}
+                                    </p>
+                                </li>
+                            )}
+                        </ul>
+                    </section>
+
+                    <section>
+                        <div
+                            onClick={sobreConta}
+                            className={`absolute bottom-0 left-0 w-full cursor-pointer ${styles.containerConta}`}
+                        >
+                            <div className={styles.person}>
+                                {estaLogado ? (
+                                    <div className='flex flex-row items-center gap-2'>
+                                        <div className={styles.avatarWrapper}>
+                                            <Image
+                                                src={fotoPerfil || '/image/semPerfil.jpg'}
+                                                alt='Perfil'
+                                                className={styles.avatarMenu}
+                                                width={36}
+                                                height={36}
+                                            />
+                                            {caminhoFrame && (
+                                                <Image
+                                                    src={caminhoFrame}
+                                                    alt="Frame"
+                                                    className={styles.frameMenu}
+                                                    width={36}
+                                                    height={36}
+                                                />
+                                            )}
+                                        </div>
+                                        <p className='truncate w-48'>{usuario}</p>
+                                    </div>
+                                ) : (
+                                    <div className='flex flex-row items-center gap-2'>
+                                        <img
+                                            src="/image/semPerfil.jpg"
+                                            alt="Visitante"
+                                            className='w-9 h-9 rounded-full object-cover'
+                                        />
+                                        <p>visitante</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {abrirConta && (
+                            <nav className={`absolute bottom-20 left-0 w-full ${styles.navegacaoConta}`}>
+                                <ul className={styles.items}>
+                                    {estaLogado ? (
+                                        <>
+                                            <li className={styles.navItem}>
+                                                <Link href={`/profile/${usuarioId}`} onClick={closeMenuOnMobile} className={styles.navLink}>
+                                                    <FiUser />
+                                                    <span>Perfil</span>
+                                                </Link>
+                                            </li>
+
+                                            <li className={styles.navItem}>
+                                                <button onClick={() => setSettingsModalOpen(true)} className={styles.navLink}>
+                                                    <FiSettings />
+                                                    <span>Configurações</span>
+                                                </button>
+                                            </li>
+
+                                            <li className={styles.navItem}>
+                                                <button onClick={() => {
+                                                    sairDaConta();
+                                                    closeMenuOnMobile();
+                                                }} className={styles.navLink}>
+                                                    <FiLogOut />
+                                                    <span>Sair</span>
+                                                </button>
+                                            </li>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <li className={styles.navItem}>
+                                                <Link href='/login' onClick={closeMenuOnMobile} className={styles.navLink}>
+                                                    <FiLogIn />
+                                                    <span>Entrar</span>
+                                                </Link>
+                                            </li>
+
+                                            <li className={styles.navItem}>
+                                                <Link href='/register' onClick={closeMenuOnMobile} className={styles.navLink}>
+                                                    <FiUserPlus />
+                                                    <span>Cadastrar</span>
+                                                </Link>
+                                            </li>
+                                        </>
+                                    )}
+                                </ul>
+                            </nav>
+                        )}
+                    </section>
+                </aside>
+            )}
+        </>
+    );
+}
+
+export default Menu;

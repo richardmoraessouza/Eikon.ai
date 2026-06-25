@@ -1,0 +1,113 @@
+.container {
+  position: relative;
+  width: 100%;
+}
+
+.campoPesquisar {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 209;
+}
+
+/* ── Search container ── */
+.campoPesquisarContainer {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: var(--input-bg);
+  border: 1.5px solid var(--input-border);
+  border-radius: 14px;
+  padding: 5px 5px 5px 16px;
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    background 0.25s ease;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.campoPesquisarContainer:focus-within {
+  background: var(--input-focus-bg);
+  border-color: var(--input-focus-border);
+  box-shadow: var(--input-focus-shadow);
+}
+
+/* ── Input ── */
+.input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: var(--chat-font-family);
+  font-size: 0.9rem;
+  letter-spacing: var(--chat-letter-spacing);
+  color: var(--text-main);
+  caret-color: var(--caret-color);
+  width: 150px;
+}
+
+.input::placeholder {
+  color: var(--input-placeholder);
+}
+
+.input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── Button ── */
+.botaoPesquisar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: none;
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition:
+    background 0.2s ease,
+    transform 0.15s ease,
+    box-shadow 0.2s ease;
+}
+
+.botaoPesquisar:hover:not(:disabled) {
+  transform: scale(1.06);
+}
+
+.botaoPesquisar:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.botaoPesquisar:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ── Loading spinner (inside button) ── */
+.botaoPesquisar svg {
+  transition: opacity 0.2s;
+}
+
+.botaoPesquisar:disabled svg {
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (min-width: 650px) {
+ .container {
+    width: 80% ;
+ }
+
+ .campoPesquisar {
+    right: 9%;
+    width: 300px;
+  }
+}

@@ -1,0 +1,90 @@
+.pageContainer {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 60px 24px;
+  color: var(--text-main);
+  font-family: var(--chat-font-family);
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.header h1 {
+  font-size: 32px;
+  margin-bottom: 12px;
+}
+
+.header p {
+  opacity: 0.7;
+  font-size: 16px;
+}
+
+.faqSection h2 {
+  font-size: 20px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--settings-border);
+  padding-bottom: 12px;
+}
+
+.accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.faqItem {
+  border: 1px solid var(--settings-border);
+  border-radius: 8px;
+  overflow: hidden;
+  background: transparent;
+}
+
+.questionButton {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 20px;
+  background: transparent;
+  border: none;
+  color: var(--text-main);
+  font-size: 15px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.questionButton:hover {
+  background-color: var(--settings-border);
+}
+
+.answerContent {
+  padding: 0 20px 18px 20px;
+  font-size: 14px;
+  line-height: 1.6;
+  opacity: 0.85;
+}
+
+/* Botão Voltar no Topo Esquerdo */
+.backButton {
+  background: transparent;
+  border: none;
+  color: var(--text-main);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 0;
+  margin-bottom: 24px;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+  font-family: var(--chat-font-family);
+}
+
+.backButton:hover {
+  opacity: 1;
+}

@@ -1,0 +1,362 @@
+/* ==========================================================================
+   1. CONFIGURAÇÕES GLOBAIS E NEUTRAS (:root puro)
+   ========================================================================== */
+:root {
+  color-scheme: light dark;
+  --chat-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --chat-letter-spacing: 0.2px;
+}
+
+/* ==========================================================================
+   2. TEMA ESCURO (Apenas quando data-theme="dark")
+   ========================================================================== */
+[data-theme="dark"] {
+  --bg-main: #1e1e1e;
+  --text-main: #e4e4e7;
+  
+  /* chatInput */
+  --quotePreviewInput-bg: rgba(255, 255, 255, 0.05);
+  --sender-name-user: rgba(228, 228, 231, 0.5);
+  --sender-name-bot: rgba(228, 228, 231, 0.5);
+  
+  /* profile */
+  --profile-header-bg: linear-gradient(to bottom, #1a1a1a, #0f0f0f);
+  --profile-modal-bg: #1a1a1a;
+  --profile-border: #2a2a2a;
+  --profile-divider: #333;
+  --profile-text-muted: #999;
+  --profile-text-secondary: #d0d0d0;
+  --profile-text-accent: #888;
+  --profile-accent-hover: rgba(59, 130, 246, 0.1);
+  --profile-description-bg: rgba(59, 130, 246, 0.05);
+  --profile-description-border: rgba(59, 130, 246, 0.1);
+  
+  /* bot */
+  --chat-bg: linear-gradient(180deg, #0f0f0f 0%, #1a1a1a 100%);
+  --bot-bubble-message-bg: #1a1a1a;
+  --bot-bubble-message-border: #1a1a1a;
+  --bot-bubble-hover-border: #333;
+
+  /* user */
+  --user-bubble-message-border: #3b82f6;
+  --user-bubble-message-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
+  --user-bubble-message-bg: #3b82f6;
+  --user-bubble-hover: #2563eb;
+
+  --send-message: #1a1a1a;
+  --send-message-border: #2a2a2a;
+  --message-placeholder: #666;
+  
+  /* menu */
+  --light-background: #232323;
+  --menu-magnifying-glass: rgba(226, 232, 240, 0.05);
+  --menu-hover: rgba(226, 232, 240, 0.08);
+  --menu-caption: rgba(148, 163, 184, 0.7);
+
+  /* input */
+  --input-bg: rgba(226, 232, 240, 0.05);
+  --input-border: rgba(255, 255, 255, 0.1);
+  --input-placeholder: rgba(148, 163, 184, 0.5);
+  --input-focus-bg: rgba(226, 232, 240, 0.08);
+  --input-focus-border: rgba(226, 232, 240, 0.2);
+  --input-focus-shadow: 0 0 0 3px rgba(226, 232, 240, 0.05);
+
+  /* styles card */
+  --bg-card: rgba(255,255,255,0.03);
+  --card-border: rgba(255,255,255,0.08);
+  --border-color-hover: rgba(255,255,255,0.2);
+  --card-shadow: 0 4px 20px transparent;
+  --author-color: #555;
+  --bg-card-hover: rgba(255, 255, 255, 0.02);
+
+  /* settings modal */
+  --settings-bg: #121214;
+  --settings-sidebar-bg: #1c1c1e;
+  --settings-border: #27272a;
+  --settings-text: #e4e4e7;
+  --settings-text-muted: #a1a1aa;
+  --settings-hover: rgba(255, 255, 255, 0.05);
+  --settings-active: #2d2d30;
+  --settings-content-bg: #18181b;
+  --settings-accent: #ffffff;
+  
+  scrollbar-color: #404040 #1a1a1a;
+
+  --dark-logo: none;
+  --light-logo: block;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --bg-main: #1e1e1e;
+    --text-main: #e4e4e7;
+    
+    /* chatInput */
+    --quotePreviewInput-bg: rgba(255, 255, 255, 0.05);
+    --sender-name-user: rgba(228, 228, 231, 0.5);
+    --sender-name-bot: rgba(228, 228, 231, 0.5);
+    
+    /* profile */
+    --profile-header-bg: linear-gradient(to bottom, #1a1a1a, #0f0f0f);
+    --profile-modal-bg: #1a1a1a;
+    --profile-border: #2a2a2a;
+    --profile-divider: #333;
+    --profile-text-muted: #999;
+    --profile-text-secondary: #d0d0d0;
+    --profile-text-accent: #888;
+    --profile-accent-hover: rgba(59, 130, 246, 0.1);
+    --profile-description-bg: rgba(59, 130, 246, 0.05);
+    --profile-description-border: rgba(59, 130, 246, 0.1);
+
+    /* chat */
+    --chat-bg: linear-gradient(180deg, #0f0f0f 0%, #1a1a1a 100%);
+    /* bot */
+    --bot-bubble-message-bg: #1a1a1a;
+    --bot-bubble-message-border: #1a1a1a;
+    --bot-bubble-hover-border: #333;
+
+    /* user */
+    --user-bubble-message-border: #2a2a2a;
+    --user-bubble-message-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    --user-bubble-message-bg: #2a2a2a;
+    --user-bubble-hover: #333;
+
+    --send-message: #1a1a1a;
+    --send-message-border: #2a2a2a;
+    --message-placeholder: #666;
+
+    /* menu */
+    --light-background: #232323;
+    --menu-magnifying-glass: rgba(226, 232, 240, 0.05);
+    --menu-hover: rgba(226, 232, 240, 0.08);
+    --menu-caption: rgba(148, 163, 184, 0.7);
+    
+    /* input */
+    --input-bg: rgba(226, 232, 240, 0.05);
+    --input-border: rgba(255, 255, 255, 0.1);
+    --input-placeholder: rgba(148, 163, 184, 0.5);
+    --input-focus-bg: rgba(226, 232, 240, 0.08);
+    --input-focus-border: rgba(226, 232, 240, 0.2);
+    --input-focus-shadow: 0 0 0 3px rgba(226, 232, 240, 0.05);
+    
+    /* styles card */
+    --bg-card: rgba(255,255,255,0.03);
+    --card-border: rgba(255,255,255,0.08);
+    --border-color-hover: rgba(255,255,255,0.2);
+    --card-shadow: 0 4px 20px transparent;
+    --author-color: #555;
+    --bg-card-hover: rgba(255, 255, 255, 0.02);
+    
+    /* settings modal */
+    --settings-bg: #121214;
+    --settings-sidebar-bg: #1c1c1e;
+    --settings-border: #27272a;
+    --settings-text: #e4e4e7;
+    --settings-text-muted: #a1a1aa;
+    --settings-hover: rgba(255, 255, 255, 0.05);
+    --settings-active: #2d2d30;
+    --settings-content-bg: #18181b;
+    --settings-accent: #ffffff;
+
+    --dark-logo: none;
+    --light-logo: block;
+  }
+}
+
+/* ==========================================================================
+   3. TEMA CLARO (Apenas quando data-theme="light")
+   ========================================================================== */
+[data-theme="light"] {
+  --bg-main: #fafbfc;
+  --text-main: #1a1a1a;
+  
+  /* chatInput */
+  --quotePreviewInput-bg: rgba(0, 0, 0, 0.08);
+  --sender-name-user: #1d4ed8;
+  --sender-name-bot: #374151;
+
+  /* profile */
+  --profile-header-bg: linear-gradient(to bottom, #f8faff, #f0f4ff);
+  --profile-modal-bg: #ffffff;
+  --profile-border: #e0e7ff;
+  --profile-divider: #d4dff0;
+  --profile-text-muted: #5a6670;
+  --profile-text-secondary: #2c3e50;
+  --profile-text-accent: #6b7280;
+  --profile-accent: #3b82f6;
+  --profile-accent-hover: rgba(59, 130, 246, 0.12);
+  --profile-description-bg: rgba(59, 130, 246, 0.08);
+  --profile-description-border: rgba(59, 130, 246, 0.2);
+
+  /* bot */
+  --chat-bg: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+  --bot-bubble-message-bg: #f0f4f9;
+  --bot-bubble-message-border: #d4dff0;
+  --bot-bubble-hover-border: #c4d4e8;
+
+  /* user */
+  --user-bubble-message-border: #3b82f6;
+  --user-bubble-message-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
+  --user-bubble-message-bg: #3b82f6;
+  --user-bubble-hover: #2563eb;
+
+  --send-message: #ffffff;
+  --send-message-border: #e0e7ff;
+  --message-placeholder: rgba(75, 85, 99, 0.6);
+
+  /* menu */
+  --light-background: #f8fafc;
+  --menu-hover: rgba(59, 130, 246, 0.08);
+  --menu-caption: rgba(75, 85, 99, 0.75);
+
+  /* input */
+  --input-bg: #f3f6fb;
+  --input-border: #d0dce6;
+  --input-placeholder: rgba(75, 85, 99, 0.55);
+  --input-focus-bg: #ffffff;
+  --input-focus-border: #3b82f6;
+  --input-focus-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+
+  /* styles card */
+  --bg-card: #f3f7ff;
+  --card-border: #d4dff0;
+  --border-color-hover: #3b82f6;
+  --card-shadow: 0 4px 16px rgba(59, 130, 246, 0.08);
+  --text-card: #1a1a1a;
+  --author-color: #6b7280;
+  --bg-card-hover: rgba(0, 0, 0, 0.03);
+
+  /* settings modal */
+  --settings-bg: #ffffff;
+  --settings-sidebar-bg: #f8fafc;
+  --settings-border: #e0e7ff;
+  --settings-text: #1a1a1a;
+  --settings-text-muted: #6b7280;
+  --settings-hover: rgba(59, 130, 246, 0.08);
+  --settings-active: #f0f4f9;
+  --settings-content-bg: #fafbfc;
+  --settings-accent: #3b82f6;
+  --dark-logo: none;
+  --light-logo: block;
+  scrollbar-color: #d0dce6 #f3f6fb;
+
+  --dark-logo: block;
+  --light-logo: none;
+}
+
+/* ==========================================================================
+   4. DETECTORES AUTOMÁTICOS DO SISTEMA (Quando data-theme NÃO está definido)
+   ========================================================================== */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    --bg-main: #fafbfc;
+    --text-main: #1a1a1a;
+
+    /* chatInput */
+    --quotePreviewInput-bg: rgba(0, 0, 0, 0.08);
+    --sender-name-user: #1d4ed8;
+    --sender-name-bot: #374151;
+    
+    /* profile */
+    --profile-header-bg: linear-gradient(to bottom, #f8faff, #f0f4ff);
+    --profile-modal-bg: #ffffff;
+    --profile-border: #e0e7ff;
+    --profile-divider: #d4dff0;
+    --profile-text-muted: #5a6670;
+    --profile-text-secondary: #2c3e50;
+    --profile-text-accent: #6b7280;
+    --profile-accent: #3b82f6;
+    --profile-accent-hover: rgba(59, 130, 246, 0.12);
+    --profile-description-bg: rgba(59, 130, 246, 0.08);
+    --profile-description-border: rgba(59, 130, 246, 0.2);
+    
+    /* chat */
+    --chat-bg: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+    --bot-bubble-message-bg: #f0f4f9;
+    --bot-bubble-message-border: #d4dff0;
+    --bot-bubble-hover-border: #c4d4e8;
+
+    /* user */
+    --user-bubble-message-border: #3b82f6;
+    --user-bubble-message-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
+    --user-bubble-message-bg: #3b82f6;
+    --user-bubble-hover: #2563eb;
+
+    --send-message: #ffffff;
+    --send-message-border: #e0e7ff;
+    --message-placeholder: rgba(75, 85, 99, 0.6);
+
+    /* menu */
+    --light-background: #f8fafc;
+    --menu-hover: rgba(59, 130, 246, 0.08);
+    --menu-caption: rgba(75, 85, 99, 0.75);
+    
+    /* input */
+    --input-bg: #f3f6fb;
+    --input-border: #d0dce6;
+    --input-placeholder: rgba(75, 85, 99, 0.55);
+    --input-focus-bg: #ffffff;
+    --input-focus-border: #3b82f6;
+    --input-focus-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    
+    /* styles card */
+    --bg-card: #f3f7ff;
+    --card-border: #d4dff0;
+    --border-color-hover: #3b82f6;
+    --card-shadow: 0 4px 16px rgba(59, 130, 246, 0.08);
+    --text-card: #1a1a1a;
+    --author-color: #6b7280;
+    --bg-card-hover: rgba(0, 0, 0, 0.03);
+    
+    /* settings modal */
+    --settings-bg: #ffffff;
+    --settings-sidebar-bg: #f8fafc;
+    --settings-border: #e0e7ff;
+    --settings-text: #1a1a1a;
+    --settings-text-muted: #6b7280;
+    --settings-hover: rgba(59, 130, 246, 0.08);
+    --settings-active: #f0f4f9;
+    --settings-content-bg: #fafbfc;
+    --settings-accent: #3b82f6;
+
+    --dark-logo: block;
+    --light-logo: none;
+  }
+}
+
+/* ==========================================================================
+   5. CUSTOMIZAÇÃO DO SCROLLBAR (Motores WebKit)
+   ========================================================================== */
+/* WebKit Scrollbar - Dark */
+[data-theme="dark"]::-webkit-scrollbar,
+:root:not([data-theme])::-webkit-scrollbar {
+  width: 8px;
+}
+[data-theme="dark"]::-webkit-scrollbar-track,
+:root:not([data-theme])::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+[data-theme="dark"]::-webkit-scrollbar-thumb,
+:root:not([data-theme])::-webkit-scrollbar-thumb {
+  background: #404040;
+  border-radius: 4px;
+}
+[data-theme="dark"]::-webkit-scrollbar-thumb:hover,
+:root:not([data-theme])::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* WebKit Scrollbar - Light */
+[data-theme="light"]::-webkit-scrollbar {
+  width: 8px;
+}
+[data-theme="light"]::-webkit-scrollbar-track {
+  background: #f3f6fb;
+}
+[data-theme="light"]::-webkit-scrollbar-thumb {
+  background: #d0dce6;
+  border-radius: 4px;
+}
+[data-theme="light"]::-webkit-scrollbar-thumb:hover {
+  background: #b8c5d6;
+}

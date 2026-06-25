@@ -1,0 +1,223 @@
+/* ==========================================================================
+   EIKON.AI - COOKIE BANNER LAYOUT (Theme-driven Minimalist Style)
+   ========================================================================== */
+
+.cookieBanner {
+  position: fixed;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  background-color: var(--bg-main);
+  border-top: 1px solid var(--settings-border);
+  border-bottom: 1px solid var(--settings-border);
+  font-family: var(--chat-font-family);
+  letter-spacing: var(--chat-letter-spacing);
+  animation: slideIn 0.25s ease-out;
+}
+
+.cookieBanner.bottom {
+  bottom: 0;
+  border-bottom: none;
+}
+
+.cookieBanner.top {
+  top: 0;
+  border-top: none;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px;
+  color: var(--text-main);
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.header h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  color: var(--text-main);
+  opacity: 0.6;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.2s;
+}
+
+.closeButton:hover {
+  opacity: 1;
+}
+
+/* Views */
+.basicView, .detailedView {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.description {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-main);
+  opacity: 0.85;
+}
+
+.buttonGroup,
+.detailsButtonGroup {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+/* Botões Flat Otimizados */
+.buttonReject,
+.buttonDetails,
+.buttonSave,
+.buttonAccept {
+  padding: 10px 20px;
+  border: 1px solid var(--settings-border);
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: transparent;
+  color: var(--text-main);
+  flex: 1;
+  min-width: 120px;
+  text-align: center;
+}
+
+.buttonReject:hover,
+.buttonDetails:hover,
+.buttonSave:hover {
+  background-color: var(--settings-border);
+  opacity: 0.9;
+}
+
+.buttonAccept {
+  background-color: var(--text-main);
+  color: var(--bg-main);
+  border-color: var(--text-main);
+}
+
+.buttonAccept:hover {
+  opacity: 0.9;
+}
+
+/* Detalhes dos Cookies */
+.cookieList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cookieItem {
+  border: 1px solid var(--settings-border);
+  border-radius: 6px;
+  padding: 14px;
+  background-color: transparent;
+}
+
+.cookieHeader {
+  margin-bottom: 6px;
+}
+
+.cookieLabel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.cookieLabel input[type='checkbox'] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: var(--text-main);
+}
+
+.cookieName {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.cookieBadge {
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--settings-border);
+  color: var(--settings-text-muted);
+  margin-left: auto;
+  font-weight: 500;
+}
+
+.cookieDescription {
+  margin: 0 0 0 26px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-main);
+  opacity: 0.7;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .cookieBanner {
+    border-left: none;
+    border-right: none;
+  }
+  
+  .container {
+    padding: 16px;
+  }
+
+  .buttonGroup,
+  .detailsButtonGroup {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .buttonReject,
+  .buttonDetails,
+  .buttonSave,
+  .buttonAccept {
+    width: 100%;
+    flex: none;
+  }
+
+  .cookieDescription {
+    margin: 0;
+  }
+}

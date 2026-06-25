@@ -1,0 +1,154 @@
+.pageContainer {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 60px 24px;
+  color: var(--text-main);
+  font-family: var(--chat-font-family);
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.header h1 {
+  font-size: 32px;
+  margin-bottom: 12px;
+}
+
+.header p {
+  opacity: 0.7;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.formGroup label {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.formGroup select,
+.formGroup textarea {
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid var(--settings-border);
+  background-color: transparent;
+  color: var(--text-main);
+  font-size: 14px;
+}
+
+.formGroup select:focus,
+.formGroup textarea:focus {
+  outline: none;
+  border-color: var(--text-main);
+}
+
+.submitButton {
+  padding: 14px;
+  background-color: var(--text-main);
+  color: var(--bg-main);
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.submitButton:hover {
+  opacity: 0.9;
+}
+
+.successCard {
+  border: 1px solid var(--settings-border);
+  border-radius: 8px;
+  padding: 32px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.successCard button {
+  background: transparent;
+  border: 1px solid var(--settings-border);
+  color: var(--text-main);
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  align-self: center;
+}
+
+.successCard button:hover {
+  background-color: var(--settings-border);
+}
+
+/* Botão Voltar no Topo Esquerdo */
+.backButton {
+  background: transparent;
+  border: none;
+  color: var(--text-main);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 0;
+  margin-bottom: 24px;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+  font-family: var(--chat-font-family);
+}
+
+.backButton:hover {
+  opacity: 1;
+}
+
+/* Container de ações no card de sucesso */
+.successActions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.primaryButton {
+  padding: 10px 20px;
+  background-color: var(--text-main);
+  color: var(--bg-main);
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.primaryButton:hover {
+  opacity: 0.9;
+}
+
+.secondaryButton {
+  background: transparent;
+  border: 1px solid var(--settings-border);
+  color: var(--text-main);
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.secondaryButton:hover {
+  background-color: var(--settings-border);
+}

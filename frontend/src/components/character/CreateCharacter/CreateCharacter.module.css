@@ -1,0 +1,367 @@
+.criacaoPerson {
+    width: 100vw;
+    height: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.criacaoPerson h1 {
+    margin: 20px 0 10px 0;
+    color: var(--text-main);
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.containerCriacaoPerson {
+    width: 90%;
+    max-width: 670px;
+    margin: 20px 0;
+    border-radius: 16px;
+    padding: 24px 28px 32px;
+    background-color: var(--bg-main);
+    border: 1px solid var(--input-border);
+    color: var(--text-main);
+}
+
+.containerFoto {
+    margin-bottom: 15px;
+}
+
+.formGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.formGroup label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-main);
+    text-transform: capitalize;
+    letter-spacing: 0.02em;
+}
+
+.containerCriacaoPerson input[type='text'],
+.containerCriacaoPerson input[type='file'] {
+    width: 100%;
+    height: 48px;
+    padding: 0 16px;
+    background-color: var(--input-bg);
+    border: 2px solid var(--input-border);
+    border-radius: 10px;
+    color: var(--text-main);
+    font-size: 0.9rem;
+    font-family: inherit;
+    transition: all 0.3s ease;
+}
+
+.containerCriacaoPerson input[type='text']::placeholder {
+    color: var(--input-placeholder);
+}
+
+.containerCriacaoPerson input[type='text']:hover {
+    border-color: var(--accent-color);
+    background-color: var(--input-bg);
+}
+
+.containerCriacaoPerson input[type='text']:focus {
+    border-color: var(--accent-color);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(var(--accent-color-rgb), 0.1);
+    background-color: var(--input-bg);
+}
+
+.containerCriacaoPerson form > div > input {
+    width: 100%;
+    height: 48px;
+    background-color: var(--input-bg);
+    border: 2px solid var(--input-border);
+    border-radius: 10px;
+    padding: 0 16px;
+    color: var(--text-main);
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    font-family: inherit;
+}
+
+.containerCriacaoPerson form > div > input::placeholder {
+    color: var(--input-placeholder);
+}
+
+.containerCriacaoPerson form > div > input:hover {
+    border-color: var(--accent-color);
+}
+
+.containerCriacaoPerson form > div > input:focus {
+    border-color: var(--accent-color);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(var(--accent-color-rgb), 0.1);
+}
+
+.containerCriacaoPerson select {
+    width: 100%;
+    height: 48px;
+    padding: 0 16px;
+    background-color: var(--input-bg);
+    border: 2px solid var(--input-border);
+    border-radius: 10px;
+    color: var(--text-main);
+    font-size: 0.9rem;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 18px;
+    padding-right: 40px;
+}
+
+.containerCriacaoPerson select:hover {
+    border-color: var(--accent-color);
+}
+
+.containerCriacaoPerson select:focus {
+    border-color: var(--accent-color);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(var(--accent-color-rgb), 0.1);
+}
+
+.containerCriacaoPerson select option {
+    background-color: var(--bg-main);
+    color: var(--text-main);
+}
+
+.submitButton {
+    display: inline;
+    padding: 10px 20px;
+    cursor: pointer;
+    background-color: var(--accent-color);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-weight: 600;
+    margin-top: 15px;
+    transition: all 0.2s;
+}
+
+.submitButton:hover {
+    background-color: var(--accent-hover);
+}
+
+.submitButton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.containerCriacaoPerson textarea {
+    width: 100%;
+    padding: 14px 16px;
+    background-color: var(--input-bg);
+    border: 2px solid var(--input-border);
+    border-radius: 10px;
+    min-height: 100px;
+    color: var(--text-main);
+    font-size: 0.9rem;
+    font-family: inherit;
+    resize: vertical;
+    transition: all 0.3s ease;
+    line-height: 1.5;
+}
+
+.containerCriacaoPerson textarea::placeholder {
+    color: var(--input-placeholder);
+}
+
+.containerCriacaoPerson textarea:hover {
+    border-color: var(--accent-color);
+}
+
+.containerCriacaoPerson textarea:focus {
+    border-color: var(--accent-color);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(var(--accent-color-rgb), 0.1);
+}
+
+.containerCriacaoPerson form > div {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-bottom: 15px;
+}
+
+.containerCriacaoPerson label {
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--text-main);
+    text-transform: capitalize;
+    letter-spacing: 0.02em;
+}
+
+/* ── Tab Row ── */
+.tabRow {
+    display: flex;
+    gap: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.tabBtn {
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--input-placeholder);
+    cursor: pointer;
+    transition: color 0.2s, border-color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+}
+
+.tabBtn:hover {
+    color: var(--text-main);
+    border-bottom-color: var(--input-border);
+}
+
+.tabActive {
+    color: var(--text-main) !important;
+    border-bottom-color: var(--text-main) !important;
+    font-weight: 600;
+}
+
+@media (max-width: 600px) {
+    .tabRow {
+        flex-wrap: wrap;
+    }
+
+    .tabBtn {
+        flex: 1 1 45%;
+    }
+}
+   
+.erro {
+    width: 100%;
+    padding: 12px 14px;
+    margin-bottom: 15px;
+    background-color: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.5);
+    border-radius: 8px;
+    color: #ef4444;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.tituloFigurinhas {
+    text-align: center;
+    font-family: 'Inter', sans-serif;
+    margin-top: 30px;
+    margin-bottom: 20px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.containerFigurinhas {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    width: 100%;
+    padding: 10px;
+}
+
+.figurinhas {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.figurinhas:hover {
+    transform: translateY(-4px);
+}
+
+.figurinhasVazia {
+    background-color: var(--input-bg);
+    border: 1px dashed var(--input-border);
+    color: var(--input-placeholder);
+    flex-direction: column;
+    gap: 10px;
+}
+
+.figurinhasVazia:hover {
+    border-color: var(--input-focus-border);
+    color: var(--text-main);
+}
+
+.conteudoVazio {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: color 0.2s ease;
+}
+
+.iconAdd {
+    font-size: 2rem;
+}
+
+.textAdd {
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.figurinhasPreenchida {
+    background-color: transparent;
+    border: none;
+}
+
+.imgPreview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.figurinhasPreenchida:hover .imgPreview {
+    transform: scale(1.08);
+}
+
+.figurinhas input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 10;
+}
+
+@media (max-width: 768px) {
+    .containerFigurinhas {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .containerFigurinhas {
+        grid-template-columns: repeat(1, 1fr);
+    }
+
+    .figurinhas {
+        aspect-ratio: 4 / 3;
+    }
+}

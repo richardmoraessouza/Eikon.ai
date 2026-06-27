@@ -82,6 +82,10 @@ export function useChat(personagemId: number) {
   // Ref attached to the scrollable messages container — used to detect scroll position
   const scrollContainerRef = useRef<HTMLElement | null>(null);
 
+  // Refs for tracking how long the user spends in this chat session
+  const timerStartRef = useRef<number>(Date.now());
+  const timerFlushedRef = useRef<boolean>(false);
+
   // Generates and stores a unique anonymous ID for the session on first visit
   // Used to identify users who are not logged in
   useEffect(() => {
@@ -159,6 +163,59 @@ export function useChat(personagemId: number) {
     loadInitialHistory();
     loadPinned();
   }, [personagemId, token]);
+
+  // Tracks conversation time and flushes it to the server when the user leaves
+  // Resets the timer whenever the active character changes
+  useEffect(() => {
+    if (!usuarioId || !personagemId || isNaN(personagemId)) return;
+
+    timerStartRef.current = Date.now();
+    timerFlushedRef.current = false;
+
+    console.log(`[ConversationTimer] Timer started for character ${personagemId} at ${new Date().toISOString()}`);
+
+    const getElapsed = (): number =>
+      Math.floor((Date.now() - timerStartRef.current) / 1000);
+
+    const flush = (useBeacon = false): void => {
+      if (timerFlushedRef.current) return;
+      const seconds = getElapsed();
+      console.log(`[ConversationTimer] Flushing ${seconds}s for character ${personagemId} via ${useBeacon ? 'beacon' : 'axios'}`);
+      if (seconds < 5) {
+        console.log(`[ConversationTimer] Session too short (${seconds}s), skipping save`);
+        return;
+      }
+      timerFlushedRef.current = true;
+      if (useBeacon) {
+        chatApiService.beaconConversationTime({ characterId: personagemId, seconds });
+        console.log(`[ConversationTimer] Beacon sent: ${seconds}s for character ${personagemId}`);
+      } else {
+        chatApiService.saveConversationTime({ characterId: personagemId, seconds })
+          .then(() => console.log(`[ConversationTimer] Saved: ${seconds}s for character ${personagemId}`))
+          .catch((err) => console.error('[ConversationTimer Error] Failed to save conversation time:', err));
+      }
+    };
+
+    const handleUnload = () => {
+      console.log('[ConversationTimer] beforeunload fired');
+      flush(true);
+    };
+    const handleVisibility = () => {
+      console.log(`[ConversationTimer] visibilitychange: ${document.visibilityState}`);
+      if (document.visibilityState === 'hidden') flush(true);
+    };
+
+    window.addEventListener('beforeunload', handleUnload);
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    return () => {
+      console.log(`[ConversationTimer] Cleanup fired for character ${personagemId}`);
+      flush(false);
+      window.removeEventListener('beforeunload', handleUnload);
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [personagemId]); // <- só personagemId, remove usuarioId das dependências
 
   // Fetches the next batch of 30 older messages and prepends them to the chat history
   // Preserves the scroll position so the user doesn't jump to the top

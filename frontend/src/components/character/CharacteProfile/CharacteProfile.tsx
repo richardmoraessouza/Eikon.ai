@@ -1,19 +1,19 @@
-"use client"; // Necessário por conta dos hooks, estados e interações de hover/clique
+"use client";
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { useRouter } from 'next/navigation'; // Trocado useNavigate por useRouter
-import Image from 'next/image'; // Importado para otimização de imagens
+import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import styles from './CharacteProfile.module.css';
 import { useAuth } from '../../../hooks/AuthContext/AuthContext';
 import { useCharacters } from '../../../hooks/useCharacters/useCharacters';
 import { useSocial } from '../../../hooks/useSocial/useSocial';
 import { useUsers } from "../../../hooks/useUsers/useUsers";
-import MiniProfile from "../../profiles/MiniProfile/MiniProfile";
-
+import CharacterProfileTabs from './CharacterProfileTabs/CharacterProfileTabs';
 import { FiMessageSquare, FiHeart, FiStar } from "react-icons/fi";
 import { getMiniProfileService } from "../../../services/users/userService";
 import { FRAME_UPDATED_EVENT, type FrameUpdatedDetail } from "../../../utils/frame";
 import type { MiniProfileType } from "../../../types/users/users";
+import type { ChatMessage as ChatMessageType } from '../../../types/chat/chat';
 
 interface ProfilePersonProps {
   personagemId: number | null;
@@ -21,14 +21,18 @@ interface ProfilePersonProps {
   usuarioIdAtual: number | null;
   perfilPerson: boolean;
   setPerfilPerson: React.Dispatch<React.SetStateAction<boolean>>;
+  pinnedMessages: ChatMessageType[];
+  onUnpin: (msg: ChatMessageType) => void;
 }
 
-const ProfilePerson: React.FC<ProfilePersonProps> = ({ 
+const CharacterProfile: React.FC<ProfilePersonProps> = ({ 
   personagemId,
   menuOpen,
   usuarioIdAtual, 
   perfilPerson,
-  setPerfilPerson 
+  setPerfilPerson,
+  pinnedMessages,
+  onUnpin,
 }) => {
   const { token, usuarioId } = useAuth();
   const { searchCharacterById } = useCharacters();
@@ -45,8 +49,9 @@ const ProfilePerson: React.FC<ProfilePersonProps> = ({
   const [status, setStatus] = useState<string>("Online");
   const [likesCount, setLikesCount] = useState<number>(0);
   const [isLoadingLike, setIsLoadingLike] = useState<boolean>(false);
-  const [isLoadingFav, setIsLoadingFav] = useState<boolean>(false); 
-  const router = useRouter(); // Instanciando o roteador do Next.js
+  const [isLoadingFav, setIsLoadingFav] = useState<boolean>(false);
+  const [activeTab, setActiveTab] = useState<'Perfil' | 'histórico'>('Perfil');
+  const router = useRouter();
 
   const { users } = useUsers(personagem?.usuario_id);
   const nome = users[0];
@@ -92,8 +97,6 @@ const ProfilePerson: React.FC<ProfilePersonProps> = ({
   const handleAuthorRedirect = (e: React.MouseEvent, userId: number) => {
     e.stopPropagation();
     setPerfilPerson(false);
-
-    // Substituído navigate() por router.push()
     if (userId === usuarioIdAtual) {
       router.push(`/perfil/${usuarioIdAtual}`);
     } else {
@@ -103,24 +106,19 @@ const ProfilePerson: React.FC<ProfilePersonProps> = ({
 
   useEffect(() => {
     if (!personagemId || !searchCharacterById) return;
-    
     const loadCharacter = async () => {
       try {
         const encontrado = await searchCharacterById(personagemId);
-        if (encontrado) {
-          setPersonagem(encontrado);
-        }
+        if (encontrado) setPersonagem(encontrado);
       } catch (err) {
         console.error('Erro ao carregar personagem:', err);
       }
     };
-
     loadCharacter();
   }, [personagemId, searchCharacterById]);
 
   useEffect(() => {
     if (!personagem?.id) return;
-
     const loadLikesCount = async () => {
       try {
         const total = await getQuantityLikes(personagem.id);
@@ -129,7 +127,6 @@ const ProfilePerson: React.FC<ProfilePersonProps> = ({
         console.error('Erro ao buscar likes:', err);
       }
     };
-
     loadLikesCount();
   }, [personagem?.id, getQuantityLikes]);
 
@@ -138,14 +135,8 @@ const ProfilePerson: React.FC<ProfilePersonProps> = ({
   const handleLikeClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     if (!personagem?.id) return;
-
-    if (!usuarioId || !token) {
-      router.push('/entrar');
-      return;
-    }
-
+    if (!usuarioId || !token) { router.push('/entrar'); return; }
     if (isLoadingLike) return;
-
     setIsLoadingLike(true);
     try {
       await handleToggleLike(personagem.id);
@@ -161,14 +152,8 @@ const ProfilePerson: React.FC<ProfilePersonProps> = ({
   const handleFavoriteClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     if (!personagem?.id) return;
-
-    if (!usuarioId || !token) {
-      router.push('/entrar');
-      return;
-    }
-
+    if (!usuarioId || !token) { router.push('/entrar'); return; }
     if (isLoadingFav) return;
-
     setIsLoadingFav(true);
     try {
       await handleToggleFavorite(personagem.id);
@@ -186,15 +171,13 @@ const ProfilePerson: React.FC<ProfilePersonProps> = ({
     return () => clearInterval(intervalo);
   }, []);
 
-  if (!personagem) {
-    return null;
-  }
+  if (!personagem) return null;
 
   return (
     <section className={`fixed top-0 ${styles.contantoPerson} ${!menuOpen ? styles.menuFechado : styles.menuAberto}`}>
-      {/* Header do Perfil do Personagem */}
+
       <header 
-        className='flex items-center gap-3 cursor-pointer hover:opacity-80 transition  py-1'
+        className='flex items-center gap-3 cursor-pointer hover:opacity-80 transition py-1'
         onClick={modalPerfil}
       >
         <div style={{ position: 'relative', width: '32px', height: '32px' }}>
@@ -213,14 +196,14 @@ const ProfilePerson: React.FC<ProfilePersonProps> = ({
         </div>
       </header>
 
-      {/* Modal Perfil - Desktop */}
       {perfilPerson && personagem && (
-        <div className={`${styles.modalOverlay} ${menuOpen ? styles.modalMenuAberto : styles.modalMenuFechado}`}
-             onClick={() => setPerfilPerson(false)}>
+        <div
+          className={`${styles.modalOverlay} ${menuOpen ? styles.modalMenuAberto : styles.modalMenuFechado}`}
+          onClick={() => setPerfilPerson(false)}
+        >
           <div className={styles.modalPerfil} onClick={(e) => e.stopPropagation()}>
             <div className={styles.containerPerfil}>
-              
-              {/* Botão Fechar */}
+
               <button 
                 className={styles.btnMenuProfile} 
                 onClick={() => setPerfilPerson(false)}
@@ -231,7 +214,6 @@ const ProfilePerson: React.FC<ProfilePersonProps> = ({
                 </svg>
               </button>
 
-              {/* Header da Carta */}
               <div className={styles.headerCarta}>
                 <div className={styles.fotoPerfilGrandeWrapper} style={{ position: 'relative' }}>
                   <Image 
@@ -246,9 +228,7 @@ const ProfilePerson: React.FC<ProfilePersonProps> = ({
                 </div>
                 <h2 className={styles.nomePersonagem}>{personagem?.nome}</h2>
 
-                {/* Interações */}
                 <div className={styles.interacoes}>
-                  {/* Like */}
                   <button onClick={handleLikeClick} title="Curtir">
                     <FiHeart
                       size={15}
@@ -264,7 +244,6 @@ const ProfilePerson: React.FC<ProfilePersonProps> = ({
 
                   <span className={styles.divisoria}>|</span>
 
-                  {/* Favorito */}
                   <button onClick={handleFavoriteClick} title={isFavorite(personagem.id) ? "Remover dos Favoritos" : "Adicionar aos Favoritos"}>
                     <FiStar
                       size={15}
@@ -280,59 +259,29 @@ const ProfilePerson: React.FC<ProfilePersonProps> = ({
 
                   <span className={styles.divisoria}>|</span>
 
-                  {/* Visualizações */}
                   <div className="flex items-center gap-1 text-gray-400" title="Visualizações">
                     <FiMessageSquare size={15} />
                     <span>{personagem.visualizacoes ?? 0}</span>
                   </div>
-
                 </div>
               </div>
 
-              {/* Corpo da Carta */}
-              <div className={styles.corpoCarta}>
-                <div>
-                  <span className={styles.labelSetor}>Bio</span>
-                  <p className={styles.descricao}>{personagem.bio || "Este personagem ainda não possui uma biografia detalhada."}</p>
-                </div>
+              <CharacterProfileTabs
+                personagem={personagem}
+                nome={nome}
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+                activeProfile={activeProfile}
+                showMiniProfile={showMiniProfile}
+                handleMouseEnterAuthor={handleMouseEnterAuthor}
+                handleMouseLeaveAuthor={handleMouseLeaveAuthor}
+                handleAuthorRedirect={handleAuthorRedirect}
+                setActiveProfile={setActiveProfile}
+                setShowMiniProfile={setShowMiniProfile}
+                pinnedMessages={pinnedMessages}
+                onUnpin={onUnpin}
+              />
 
-                <div>
-                  <span className={styles.labelSetor}>Descrição</span>
-                  <p className={styles.descricao}>{personagem.descricao || "Este personagem ainda não possui uma descrição detalhada."}</p>
-                </div>
-
-                {/* Wrapper de autor com Hover */}
-                <div style={{ position: 'relative' }}>
-                  <span className={styles.labelSetor}>Criado por</span>
-                  <button
-                    className={styles.btnCriador}
-                    onMouseEnter={() => personagem.usuario_id && handleMouseEnterAuthor(personagem.usuario_id)}
-                    onMouseLeave={handleMouseLeaveAuthor}
-                    onClick={(e) => personagem.usuario_id && handleAuthorRedirect(e, personagem.usuario_id)}
-                  >
-                    <i className="fa-regular fa-user"></i>
-                    @{nome?.nome || "Carregando..."}
-                  </button>
-
-                  {/* Renderização do Popover controlado pelo hover */}
-                  {activeProfile && showMiniProfile && (
-                    <div className={styles.popoverWrapper}>
-                      <MiniProfile
-                        usuarioId={activeProfile.usuarioId}
-                        nome={activeProfile.nome}
-                        foto={activeProfile.foto}
-                        descricao={activeProfile.descricao}
-                        frame={activeProfile.frame}
-                        is_online={activeProfile.is_online}
-                        onClose={() => {
-                          setActiveProfile(null);
-                          setShowMiniProfile(false);
-                        }}
-                      />
-                    </div>
-                  )}
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -341,4 +290,4 @@ const ProfilePerson: React.FC<ProfilePersonProps> = ({
   );
 };
 
-export default ProfilePerson;
+export default CharacterProfile;

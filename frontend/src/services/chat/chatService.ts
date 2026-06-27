@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { API_URL } from '../../config/api';
-import type { ChatMessage as ChatMessageType, ChatResponse, BackendMessage } from '../../types/chat/chat';
+import type { ChatMessage as ChatMessageType, ChatResponse, BackendMessage, ConversationTimePayload,
+  ConversationTimeFetchResponse, ConversationTimeResponse} from '../../types/chat/chat';
 
 /**
  * Helper to get authorization headers (JWT token) from local storage
@@ -178,4 +179,42 @@ export const extractErrorMessage = (err: any): string => {
     err.message ??
     'Ocorreu um erro, tente novamente mais tarde.'
   );
+};
+
+/**
+ * Save elapsed conversation time for a session
+ */
+export const saveConversationTime = async (
+  payload: ConversationTimePayload
+): Promise<ConversationTimeResponse> => {
+  const response = await axios.post<ConversationTimeResponse>(
+    `${API_URL}/chat/conversation-time`,
+    payload,
+    getAuthHeaders()
+  );
+  return response.data;
+};
+
+/**
+ * Fetch total conversation time with a character
+ */
+export const fetchConversationTime = async (
+  characterId: number
+): Promise<ConversationTimeFetchResponse> => {
+  const response = await axios.get<ConversationTimeFetchResponse>(
+    `${API_URL}/chat/conversation-time/${characterId}`,
+    getAuthHeaders()
+  );
+  return response.data;
+};
+
+/**
+ * Send time via sendBeacon (safe for page unload events)
+ */
+export const beaconConversationTime = (payload: ConversationTimePayload): void => {
+  const token = localStorage.getItem('token');
+  const blob = new Blob([JSON.stringify({ ...payload, token })], {
+    type: 'application/json',
+  });
+  navigator.sendBeacon(`${API_URL}/chat/conversation-time`, blob);
 };

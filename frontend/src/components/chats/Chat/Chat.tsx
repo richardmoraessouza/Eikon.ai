@@ -9,11 +9,11 @@ import { useTheme } from '@/hooks/useTheme/useTheme';
 import { useChat } from '@/hooks/useChat/useChat';
 import { ChatMessage } from '@/components/chats/ChatMessage/ChatMessage';
 import { ChatInput } from '@/components/chats/ChatInput/ChatInput';
-import { PinnedMessage } from '@/components/chats/PinnedMessage/PinnedMessage';
 import ProfilePerson from '@/components/character/CharacteProfile/CharacteProfile';
 import { useAuth } from '@/hooks/AuthContext/AuthContext';
 import { ChatMessageSkeleton } from '@/components/chats/ChatMessage/ChatMessageSkeleton/ChatMessageSkeleton';
 import { useMenu } from '@/hooks/MenuContext/MenuContext';
+import type { ChatMessage as ChatMessageType } from '@/types/chat/chat';
 
 function Chat() {
   const params = useParams();
@@ -23,7 +23,7 @@ function Chat() {
 
   const { searchCharacterById } = useCharacters();
   const [character, setCharacter] = useState<CharacterbyId | null>(null);
-
+  
   const [perfilPerson, setPerfilPerson] = useState(false);
 
   const [personId, setPersonId] = useState<number>(() => {
@@ -47,7 +47,7 @@ function Chat() {
     if (!personagemId || isNaN(personagemId)) return;
     searchCharacterById(personagemId).then(setCharacter).catch(console.error);
   }, [personagemId]);
-
+  
   const {
     message,
     setMessage,
@@ -66,7 +66,7 @@ function Chat() {
     handleTogglePinMessage,
   } = useChat(personagemId);
 
-  const pinnedMessage = chatHistory.find(m => m.pinned) ?? null;
+  const pinnedMessages = chatHistory.filter(m => m.pinned);
 
   useEffect(() => {
     if (replyTo && scrollContainerRef.current) {
@@ -82,20 +82,13 @@ function Chat() {
         usuarioIdAtual={usuarioId || null}
         perfilPerson={perfilPerson}
         setPerfilPerson={setPerfilPerson}
+        pinnedMessages={pinnedMessages}
+        onUnpin={(msg) => handleTogglePinMessage(msg)}
       />
 
       <div className={`${styles.containerChat} ${menuOpen ? styles.menuAberto : ''} ${perfilPerson ? styles.perfilAberto : ''}`}>
         <main className={`${styles.chat} flex flex-col`}>
           <div className={styles.containerEmCima} />
-
-          {pinnedMessage && (
-            <PinnedMessage
-              msg={pinnedMessage}
-              characterName={character?.nome ?? 'Personagem'}
-              menuOpen={menuOpen}
-              onUnpin={() => handleTogglePinMessage(pinnedMessage)}
-            />
-          )}
 
           <section
             className={styles.conversas}

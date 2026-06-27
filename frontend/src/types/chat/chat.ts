@@ -35,3 +35,18 @@ export interface BackendMessage {
   criado_em?: string;
   reply_to_id?: number | null;
 }
+
+export interface ConversationTimePayload {
+  characterId: number;
+  seconds: number;
+}
+
+export interface ConversationTimeResponse {
+  success: boolean;
+  total_seconds: number;
+}
+
+export interface ConversationTimeFetchResponse {
+  total_seconds: number;
+  updated_at?: string;
+}

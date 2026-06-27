@@ -14,7 +14,6 @@ export const getCharactersPaginated = async (
             seed: String(seed),
         });
         const res = await axios.get<Character[]>(`${API_URL}/character/explore?${params}`);
-        console.log('Fetched paginated characters:', res.data);
         return res.data;
     } catch (error) {
         console.error('Error fetching paginated characters:', error);

@@ -1,0 +1,266 @@
+/* ============================================================ */
+/* CORPO DA CARTA */
+/* ============================================================ */
+
+.corpoCarta {
+  padding: 30px 20px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  height: 100%;
+}
+
+/* ============================================================ */
+/* TABS */
+/* ============================================================ */
+
+.tabsContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.btnSetor {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 0;
+}
+
+.labelSetor {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-weight: 700;
+  color: var(--profile-text-muted);
+  padding-bottom: 4px;
+  transition: color 0.2s ease;
+}
+
+.labelSetor:hover {
+  color: var(--profile-accent);
+  cursor: pointer;
+}
+
+.labelSetor:active {
+  transform: scale(0.95);
+  transition: transform 0.1s ease;
+  color: var(--profile-accent);
+}
+
+.labelSetorAtivo {
+  color: var(--profile-accent);
+  border-bottom: 2px solid var(--profile-accent);
+  padding-bottom: 2px;
+}
+
+/* ============================================================ */
+/* CONTEÚDO DAS TABS */
+/* ============================================================ */
+
+.conteudoSobre {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}
+
+.conteudoConfiguracoes {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ============================================================ */
+/* CAMPOS */
+/* ============================================================ */
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.campoMensagensFixadas {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.labelCampo {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-weight: 700;
+  color: var(--profile-text-muted);
+  margin: 0;
+}
+
+.time {
+  padding-left: 3px;
+}
+
+.descricao {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--profile-text-secondary);
+  background: var(--profile-description-bg);
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid var(--profile-description-border);
+  width: 100%;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+/* ============================================================ */
+/* BOTÃO CRIADOR */
+/* ============================================================ */
+
+.btnCriador {
+  background: transparent;
+  color: var(--text-main);
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+}
+
+.btnCriador:hover {
+  color: var(--profile-accent);
+}
+
+/* ============================================================ */
+/* POPOVER MINI PROFILE */
+/* ============================================================ */
+
+.popoverWrapper {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 100;
+}
+
+/* ============================================================ */
+/* PINNED MESSAGES */
+/* ============================================================ */
+
+.pinnedMessageWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 6px;
+  padding-bottom: 250px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.pinnedMessageWrapper::-webkit-scrollbar {
+  display: none;
+}
+
+.pinnedItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+}
+
+.pinnedSpacer {
+  flex: 1;
+}
+
+.pinnedBubble {
+  padding: 10px 14px;
+  border-radius: 12px;
+  max-width: 75%;
+  line-height: 1.5;
+  font-size: 0.85rem;
+  word-wrap: break-word;
+}
+
+.pinnedBubbleBot {
+  background-color: var(--bot-bubble-message-bg);
+  border: 1px solid var(--bot-bubble-message-border);
+  color: var(--text-main);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.pinnedBubbleUser {
+  background-color: var(--user-bubble-message-bg);
+  color: var(--text-main);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btnUnpin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 6px;
+  color: var(--profile-text-muted);
+  opacity: 0;
+  pointer-events: none;
+  transition: color 0.15s, background 0.15s, opacity 0.15s;
+  flex-shrink: 0;
+}
+
+.pinnedItem:hover .btnUnpin {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.btnUnpin:hover {
+  color: var(--profile-text-secondary);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* ============================================================ */
+/* MEDIA QUERIES */
+/* ============================================================ */
+
+@media (max-width: 400px) {
+  .descricao {
+    font-size: 10px;
+  }
+}
+
+@media (min-width: 1500px) {
+  .corpoCarta {
+    padding: 20px;
+  }
+
+  .labelCampo {
+    font-size: 10px;
+    margin-bottom: 4px;
+  }
+
+  .descricao {
+    font-size: 13px;
+    padding: 10px;
+  }
+}

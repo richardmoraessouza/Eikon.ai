@@ -8,6 +8,10 @@ import { useUsers } from '../../../../../hooks/useUsers/useUsers';
 import { useAuth } from '../../../../../hooks/AuthContext/AuthContext';
 import { normalizeFrame } from '../../../../../utils/frame';
 
+const USERNAME_REGEX = /^[a-zA-Z0-9._]*$/;
+const USERNAME_MIN = 3;
+const USERNAME_MAX = 20;
+
 const TapsProfileEdit: React.FC = () => {
     const { 
         usuarioId, 
@@ -23,6 +27,8 @@ const TapsProfileEdit: React.FC = () => {
 
     const [imgPerfil, setImgPerfil] = useState<string>('');
     const [novoNome, setNovoNome] = useState<string>('');
+    const [username, setUsername] = useState<string>('');
+    const [usernameErro, setUsernameErro] = useState<string>('');
     const [descricao, setDescricao] = useState<string>('');
     const [sucesso, setSucesso] = useState<string | null>(null);
     const [erro, setErro] = useState<string | null>(null);
@@ -38,9 +44,12 @@ const TapsProfileEdit: React.FC = () => {
             const storedFoto = localStorage.getItem('usuario_foto') || ctxFotoPerfil;
             const storedDescricao = localStorage.getItem('usuario_descricao') || ctxDescricao;
 
+            const storedUsername = localStorage.getItem('usuario_username') || '';
+
             setNovoNome(storedNome || '');
             setImgPerfil(storedFoto || '');
             setDescricao(storedDescricao || '');
+            setUsername(storedUsername || '');
         }
     }, [ctxNome, ctxFotoPerfil, ctxDescricao]);
 
@@ -48,6 +57,7 @@ const TapsProfileEdit: React.FC = () => {
         if (users && users.length > 0) {
             const dadosUsuario = users[0];
             if (dadosUsuario.nome) setNovoNome(dadosUsuario.nome);
+            if (dadosUsuario.username) setUsername(dadosUsuario.username);
             if (dadosUsuario.descricao) setDescricao(dadosUsuario.descricao);
             if (dadosUsuario.foto_perfil) {
                 setImgPerfil(dadosUsuario.foto_perfil);
@@ -56,6 +66,20 @@ const TapsProfileEdit: React.FC = () => {
             }
         }
     }, [users]);
+
+    const validarUsername = (value: string): string => {
+        if (value.length === 0) return '';
+        if (value.length < USERNAME_MIN) return `O username precisa ter pelo menos ${USERNAME_MIN} caracteres.`;
+        if (value.length > USERNAME_MAX) return `O username pode ter no máximo ${USERNAME_MAX} caracteres.`;
+        if (!USERNAME_REGEX.test(value)) return 'Use apenas letras, números, ponto (.) e underscore (_) — sem espaços.';
+        return '';
+    };
+
+    const handleUsernameChange = (value: string) => {
+        const valorFiltrado = value.replace(/[^a-zA-Z0-9._]/g, '');
+        setUsername(valorFiltrado);
+        setUsernameErro(validarUsername(valorFiltrado));
+    };
 
     const converterBase64 = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -81,6 +105,13 @@ const TapsProfileEdit: React.FC = () => {
             return;
         }
 
+        const erroUsername = validarUsername(username);
+        if (erroUsername) {
+            setUsernameErro(erroUsername);
+            setErro(erroUsername);
+            return;
+        }
+
         if (/[^A-Za-zÀ-ú0-9 ]/.test(novoNome)) {
             setErro("O nome contém caracteres inválidos.");
             return;
@@ -95,27 +126,36 @@ const TapsProfileEdit: React.FC = () => {
             setSalvando(true);
             await updateUser(usuarioId, token, {
                 nome: novoNome,
+                username,
                 foto_perfil: imgPerfil,
                 descricao: descricao
             });
 
             if (typeof window !== 'undefined') {
                 localStorage.setItem('usuario_nome', novoNome);
+                localStorage.setItem('usuario_username', username);
                 localStorage.setItem('usuario_foto', imgPerfil);
                 localStorage.setItem('usuario_descricao', descricao);
             }
 
             updateProfile({
                 nome: novoNome,
+                username,
                 foto_perfil: imgPerfil,
                 descricao: descricao
             });
 
             setSucesso("Perfil atualizado com sucesso!");
             setTimeout(() => setSucesso(null), 3000);
-        } catch (err) {
+        } catch (err: any) {
             console.error("Erro ao atualizar dados do perfil:", err);
-            setErro("Erro ao salvar alterações. Tente novamente.");
+            const mensagemErro = err?.response?.data?.error || err?.message || "Erro ao salvar alterações. Tente novamente.";
+            if (mensagemErro.includes('username')) {
+                setUsernameErro('Esse username já existe. Escolha outro.');
+                setErro('Esse username já existe. Escolha outro.');
+            } else {
+                setErro(mensagemErro);
+            }
         } finally {
             setSalvando(false);
         }
@@ -154,9 +194,9 @@ const TapsProfileEdit: React.FC = () => {
                                 src={imgPerfil || '/image/semPerfil.jpg'} 
                                 alt="Foto Perfil" 
                                 className={styles.avatar}
-                                width={120} // Defina a largura base do seu avatar
-                                height={120} // Defina a altura base do seu avatar
-                                priority // Carrega a imagem com prioridade por estar no topo
+                                width={120}
+                                height={120} 
+                                priority
                             />
                             <label htmlFor="foto" className={styles.avatarOverlay} title="Alterar foto">
                                 <FiCamera size={18} />
@@ -175,7 +215,7 @@ const TapsProfileEdit: React.FC = () => {
                                 src={caminhoFrame}
                                 alt="Frame"
                                 className={styles.frameImg}
-                                width={130} // Geralmente um pouco maior que o avatar interno
+                                width={130}
                                 height={130}
                             />
                         )}
@@ -196,6 +236,26 @@ const TapsProfileEdit: React.FC = () => {
                     </div>
                 )}
 
+                <div className={styles.field}>
+                    <label className={styles.label} htmlFor="username">
+                        <FiUser size={13} />
+                        Username
+                    </label>
+                    <input
+                        type="text"
+                        id="username"
+                        className={styles.input}
+                        placeholder="username"
+                        maxLength={USERNAME_MAX}
+                        value={username}
+                        onChange={e => handleUsernameChange(e.target.value)}
+                        autoCapitalize="none"
+                        autoCorrect="off"
+                        spellCheck={false}
+                    />
+                    <span className={styles.counter}>{username.length}/20</span>
+                </div>
+
                 {/* NOME */}
                 <div className={styles.field}>
                     <label className={styles.label} htmlFor="nome">
@@ -215,6 +275,7 @@ const TapsProfileEdit: React.FC = () => {
                     />
                     <span className={styles.counter}>{novoNome.length}/20</span>
                 </div>
+
 
                 {/* DESCRIÇÃO */}
                 <div className={styles.field}>

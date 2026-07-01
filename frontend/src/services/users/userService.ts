@@ -11,7 +11,6 @@ export async function searchCreatorNameService(usuarioId: number | null): Promis
     
     try {
         const response = await axios.get(`${API_URL}/users/name-user/${usuarioId}`);
-
         const data = response.data;
         return {
             ...data,
@@ -27,7 +26,7 @@ export async function searchCreatorNameService(usuarioId: number | null): Promis
 export async function updateUserService(
     usuarioId: number, 
     token: string,
-    userData: { nome: string; foto_perfil?: string; descricao?: string }
+    userData: { nome: string; foto_perfil?: string; descricao?: string; username?: string }
 ): Promise<UpdateUserResponse> {
     try {
         const response = await axios.put(`${API_URL}/users/edit-profile/${usuarioId}`, userData, {
@@ -51,14 +50,15 @@ export async function getMiniProfileService(usuarioId: number): Promise<MiniProf
   try {
     const response = await axios.get(`${API_URL}/users/mini-profile/${usuarioId}`);
     const d = response.data;
-
     return {
-      usuarioId: d.id,
-      nome:      d.nome,
-      foto:      d.foto_perfil,
-      descricao: d.descricao,
-      frame:     normalizeFrame(d.frame),
-      is_online: d.is_online,
+        usuarioId: d.id,
+        nome:      d.nome,
+        foto:      d.foto_perfil,
+        descricao: d.descricao,
+        username:  d.username ?? null,
+        frame:     normalizeFrame(d.frame),
+        is_online: d.is_online,
+        nivel:     d.nivel ?? null,
     };
   } catch (error) {
     console.error(`Error loading mini profile data for user ${usuarioId}:`, error);
@@ -80,4 +80,3 @@ export async function updateFrameService (usuarioId: number, frame: string): Pro
         throw error;
     }
 }
-

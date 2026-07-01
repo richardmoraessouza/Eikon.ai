@@ -9,6 +9,7 @@ import type { ChatMessage as ChatMessageType } from '../../../types/chat/chat';
 import { useAuth } from '../../../hooks/AuthContext/AuthContext';
 import { normalizeFrame } from '../../../utils/frame';
 import styles from './ChatMessage.module.css';
+import { useUserSettings } from '../../../contexts/UserSettingsContext/UserSettingsContext';
 
 interface ChatMessageProps {
   msg: ChatMessageType;
@@ -32,11 +33,15 @@ export function ChatMessage({
   const [menuOpen, setMenuOpen] = useState(false);
   const [menuPos, setMenuPos] = useState<{ top: number; left: number } | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
-
+  
+  const { showFrameInChat } = useUserSettings();
   const { fotoPerfil, frame, usuario } = useAuth();
 
   const userFrameAtivo = normalizeFrame(frame);
-  const userFramePath = userFrameAtivo ? `/image/frames/${userFrameAtivo}` : null;
+  
+  const userFramePath = (userFrameAtivo && !showFrameInChat)
+      ? `/image/frames/${userFrameAtivo}`
+      : null;
 
   const charFrameAtivo = normalizeFrame(characterFrame ?? null);
   const charFramePath = charFrameAtivo ? `/image/frames/${charFrameAtivo}` : null;

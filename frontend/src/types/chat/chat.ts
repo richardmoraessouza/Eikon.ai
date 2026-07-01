@@ -5,6 +5,7 @@ export interface ChatResponse {
   replyIds?: number[];      
   replyToIds?: (number | null)[]; 
   quotes?: Record<number, ReplyQuote>;
+  missoesCompletadas?: string[];
 }
 
 export interface ReplyQuote {

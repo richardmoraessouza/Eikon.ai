@@ -14,6 +14,7 @@ interface Seguidor {
     nome?: string;
     foto_perfil?: string | null;
     frame?: string | null;
+    username?: string | null;
 }
 
 interface ModalSeguidoresProps {
@@ -30,6 +31,7 @@ function ModalSeguidores({ tipo, lista = [], onClose, usuario, usuarioLogado }: 
     const modalRef = useRef<HTMLDivElement>(null);
     const router = useRouter();
 
+    // Fecha o modal ao clicar fora dele
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
             if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
@@ -40,24 +42,30 @@ function ModalSeguidores({ tipo, lista = [], onClose, usuario, usuarioLogado }: 
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, [onClose]);
 
+    // Busca a lista da aba ativa. Cancela o resultado se a aba/usuário mudar
+    // antes da requisição terminar, evitando mostrar a lista errada.
     useEffect(() => {
-        const fetchUsuarios = async () => {
-            try {
-                const endpoint = abaAtiva === 'seguidores'
-                    ? `${API_URL}/social/users/${usuario}/followers`
-                    : `${API_URL}/social/users/${usuario}/following`;
+        let cancelado = false;
 
+        const fetchUsuarios = async () => {
+            const endpoint = abaAtiva === 'seguidores'
+                ? `${API_URL}/social/users/${usuario}/followers`
+                : `${API_URL}/social/users/${usuario}/following`;
+
+            try {
                 const res = await axios.get(endpoint);
-                setUsuarios(Array.isArray(res.data) ? res.data : []);
+                if (!cancelado) setUsuarios(Array.isArray(res.data) ? res.data : []);
             } catch (error) {
                 console.error(`Erro ao buscar ${abaAtiva}:`, error);
-                setUsuarios([]);
+                if (!cancelado) setUsuarios([]);
             }
         };
 
         fetchUsuarios();
+        return () => { cancelado = true; };
     }, [abaAtiva, usuario]);
 
+    // Mantém o frame de cada usuário da lista atualizado em tempo real
     useEffect(() => {
         const handler = (event: Event) => {
             const { usuarioId, frame } = (event as CustomEvent<FrameUpdatedDetail>).detail;
@@ -71,6 +79,12 @@ function ModalSeguidores({ tipo, lista = [], onClose, usuario, usuarioLogado }: 
         window.addEventListener(FRAME_UPDATED_EVENT, handler);
         return () => window.removeEventListener(FRAME_UPDATED_EVENT, handler);
     }, []);
+
+    const irParaPerfil = (item: Seguidor) => {
+        if (!item.username) return;
+        router.push(`/profile/${item.username}`);
+        onClose();
+    };
 
     return (
         <div className={styles.overlay}>
@@ -94,7 +108,11 @@ function ModalSeguidores({ tipo, lista = [], onClose, usuario, usuarioLogado }: 
                     </button>
                 </div>
 
-                {usuarios.length > 0 ? (
+                {usuarios.length === 0 ? (
+                    <p className={styles.emptyMessage}>
+                        {abaAtiva === 'seguidores' ? 'Nenhum seguidor' : 'Não está seguindo ninguém'}
+                    </p>
+                ) : (
                     <ul>
                         {usuarios.map((item) => {
                             const frameAtivo = normalizeFrame(item.frame);
@@ -104,13 +122,7 @@ function ModalSeguidores({ tipo, lista = [], onClose, usuario, usuarioLogado }: 
                                 <li
                                     key={item.id}
                                     className={styles.listaUsuarios}
-                                    onClick={() => {
-                                        router.push(item.id === usuarioLogado
-                                            ? `/profile/${usuarioLogado}`
-                                            : `//${item.id}`
-                                        );
-                                        onClose();
-                                    }}
+                                    onClick={() => irParaPerfil(item)}
                                 >
                                     <div className={styles.avatarWrap}>
                                         <Image
@@ -125,9 +137,9 @@ function ModalSeguidores({ tipo, lista = [], onClose, usuario, usuarioLogado }: 
                                             <Image
                                                 src={`/image/frames/${frameAtivo}`}
                                                 alt="Frame"
-                                                fill
+                                                width={56}
+                                                height={56}
                                                 className={styles.frameImg}
-                                                style={{ objectFit: 'contain' }}
                                             />
                                         )}
                                     </div>
@@ -138,10 +150,6 @@ function ModalSeguidores({ tipo, lista = [], onClose, usuario, usuarioLogado }: 
                             );
                         })}
                     </ul>
-                ) : (
-                    <p className={styles.emptyMessage}>
-                        {abaAtiva === 'seguidores' ? 'Nenhum seguidor' : 'Não está seguindo ninguém'}
-                    </p>
                 )}
             </section>
         </div>

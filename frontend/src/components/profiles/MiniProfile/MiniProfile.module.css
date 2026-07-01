@@ -1,17 +1,28 @@
 .card {
   background: var(--profile-modal-bg);
   border: 0.5px solid var(--profile-border);
-  border-radius: 10px;
-  width: 240px;
-  overflow: hidden;
-  position: absolute;
+  border-radius: 14px;
+  width: 252px;
+  overflow: visible;
+  position: relative;
   z-index: 999;
+  box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.35), 0 2px 8px rgba(0, 0, 0, 0.12);
+  animation: profileIn 0.16s ease-out;
+}
+
+@keyframes profileIn {
+  from { opacity: 0; transform: translateY(-4px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card { animation: none; }
 }
 
 /* ── Header ── */
 .header {
   background: var(--profile-header-bg);
-  padding: 14px;
+  padding: 16px 14px;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -21,78 +32,69 @@
 /* ── Avatar ── */
 .avatarWrap {
   position: relative;
-  width: 48px;
-  height: 48px;
+  width: 52px;
+  height: 52px;
   flex-shrink: 0;
+  user-select: none;
+  -webkit-user-drag: none;
+  pointer-events: none;
 }
 
-.avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  object-fit: cover;
+/* Container da foto/fallback — camada de baixo */
+.avatarInner {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  overflow: hidden;
   z-index: 1;
-  display: block;
+  box-shadow: 0 0 0 2px var(--profile-header-bg);
+}
+
+.avatar {
+  object-fit: cover;
 }
 
 /* Fallback quando não tem foto */
 .avatarFallback {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: var(--profile-avatar-bg, #6366f1);
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 1;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   color: #fff;
 }
 
-/* Frame PNG por cima do avatar */
-.avatarMoldura {
+/* Container da moldura — sempre por cima da foto */
+.avatarMolduraWrap {
   position: absolute;
   inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  pointer-events: none;
   z-index: 2;
+  pointer-events: none;
 }
 
-/* Dot de presença ancorado no canto do avatar */
-.presenceDot {
-  position: absolute;
-  bottom: 2px;
-  right: 2px;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  border: 2px solid var(--profile-header-bg);
-  z-index: 3;
+.avatarMoldura {
+  object-fit: contain;
 }
 
 /* ── Info ── */
 .headerInfo {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  /* flex: 1; */
-  /* min-width: 0; */
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
 }
 
 .nome {
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--profile-text-secondary);
   white-space: nowrap;
   overflow: hidden;
@@ -100,42 +102,30 @@
 }
 
 .descricao {
-  font-size: 11px;
+  font-size: 11.5px;
+  line-height: 1.4;
   color: var(--text-main);
-  white-space: nowrap;
-  width: 20px;
-  height: 200px;
-  /* overflow: hidden; */
-  /* text-overflow: ellipsis; */
-}
-
-.statusRow {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  margin-top: 2px;
-}
-
-.statusDot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  flex-shrink: 0;
+  opacity: 0.75;
+  display: -webkit-box;
+  line-clamp: 2;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .statusText {
   font-size: 11px;
+  font-weight: 500;
+  margin-top: 2px;
 }
 
 /* ── Estados online / offline ── */
-.dotOnline  { background-color: #22c55e; }
-.dotOffline { background-color: #9ca3af; }
 .statusOnline  { color: #22c55e; }
 .statusOffline { color: #9ca3af; }
 
 /* ── Body ── */
 .body {
-  padding: 10px 14px;
+  padding: 12px 14px 14px;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -145,17 +135,22 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 7px 10px;
+  padding: 8px 10px;
   background: var(--profile-description-bg);
   border: 0.5px solid var(--profile-description-border);
-  border-radius: 8px;
+  border-radius: 10px;
+  transition: border-color 0.12s ease;
+}
+
+.row:hover {
+  border-color: var(--profile-text-muted, rgba(255, 255, 255, 0.2));
 }
 
 /* Badge */
 .badgeIcon {
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
   background: var(--profile-description-bg);
   border: 0.5px solid var(--profile-description-border);
   display: flex;
@@ -169,35 +164,41 @@
   display: flex;
   flex-direction: column;
   gap: 1px;
+  min-width: 0;
 }
 
 .badgeName {
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--profile-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .badgeXp {
-  font-size: 10px;
+  font-size: 10.5px;
   color: var(--profile-text-muted);
 }
 
 /* Nível */
 .levelCircle {
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   border: 2px solid #57cbde;
+  background: rgba(87, 203, 222, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 700;
   color: #57cbde;
   flex-shrink: 0;
 }
 
 .levelLabel {
   font-size: 12px;
+  font-weight: 500;
   color: var(--profile-text-muted);
 }

@@ -1,9 +1,9 @@
-"use client"; // Necessário por conta de estados, referências de DOM, manipulação de listeners e hovers
+"use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import Link from "next/link"; // Substituído Link do react-router-dom
-import { useRouter } from "next/navigation"; // Substituído useNavigate por useRouter do Next.js
-import Image from "next/image"; // Importado para otimização da imagem do personagem
+import { createPortal } from "react-dom";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { useSocial } from "../../../hooks/useSocial/useSocial";
 import { useDragScroll } from "../../../hooks/useDragScroll/useDragScroll";
 import { FiMessageSquare, FiChevronLeft, FiChevronRight, FiHeart } from "react-icons/fi";
@@ -13,13 +13,13 @@ import MiniProfile from "../../profiles/MiniProfile/MiniProfile";
 import type { MiniProfileType } from "../../../types/users/users";
 import styles from "./discoveryCards.module.css";
 
-// Define quantos skeletons vão aparecer na tela no primeiro carregamento
 const SKELETON_COUNT = 5;
 
 interface DiscoveryCharacter {
   id: number;
   nome: string;
   fotoia?: string | null;
+  username?: string | null;
   bio?: string | null;
   usuario_id?: number;
   visualizacoes?: number;
@@ -36,6 +36,15 @@ interface DiscoveryCardsProps {
   hasMore?: boolean;
 }
 
+interface PopoverPosition {
+  top: number;
+  left: number;
+}
+
+const POPOVER_WIDTH = 252;
+const POPOVER_MARGIN = 16;
+const POPOVER_GAP = 8;
+
 export const DiscoveryCards = ({
   title,
   icon,
@@ -46,111 +55,181 @@ export const DiscoveryCards = ({
   onLoadMore,
   hasMore = false
 }: DiscoveryCardsProps) => {
-  const router = useRouter(); // Instanciando o roteador do Next.js
+  const router = useRouter();
   const { carouselRef, hasDragged, dragProps } = useDragScroll();
   const { isLiked, handleToggleLike, getQuantityLikes } = useSocial();
 
   const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Guarda um "id de requisição" para descartar respostas de hover desatualizadas
+  // (ex.: usuário passa o mouse rápido do card A para o card B).
+  const hoverRequestRef = useRef(0);
+
   const [likesCount, setLikesCount] = useState<Record<number, number>>({});
   const [creatorNames, setCreatorNames] = useState<Record<number, string>>({});
+  const [creatorUsernames, setCreatorUsernames] = useState<Record<number, string | null>>({});
   const [activeProfile, setActiveProfile] = useState<MiniProfileType | null>(null);
   const [activeCardId, setActiveCardId] = useState<number | null>(null);
+  const [popoverPos, setPopoverPos] = useState<PopoverPosition | null>(null);
+  const [mounted, setMounted] = useState(false);
 
-  const loadMiniProfileData = useCallback(async (userId: number) => {
-    try {
-      const data = await getMiniProfileService(userId);
-      setActiveProfile(data);
-    } catch (err) {
-      console.error("Erro ao carregar dados do mini perfil:", err);
-    }
+  useEffect(() => setMounted(true), []);
+
+  // Limpa qualquer timer de hover pendente ao desmontar o componente.
+  useEffect(() => {
+    return () => {
+      if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
+    };
   }, []);
 
   useEffect(() => {
     const handler = (event: Event) => {
       const { usuarioId, frame } = (event as CustomEvent<FrameUpdatedDetail>).detail;
-
       setActiveProfile(prev =>
         prev && prev.usuarioId === usuarioId ? { ...prev, frame } : prev
       );
     };
-
     window.addEventListener(FRAME_UPDATED_EVENT, handler);
     return () => window.removeEventListener(FRAME_UPDATED_EVENT, handler);
   }, []);
 
-  const handleMouseEnterAuthor = (userId: number, characterId: number) => {
+  const computePosition = (anchor: HTMLElement) => {
+    const rect = anchor.getBoundingClientRect();
+    let left = rect.left + rect.width / 2 - POPOVER_WIDTH / 2;
+    left = Math.max(
+      POPOVER_MARGIN,
+      Math.min(left, window.innerWidth - POPOVER_WIDTH - POPOVER_MARGIN)
+    );
+    const top = Math.max(POPOVER_MARGIN, rect.top - POPOVER_GAP);
+    setPopoverPos({ top, left });
+  };
+
+  const closePopover = () => {
+    hoverRequestRef.current += 1; // invalida qualquer fetch de perfil em andamento
+    setActiveProfile(null);
+    setActiveCardId(null);
+    setPopoverPos(null);
+  };
+
+  const handleMouseEnterAuthor = (
+    e: React.MouseEvent<HTMLDivElement>,
+    userId: number,
+    characterId: number
+  ) => {
     if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
-    
+    const anchor = e.currentTarget;
+    const requestId = ++hoverRequestRef.current;
+
     hoverTimerRef.current = setTimeout(async () => {
+      computePosition(anchor);
       setActiveCardId(characterId);
-      await loadMiniProfileData(userId);
+      try {
+        const data = await getMiniProfileService(userId);
+        // Só aplica o resultado se ainda for o hover mais recente,
+        // evitando mostrar o perfil errado quando o mouse já mudou de card.
+        if (hoverRequestRef.current === requestId) {
+          setActiveProfile(data);
+        }
+      } catch (err) {
+        console.error("Erro ao carregar dados do mini perfil:", err);
+      }
     }, 200);
   };
 
   const handleMouseLeaveAuthor = () => {
     if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
-    setActiveCardId(null);
-    setActiveProfile(null);
+    hoverTimerRef.current = setTimeout(closePopover, 120);
   };
 
-  const handleAuthorClick = async (e: React.MouseEvent, userId: number, characterId: number) => {
+  const handleAuthorClick = (e: React.MouseEvent<HTMLDivElement>, userId: number) => {
     e.stopPropagation();
-    if (activeProfile && activeCardId === characterId) {
-      setActiveProfile(null);
-      setActiveCardId(null);
-    } else {
-      setActiveCardId(characterId);
-      await loadMiniProfileData(userId);
+    if (hasDragged) return;
+
+    const username = creatorUsernames[userId];
+    // Só navega quando o username já está disponível. Nunca usa o ID na URL.
+    if (username) {
+      router.push(`/profile/${username}`);
     }
   };
 
+  useEffect(() => {
+    if (!activeCardId) return;
+    const handleWindowChange = () => closePopover();
+    window.addEventListener("scroll", handleWindowChange, true);
+    window.addEventListener("resize", handleWindowChange);
+    return () => {
+      window.removeEventListener("scroll", handleWindowChange, true);
+      window.removeEventListener("resize", handleWindowChange);
+    };
+  }, [activeCardId]);
+
+  // Carrega nome/username dos criadores em paralelo e usa updates funcionais
+  // para não sobrescrever dados carregados por execuções concorrentes deste efeito.
   useEffect(() => {
     async function loadCreatorNames() {
-      const namesMap: Record<number, string> = { ...creatorNames };
-      let needUpdate = false;
+      const idsToFetch = Array.from(
+        new Set(characters.map(c => c.usuario_id).filter((id): id is number => !!id))
+      ).filter(id => !(id in creatorNames));
 
-      for (const character of characters) {
-        if (!character.usuario_id || namesMap[character.usuario_id]) continue;
+      if (idsToFetch.length === 0) return;
 
-        try {
-          const creator = await searchCreatorNameService(character.usuario_id);
-          namesMap[character.usuario_id] = creator.nome;
-          needUpdate = true;
-        } catch {
-          namesMap[character.usuario_id] = "Desconhecido";
-          needUpdate = true;
-        }
-      }
-      if (needUpdate) setCreatorNames(namesMap);
+      const results = await Promise.all(
+        idsToFetch.map(async (id) => {
+          try {
+            const creator = await searchCreatorNameService(id);
+            return { id, nome: creator.nome, username: creator.username ?? null };
+          } catch {
+            return { id, nome: "Desconhecido", username: null };
+          }
+        })
+      );
+
+      setCreatorNames(prev => {
+        const next = { ...prev };
+        results.forEach(({ id, nome }) => { next[id] = nome; });
+        return next;
+      });
+      setCreatorUsernames(prev => {
+        const next = { ...prev };
+        results.forEach(({ id, username }) => { next[id] = username; });
+        return next;
+      });
     }
     if (characters.length > 0) loadCreatorNames();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [characters]);
 
+  // Carrega contagem de likes em paralelo, também com update funcional.
   useEffect(() => {
     async function loadLikesCount() {
-      const likesMap: Record<number, number> = { ...likesCount };
-      let needUpdate = false;
+      const idsToFetch = characters
+        .map(c => c.id)
+        .filter(id => likesCount[id] === undefined);
 
-      for (const character of characters) {
-        if (likesMap[character.id] !== undefined) continue;
+      if (idsToFetch.length === 0) return;
 
-        const total = await getQuantityLikes(character.id);
-        likesMap[character.id] = total;
-        needUpdate = true;
-      }
-      if (needUpdate) setLikesCount(likesMap);
+      const results = await Promise.all(
+        idsToFetch.map(async (id) => {
+          try {
+            return { id, count: await getQuantityLikes(id) };
+          } catch {
+            return { id, count: 0 };
+          }
+        })
+      );
+
+      setLikesCount(prev => {
+        const next = { ...prev };
+        results.forEach(({ id, count }) => { next[id] = count; });
+        return next;
+      });
     }
     if (characters.length > 0) loadLikesCount();
   }, [characters, getQuantityLikes]);
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     if (!onLoadMore || !hasMore || loading) return;
-
     const target = e.currentTarget;
-    const currentPosition = target.scrollLeft + target.clientWidth;
-    const totalWidth = target.scrollWidth;
-
-    if (totalWidth - currentPosition < 300) {
+    if (target.scrollWidth - (target.scrollLeft + target.clientWidth) < 300) {
       onLoadMore();
     }
   };
@@ -163,12 +242,11 @@ export const DiscoveryCards = ({
   };
 
   const scroll = (dir: "left" | "right") => {
-    if (!carouselRef.current) return;
-    carouselRef.current.scrollBy({ left: dir === "right" ? 240 : -240, behavior: "smooth" });
+    carouselRef.current?.scrollBy({ left: dir === "right" ? 240 : -240, behavior: "smooth" });
   };
 
   const handleCharacterClick = (characterId: number) => {
-    if (!hasDragged) router.push(`/personagem/${characterId}`); // Substituído navigate por router.push
+    if (!hasDragged) router.push(`/chat/${characterId}`);
   };
 
   if (error) return (
@@ -181,10 +259,7 @@ export const DiscoveryCards = ({
   if (loading && characters.length === 0) return (
     <article className={styles.container}>
       <div className={styles.header}>
-        <h2>
-          <span className={styles.headerIcon}>{icon}</span>
-          {title}
-        </h2>
+        <h2><span className={styles.headerIcon}>{icon}</span>{title}</h2>
       </div>
       <div className={styles.carouselWrapper}>
         <div className={styles.carouselTrack} aria-busy="true" aria-label="Carregando conteúdos">
@@ -214,10 +289,7 @@ export const DiscoveryCards = ({
   return (
     <article className={styles.container}>
       <div className={styles.header}>
-        <h2>
-          <span className={styles.headerIcon}>{icon}</span>
-          {title}
-        </h2>
+        <h2><span className={styles.headerIcon}>{icon}</span>{title}</h2>
       </div>
 
       <div className={styles.carouselWrapper}>
@@ -228,16 +300,9 @@ export const DiscoveryCards = ({
           <FiChevronRight size={16} />
         </button>
 
-        <div
-          className={styles.carouselTrack}
-          ref={carouselRef}
-          onScroll={handleScroll}
-          {...dragProps}
-        >
+        <div className={styles.carouselTrack} ref={carouselRef} onScroll={handleScroll} {...dragProps}>
           {characters.map((character) => (
             <div key={character.id} className={styles.card} onClick={() => handleCharacterClick(character.id)}>
-
-              {/* Trocado para o componente Image com preenchimento relativo */}
               <div className={styles.imageWrapper} style={{ position: "relative" }}>
                 <Image
                   src={character.fotoia || "/image/semPerfil.jpg"}
@@ -247,22 +312,12 @@ export const DiscoveryCards = ({
                   className={styles.image}
                   style={{ objectFit: "cover" }}
                   draggable={false}
-                  unoptimized // Mantido unoptimized por conta de origens de IA variáveis
+                  unoptimized
                 />
               </div>
 
               <div className={styles.info}>
-                {/* Modificado to="..." para href="..." */}
-                <Link 
-                  href={`/perfil/${character.usuario_id}`} 
-                  className={styles.name}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (hasDragged) e.preventDefault();
-                  }}
-                >
-                  {character.nome}
-                </Link>
+                <p className={styles.name}>{character.nome}</p>
                 {character.bio && <p className={styles.bio}>{character.bio}</p>}
               </div>
 
@@ -288,29 +343,16 @@ export const DiscoveryCards = ({
 
               <div
                 className={styles.authorContainer}
-                onMouseEnter={() => character.usuario_id && handleMouseEnterAuthor(character.usuario_id, character.id)}
+                onMouseEnter={(e) => character.usuario_id != null && handleMouseEnterAuthor(e, character.usuario_id, character.id)}
                 onMouseLeave={handleMouseLeaveAuthor}
-                onClick={(e) => character.usuario_id && handleAuthorClick(e, character.usuario_id, character.id)}
+                onClick={(e) => character.usuario_id != null && handleAuthorClick(e, character.usuario_id)}
               >
                 <p className={styles.author}>
-                  @{character.usuario_id ? (creatorNames[character.usuario_id] || "Desconhecido") : "Desconhecido"}
+                  {character.usuario_id
+                    ? `@${creatorUsernames[character.usuario_id] || creatorNames[character.usuario_id] || "Desconhecido"}`
+                    : "@Desconhecido"}
                 </p>
-
-                {activeProfile && activeCardId === character.id && (
-                  <div className={styles.popoverWrapper}>
-                    <MiniProfile
-                      usuarioId={activeProfile.usuarioId}
-                      nome={activeProfile.nome}
-                      foto={activeProfile.foto}
-                      descricao={activeProfile.descricao}
-                      frame={activeProfile.frame}
-                      is_online={activeProfile.is_online}
-                      onClose={() => { setActiveProfile(null); setActiveCardId(null); }}
-                    />
-                  </div>
-                )}
               </div>
-
             </div>
           ))}
           {loading && (
@@ -321,6 +363,35 @@ export const DiscoveryCards = ({
           )}
         </div>
       </div>
+
+      {mounted && activeProfile && activeCardId !== null && popoverPos &&
+        createPortal(
+          <div
+            className={styles.popoverPortal}
+            style={{
+              position: "fixed",
+              top: popoverPos.top,
+              left: popoverPos.left,
+              transform: `translateY(calc(-100% - ${POPOVER_GAP}px))`,
+              width: POPOVER_WIDTH,
+              maxWidth: `calc(100vw - ${POPOVER_MARGIN * 2}px)`,
+              zIndex: 2147483647,
+            }}
+            onMouseEnter={() => hoverTimerRef.current && clearTimeout(hoverTimerRef.current)}
+            onMouseLeave={closePopover}
+          >
+            <MiniProfile
+              usuarioId={activeProfile.usuarioId}
+              nome={activeProfile.nome}
+              foto={activeProfile.foto}
+              descricao={activeProfile.descricao}
+              frame={activeProfile.frame}
+              nivel={activeProfile.nivel}
+              is_online={activeProfile.is_online}
+            />
+          </div>,
+          document.body
+        )}
     </article>
   );
 };

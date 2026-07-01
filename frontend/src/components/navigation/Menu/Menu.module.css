@@ -6,6 +6,7 @@
     border-right: 1px solid rgba(255, 255, 255, 0.08);
     background-color: var(--light-background);
     display: flex;
+    overflow: hidden;
     flex-direction: column;
 }
 
@@ -16,6 +17,13 @@
 .menu::-webkit-scrollbar-thumb {
     background: rgba(255, 255, 255, 0.1);
     border-radius: 3px;
+}
+
+.sectionRecentes {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
 }
 
 .avatarRecent {
@@ -59,8 +67,8 @@
 .btnMenu {
     position: fixed;
     z-index: 9999;
-    top: 2px;
-    left: 2px;
+    top: 7px;
+    left: 3px;
     width: 40px;
     height: 40px;
     padding: 0;
@@ -136,10 +144,10 @@
 }
 
 .containerPerson {
-    max-height: 50vh;
+    height: 100%;
     overflow-y: auto;
     scrollbar-width: thin;
-    padding-bottom: 12px;
+    padding-bottom: 50px;
     -ms-overflow-style: thin;
 }
 
@@ -167,6 +175,8 @@
 .containerPerson {
     scrollbar-width: none;
     -ms-overflow-style: none;
+    flex: 1;
+    min-height: 0;
 }
 
 .containerPerson li {
@@ -268,7 +278,7 @@
 }
 
 .containerConta {
-    background-color: var(--light-background); 
+    background-color: var(--light-background);
 }
 
 .avatarWrapper {
@@ -413,30 +423,13 @@
     align-items: center;
 }
 
-@media (max-width: 768px) {
-    .btnMenu { 
-        left: 12px; 
-        top: 12px; 
-    }
-
+/* @media (max-width: 768px) {
     .menu {
         width: 100%;
         max-width: 280px;
         height: 100dvh;
     }
-}
-
-@media (max-height: 700px) {
-    .containerPerson { 
-        max-height: 25vh; 
-    }
-}
-
-@media (max-height: 900px) {
-    .containerPerson { 
-        max-height: 35vh; 
-    }
-}
+} */
 
 .skeletonCircle {
   width: 28px; /* Equivalente ao w-7 */

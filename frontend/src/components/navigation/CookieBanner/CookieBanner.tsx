@@ -5,8 +5,8 @@ import {
   getCookieConsent,
   setCookieConsent,
   onCookieConsentChanged,
-} from '../../../services/cookieConsentService';
-import type { CookieConsent, CookieConsentState } from '../../../types/cookies';
+} from '../../../services/cookieConsent/cookieConsentService';
+import type { CookieConsent, CookieConsentState } from '../../../types/cookies/cookies';
 import styles from './CookieBanner.module.css';
 
 interface CookieBannerProps {

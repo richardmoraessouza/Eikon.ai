@@ -6,7 +6,7 @@ import {
   toggleLike as socialToggleLike, 
   SearchFavoritesUser, 
   toggleFavorite as socialToggleFavorite 
-} from "./socialService";
+} from "./social/socialService";
 
 // Helper para validar e limpar token
 function validateToken(token: string | null): string {

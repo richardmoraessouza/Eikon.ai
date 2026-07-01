@@ -22,6 +22,7 @@ interface ProfilePersonProps {
   perfilPerson: boolean;
   setPerfilPerson: React.Dispatch<React.SetStateAction<boolean>>;
   pinnedMessages: ChatMessageType[];
+  isLoadingPinned: boolean;
   onUnpin: (msg: ChatMessageType) => void;
 }
 
@@ -32,6 +33,7 @@ const CharacterProfile: React.FC<ProfilePersonProps> = ({
   perfilPerson,
   setPerfilPerson,
   pinnedMessages,
+  isLoadingPinned,
   onUnpin,
 }) => {
   const { token, usuarioId } = useAuth();
@@ -279,6 +281,7 @@ const CharacterProfile: React.FC<ProfilePersonProps> = ({
                 setActiveProfile={setActiveProfile}
                 setShowMiniProfile={setShowMiniProfile}
                 pinnedMessages={pinnedMessages}
+                isLoadingPinned={isLoadingPinned}
                 onUnpin={onUnpin}
               />
 

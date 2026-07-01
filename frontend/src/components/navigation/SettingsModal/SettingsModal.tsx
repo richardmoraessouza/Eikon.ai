@@ -1,10 +1,11 @@
 "use client"; // Obrigatório devido aos estados locais de abas e listeners de teclado ('keydown')
 
 import React, { useState, useEffect } from 'react';
-import { FiLogIn, FiSliders, FiUser, FiImage, FiLayout, FiChevronDown } from "react-icons/fi";
+import { FiLogIn, FiSliders, FiUser, FiImage, FiLayout, FiChevronDown, FiShield } from "react-icons/fi";
 import TapsFrames from './Taps/TapsFrames/TapsFrames';
 import TapsProfileEdit from './Taps/TapsProfileEdit/TapsProfileEdit';
 import TapsPreferencesTheme from './Taps/TapsPreferencesTheme/TapsPreferencesTheme';
+import TapsPrivacy from './Taps/TapsPrivacy/TapsPrivacy';
 import styles from './SettingsModal.module.css';
 
 interface SettingsModalProps {
@@ -15,6 +16,7 @@ interface SettingsModalProps {
 const TABS = [
   { id: 'perfil', label: 'Perfil', icon: <FiUser size={15} /> },
   { id: 'conta', label: 'Conta', icon: <FiLogIn size={15} /> },
+  { id: 'privacidade', label: 'Privacidade', icon: <FiShield size={15} /> },
   { id: 'preferencias', label: 'Preferências', icon: <FiSliders size={15} /> },
 ];
 
@@ -97,6 +99,13 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
           <div>
             <h2 className={styles.titleTab}>Preferências</h2>
             <TapsPreferencesTheme />
+          </div>
+        );
+      case 'privacidade':
+        return (
+          <div>
+            <h2 className={styles.titleTab}>Privacidade</h2>
+            <TapsPrivacy />
           </div>
         );
       default:

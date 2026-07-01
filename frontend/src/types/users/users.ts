@@ -4,6 +4,7 @@ export interface User {
     gmail?: string;
     foto_perfil?: string;
     descricao?: string;
+    username?: string;
     avatarUrl?: string;
     frame: string | null;
 }
@@ -28,8 +29,10 @@ export interface MiniProfile {
 export interface MiniProfileType {
   usuarioId: number;
   nome: string;
-  foto: string;
-  descricao: string;
-  frame: string | null;
-  is_online: boolean;
+  foto?: string | null;
+  descricao?: string | null;
+  username?: string | null;
+  frame?: string | null;
+  is_online?: boolean;
+  nivel?: number | null;
 }

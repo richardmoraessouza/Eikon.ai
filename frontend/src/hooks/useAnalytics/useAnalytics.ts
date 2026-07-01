@@ -9,8 +9,8 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { usePathname } from 'next/navigation'; // Importação do Next correta
 import ReactGA from 'react-ga4';
-import { getCookieConsent, onCookieConsentChanged } from '../../services/cookieConsentService';
-import type { CookieConsentState } from '../../types/cookies';
+import { getCookieConsent, onCookieConsentChanged } from '../../services/cookieConsent/cookieConsentService';
+import type { CookieConsentState } from '../../types/cookies/cookies';
 
 const GA4_MEASUREMENT_ID = 'G-VHWTKLWPRR';
 

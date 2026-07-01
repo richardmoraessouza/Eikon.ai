@@ -10,8 +10,16 @@ import * as chatApiService from '../../../../services/chat/chatService';
 import { BsPin } from 'react-icons/bs';
 
 interface CharacterProfileTabsProps {
-  personagem: any;
-  nome: any;
+  personagem: {
+    id?: number;
+    bio?: string;
+    descricao?: string;
+    usuario_id?: number;
+    [key: string]: unknown;
+  };
+  nome?: {
+    nome?: string;
+  } | null;
   activeTab: 'Perfil' | 'histórico';
   setActiveTab: (tab: 'Perfil' | 'histórico') => void;
   activeProfile: MiniProfileType | null;
@@ -22,6 +30,7 @@ interface CharacterProfileTabsProps {
   setActiveProfile: (profile: MiniProfileType | null) => void;
   setShowMiniProfile: (show: boolean) => void;
   pinnedMessages: ChatMessageType[];
+  isLoadingPinned: boolean;
   onUnpin: (msg: ChatMessageType) => void;
 }
 
@@ -38,6 +47,7 @@ const CharacterProfileTabs: React.FC<CharacterProfileTabsProps> = ({
   setActiveProfile,
   setShowMiniProfile,
   pinnedMessages,
+  isLoadingPinned,
   onUnpin,
 }) => {
 
@@ -138,7 +148,26 @@ const CharacterProfileTabs: React.FC<CharacterProfileTabsProps> = ({
           <div className={styles.campoMensagensFixadas}>
             <span className={styles.labelCampo}>Mensagens fixadas</span>
 
-            {pinnedMessages.length > 0 ? (
+            {isLoadingPinned ? (
+              <div className={styles.pinnedMessageWrapper}>
+                {Array.from({ length: 3 }).map((_, index) => {
+                  const isUser = index % 2 === 0;
+
+                  return (
+                    <div key={`pinned-skeleton-${index}`} className={styles.pinnedSkeletonItem}>
+                      {isUser ? <div className={styles.pinnedSpacer} /> : <div className={`${styles.pinnedSkeletonPin} ${styles.shimmer}`} />}
+
+                      <div
+                        className={`${styles.pinnedSkeletonBubble} ${isUser ? styles.pinnedSkeletonBubbleUser : styles.pinnedSkeletonBubbleBot} ${styles.shimmer}`}
+                        style={{ width: `${45 + index * 10}%` }}
+                      />
+
+                      {!isUser ? <div className={styles.pinnedSpacer} /> : <div className={`${styles.pinnedSkeletonPin} ${styles.shimmer}`} />}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : pinnedMessages.length > 0 ? (
               <div className={styles.pinnedMessageWrapper}>
                 {pinnedMessages.map((msg) => {
                   const isUser = msg.sender === 'user';
@@ -157,10 +186,10 @@ const CharacterProfileTabs: React.FC<CharacterProfileTabsProps> = ({
                         <div style={{ wordBreak: 'break-word' }}>
                           <ReactMarkdown
                             components={{
-                              em: ({ node, ...props }) => (
+                              em: (props) => (
                                 <em style={{ color: 'rgba(255,255,255,0.6)', fontStyle: 'italic' }} {...props} />
                               ),
-                              p: ({ node, ...props }) => (
+                              p: (props) => (
                                 <p style={{ margin: 0, display: 'inline' }} {...props} />
                               ),
                             }}

@@ -8,12 +8,12 @@ import type {
   CookieConsent,
   CookieConsentState,
   CookieConsentKey,
-} from '../types/cookies';
+} from '../../types/cookies/cookies';
 import {
   DEFAULT_COOKIE_CONSENT,
   COOKIE_CONSENT_STORAGE_KEY,
   COOKIE_CONSENT_COOKIE_NAME,
-} from '../types/cookies';
+} from '../../types/cookies/cookies';
 
 /**
  * Obtém o consentimento de cookies do localStorage

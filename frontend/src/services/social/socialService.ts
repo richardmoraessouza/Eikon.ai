@@ -1,6 +1,6 @@
 import axios from "axios";
-import { API_URL } from "../config/api";
-import type { Favorite, FavoriteResponse, LikeResponse, LikesQuantityResponse, Seguidor } from "../types/social/social";
+import { API_URL } from "../../config/api";
+import type { Favorite, FavoriteResponse, LikeResponse, LikesQuantityResponse, Seguidor } from "../../types/social/social";
 
 // ==================== LIKES ====================
 //// Route to show likes that the user has given 
@@ -18,7 +18,7 @@ export async function SearchLikesUser(usuarioId: number, token?: string): Promis
 // Route to show the quantity of likes for a character
 export async function SearchQuantityLikes(personagemId: number): Promise<number> {
   const res = await axios.get<LikesQuantityResponse>(`${API_URL}/social/likes-quantity/${personagemId}`);
-  return res.data.total || res.data.likes || 0;
+  return Number(res.data.likes ?? res.data.total ?? 0);
 }
 
 // Route to toggle like (add or remove)

@@ -20,7 +20,13 @@ interface dadosUsuario {
     nome: string;
     foto_pefil: string;
     frame: string;
+    username: string;
 }
+
+// Só permite letras, números, ponto e underscore — sem espaço e sem caracteres especiais tipo [ ] @ #
+const USERNAME_REGEX = /^[a-zA-Z0-9._]*$/;
+const USERNAME_MIN = 3;
+const USERNAME_MAX = 20;
 
 function Authentication({ verificar }: SituacaoProps) {
     const [condicaoUsuario, setCondicaoUsuario] = useState<boolean>(verificar);
@@ -29,6 +35,8 @@ function Authentication({ verificar }: SituacaoProps) {
     const [loginErro, setLoginErro] = useState<string>('');
     const [imgPerfil, setImgPerfil] = useState<string>('');
     const [dados, setDados] = useState<dadosUsuario | null>(null);
+    const [username, setUsername] = useState<string>('');
+    const [usernameErro, setUsernameErro] = useState<string>('');
 
     const router = useRouter();
     const { login } = useAuth();
@@ -67,14 +75,42 @@ function Authentication({ verificar }: SituacaoProps) {
 
     useEffect(() => {
         if (condicaoUsuario && dados) {
-            setNome(dados.nome);
+            setNome(dados.nome || dados.username || '');
             setImgPerfil(dados.foto_pefil);
+            setUsername(dados.username || '');
         }
     }, [condicaoUsuario, dados]);
+
+    // Valida o formato do username (usado tanto ao digitar quanto antes de enviar)
+    const validarUsername = (value: string): string => {
+        if (value.length === 0) return '';
+        if (value.length < USERNAME_MIN) return `O username precisa ter pelo menos ${USERNAME_MIN} caracteres.`;
+        if (value.length > USERNAME_MAX) return `O username pode ter no máximo ${USERNAME_MAX} caracteres.`;
+        if (!USERNAME_REGEX.test(value)) return 'Use apenas letras, números, ponto (.) e underscore (_) — sem espaços.';
+        return '';
+    };
+
+    const handleUsernameChange = (value: string) => {
+        // Bloqueia espaço e qualquer caractere fora de [a-zA-Z0-9._] já ao digitar,
+        // em vez de deixar digitar e só reclamar depois
+        const valorFiltrado = value.replace(/[^a-zA-Z0-9._]/g, '');
+        setUsername(valorFiltrado);
+        setNome(valorFiltrado);
+        setUsernameErro(validarUsername(valorFiltrado));
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoginErro('');
+
+        // Na tela de cadastro, valida o username antes de mandar pro backend
+        if (!condicaoUsuario) {
+            const erroUsername = validarUsername(username);
+            if (erroUsername) {
+                setUsernameErro(erroUsername);
+                return;
+            }
+        }
 
         try {
             if (condicaoUsuario) {
@@ -97,7 +133,9 @@ function Authentication({ verificar }: SituacaoProps) {
 
                 router.replace('/');
             } else {
-                const res = await axios.post(`${API_URL}/auth/register`, { gmail, nome, imgPerfil });
+                // O backend deve comparar username de forma case-insensitive (LOWER(username))
+                // para "lucas", "Lucas" e "LUCAS" contarem como o mesmo username já em uso
+                const res = await axios.post(`${API_URL}/auth/register`, { gmail, nome: username, username, imgPerfil });
 
                 if (!res.data.token) {
                     setLoginErro("Erro ao gerar token no cadastro.");
@@ -108,7 +146,7 @@ function Authentication({ verificar }: SituacaoProps) {
 
                 login({
                     id: usuarioData.id,
-                    nome: usuarioData.nome,
+                    nome: usuarioData.nome || username,
                     gmail: usuarioData.gmail,
                     foto_perfil: usuarioData.foto_perfil || imgPerfil,
                     token: res.data.token,
@@ -119,7 +157,11 @@ function Authentication({ verificar }: SituacaoProps) {
             }
         } catch (err: any) {
             console.error("Erro detalhado:", err.response?.data || err.message);
-            setLoginErro(err.response?.data?.error || "Erro na autenticação.");
+            const mensagemErro = err.response?.data?.error || "Erro na autenticação.";
+            setLoginErro(mensagemErro);
+            if (mensagemErro.includes('username')) {
+                setUsernameErro('Esse username já existe. Escolha outro.');
+            }
         }
     };
 
@@ -130,8 +172,8 @@ function Authentication({ verificar }: SituacaoProps) {
                 <div className={styles.authCard}>
                     <div className={styles.authBrand}>
                         <div className={styles.authBrandLogo}>
-                            <Image src="/image/logo-dark.png" alt="logo"  className={`${styles.darkLogo}`}/>
-                            <Image src="/image/logo-white.png" alt="logo"  className={styles.lightLogo} />
+                            <Image src="/image/logo-dark.png" alt="logo" width={40} height={40} className={`${styles.darkLogo}`}/>
+                            <Image src="/image/logo-white.png" alt="logo" width={40} height={40} className={styles.lightLogo} />
                         </div>
                         <span className={styles.authBrandName}>Eikon.ai</span>
                     </div>
@@ -206,16 +248,23 @@ function Authentication({ verificar }: SituacaoProps) {
 
                     <form onSubmit={handleSubmit} className={styles.authForm}>
                         <div className={styles.formField}>
-                            <label htmlFor="nome">Nome</label>
+                            <label htmlFor="username">Username</label>
                             <input
-                                id="nome"
+                                id="username"
                                 type="text"
                                 required
                                 disabled={condicaoUsuario}
-                                value={nome}
-                                onChange={(e) => setNome(e.target.value)}
-                                placeholder="Seu nome"
+                                value={username}
+                                onChange={(e) => handleUsernameChange(e.target.value)}
+                                placeholder="lucas.silva"
+                                maxLength={USERNAME_MAX}
+                                autoCapitalize="none"
+                                autoCorrect="off"
+                                spellCheck={false}
                             />
+                            {!condicaoUsuario && usernameErro && (
+                                <span className={styles.fieldError}>{usernameErro}</span>
+                            )}
                         </div>
 
                         <div className={styles.formField}>
@@ -230,7 +279,7 @@ function Authentication({ verificar }: SituacaoProps) {
                             />
                         </div>
 
-                        <button type="submit" className={styles.submitBtn}>
+                        <button type="submit" className={styles.submitBtn} disabled={!condicaoUsuario && !!usernameErro}>
                             {condicaoUsuario ? 'Entrar' : 'Cadastrar'}
                         </button>
                     </form>

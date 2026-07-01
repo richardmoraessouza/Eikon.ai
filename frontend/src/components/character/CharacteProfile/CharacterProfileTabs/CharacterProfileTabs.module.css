@@ -176,6 +176,53 @@
   -ms-overflow-style: none;
 }
 
+.pinnedSkeletonItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+}
+
+.pinnedSkeletonPin {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.pinnedSkeletonBubble {
+  height: 38px;
+  border-radius: 12px;
+}
+
+.pinnedSkeletonBubbleBot {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.pinnedSkeletonBubbleUser {
+  background-color: rgba(255, 255, 255, 0.18);
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.08) 25%,
+    rgba(255, 255, 255, 0.18) 37%,
+    rgba(255, 255, 255, 0.08) 63%
+  );
+  background-size: 400% 100%;
+  animation: pinnedShimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes pinnedShimmer {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
 .pinnedMessageWrapper::-webkit-scrollbar {
   display: none;
 }

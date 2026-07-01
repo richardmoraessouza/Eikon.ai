@@ -9,6 +9,7 @@ interface UserData {
     gmail: string;
     foto_perfil?: string; 
     descricao?: string;
+    username?: string;
     token: string;
     frame?: string | null;
 }
@@ -16,6 +17,7 @@ interface UserData {
 interface AuthContextType {
     usuario: string | null;
     usuarioId: number | null;
+    username: string | null;
     fotoPerfil: string | null;
     descricao: string | null;
     frame: string | null;
@@ -24,12 +26,13 @@ interface AuthContextType {
     loading: boolean;
     login: (userData: UserData) => void;
     logout: () => void;
-    updateProfile: (profileData: { nome?: string; foto_perfil?: string; descricao?: string; frame?: string | null }) => void;
+    updateProfile: (profileData: { nome?: string; foto_perfil?: string; descricao?: string; username?: string; frame?: string | null }) => void;
 }
 
 const initialContextValue: AuthContextType = {
     usuario: null,
     usuarioId: null,
+    username: null,
     fotoPerfil: null,
     descricao: null,
     frame: null,
@@ -50,6 +53,7 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [usuario, setUsuario] = useState<string | null>(null);
     const [usuarioId, setUsuarioId] = useState<number | null>(null);
+    const [username, setUsername] = useState<string | null>(null);
     const [fotoPerfil, setFotoPerfil] = useState<string | null>(null);
     const [descricao, setDescricao] = useState<string | null>(null);
     const [frame, setFrame] = useState<string | null>(null);
@@ -64,6 +68,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             const storedFoto      = localStorage.getItem('usuario_foto')?.trim() || null;
             const storedDescricao = localStorage.getItem('usuario_descricao')?.trim() || null;
             const storedFrame     = localStorage.getItem('usuario_frame')?.trim() || null;
+            const storedUsername  = localStorage.getItem('usuario_username')?.trim() || null;
 
             const parsedId = storedId ? parseInt(storedId, 10) : null;
 
@@ -72,6 +77,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                     setToken(storedToken);
                     setUsuario(storedNome);
                     setUsuarioId(parsedId);
+                    setUsername(storedUsername);
                     setFotoPerfil(storedFoto);
                     setDescricao(storedDescricao);
                     setFrame(storedFrame);
@@ -82,6 +88,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                         if (userData.nome) {
                             setUsuario(userData.nome);
                             localStorage.setItem('usuario_nome', userData.nome);
+                        }
+
+                        if (userData.username) {
+                            setUsername(userData.username);
+                            localStorage.setItem('usuario_username', userData.username);
                         }
 
                         if (userData.foto_perfil) {
@@ -118,6 +129,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         localStorage.setItem('token',              userData.token);
         localStorage.setItem('usuario_nome',       userData.nome);
         localStorage.setItem('usuario_id',         userData.id.toString());
+        localStorage.setItem('usuario_username',   userData.username || '');
         localStorage.setItem('usuario_foto',       userData.foto_perfil || '');
         localStorage.setItem('usuario_descricao',  userData.descricao || '');
         localStorage.setItem('usuario_frame',      userData.frame || '');
@@ -125,6 +137,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setToken(userData.token);
         setUsuario(userData.nome);
         setUsuarioId(userData.id);
+        setUsername(userData.username || null);
         setFotoPerfil(userData.foto_perfil || null);
         setDescricao(userData.descricao || null);
         setFrame(normalizeFrame(userData.frame));
@@ -137,6 +150,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setToken(null);
         setUsuario(null);
         setUsuarioId(null);
+        setUsername(null);
         setFotoPerfil(null);
         setDescricao(null);
         setFrame(null);
@@ -144,7 +158,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         window.location.href = '/';
     };
 
-    const updateProfile = (profileData: { nome?: string; foto_perfil?: string; descricao?: string; frame?: string | null }) => {
+    const updateProfile = (profileData: { nome?: string; foto_perfil?: string; descricao?: string; username?: string; frame?: string | null }) => {
         if (profileData.nome) {
             setUsuario(profileData.nome);
             localStorage.setItem('usuario_nome', profileData.nome);
@@ -156,6 +170,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         if (profileData.descricao !== undefined) {
             setDescricao(profileData.descricao);
             localStorage.setItem('usuario_descricao', profileData.descricao);
+        }
+        if (profileData.username !== undefined) {
+            setUsername(profileData.username || null);
+            localStorage.setItem('usuario_username', profileData.username || '');
         }
         if (profileData.frame !== undefined) {
             const frameValue = normalizeFrame(profileData.frame);
@@ -171,6 +189,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const contextValue: AuthContextType = {
         usuario,
         usuarioId,
+        username,
         fotoPerfil,
         descricao,
         frame,

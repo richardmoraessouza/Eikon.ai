@@ -3,13 +3,14 @@
 import { useEffect, useState, useRef } from 'react';
 import styles from './Menu.module.css';
 import Image from 'next/image';
-import { FiSearch, FiPlusCircle, FiUserPlus, FiLogIn, FiLogOut, FiSettings, FiUser} from "react-icons/fi";
+import { FiSearch, FiPlusCircle, FiUserPlus, FiLogIn, FiLogOut, FiSettings, FiUser, FiAward } from "react-icons/fi";
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/hooks/AuthContext/AuthContext';
 import { normalizeFrame } from '@/utils/frame';
 import { buscarPersonagensRecentes } from '@/services/personagemService';
 import SettingsModal from '@/components/navigation/SettingsModal/SettingsModal';
+import Progression from '@/components/Progression/Progression';
 
 interface MenuProps {
     setPersonId?: React.Dispatch<React.SetStateAction<number>>;
@@ -17,11 +18,14 @@ interface MenuProps {
 }
 
 function Menu({ setPersonId, onMenuToggle }: MenuProps) {
-    const { usuario, fotoPerfil, estaLogado, logout, usuarioId, token, frame } = useAuth();
+    const { usuario, fotoPerfil, estaLogado, logout, usuarioId, username, token, frame } = useAuth();
     const [recentes, setRecentes] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
     const pathname = usePathname();
+
     const [settingsModalOpen, setSettingsModalOpen] = useState(false);
+    const [progressionOpen, setProgressionOpen] = useState(false);
+
     const [abrirConta, setAbrirConta] = useState<boolean>(false);
     const [modalOpen, setModaOpen] = useState<boolean>(true);
     const [procurarPersonagem, setProcurarPersonagem] = useState<string>('');
@@ -77,7 +81,6 @@ function Menu({ setPersonId, onMenuToggle }: MenuProps) {
         }
     }, [usuarioId, estaLogado, token]);
 
-    // Fecha o menu em mobile quando a rota muda
     useEffect(() => {
         if (window.innerWidth <= 768) {
             setModaOpen(false);
@@ -111,28 +114,45 @@ function Menu({ setPersonId, onMenuToggle }: MenuProps) {
                 </svg>
             </button>
 
+            
             <SettingsModal isOpen={settingsModalOpen} onClose={() => setSettingsModalOpen(false)} />
+            {progressionOpen && (
+                <div
+                    className={styles.progressionOverlay}
+                    onClick={() => setProgressionOpen(false)}
+                >
+                    <div
+                        className={styles.progressionModal}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <Progression
+                            onClose={() => setProgressionOpen(false)}
+                        />
+                    </div>
+                </div>
+            )}
 
             {modalOpen && (
                 <aside ref={modalRef} className={`fixed top-0 left-0 p-4 ${styles.menu}`}>
-                        <h1>
-                            <Link href="/" onClick={closeMenuOnMobile} className='flex justify-center items-center w-full'>
-                                <img
-                                    src="/image/darkEikon.png"
-                                    alt="Eikon.ai"
-                                    className={`${styles.logo} ${styles.darkLogo}`}
-                                />
-                            </Link>
+                    <h1>
+                        <Link href="/" onClick={closeMenuOnMobile} className='flex justify-center items-center w-full'>
+                            <img
+                                src="/image/darkEikon.png"
+                                alt="Eikon.ai"
+                                className={`${styles.logo} ${styles.darkLogo}`}
+                            />
+                        </Link>
 
-                            <Link href="/" onClick={closeMenuOnMobile} className='flex justify-center items-center w-full'>
-                                <img
-                                    src="/image/lightEikon.png"
-                                    alt="Eikon.ai"
-                                    className={`${styles.logo} ${styles.lightLogo}`}
-                                />
-                            </Link>
-                        </h1>
-                                            <section>
+                        <Link href="/" onClick={closeMenuOnMobile} className='flex justify-center items-center w-full'>
+                            <img
+                                src="/image/lightEikon.png"
+                                alt="Eikon.ai"
+                                className={`${styles.logo} ${styles.lightLogo}`}
+                            />
+                        </Link>
+                    </h1>
+
+                    <section>
                         <h2 className={styles.subTitulo}>Criação</h2>
                         <nav>
                             <ul className={styles.menuItems}>
@@ -152,9 +172,7 @@ function Menu({ setPersonId, onMenuToggle }: MenuProps) {
                     <hr className={styles.separacaoCriacao} />
 
                     <div className={styles.containerBusca}>
-                       
-                        <FiSearch className={styles.iconProcurar} /> 
-                        
+                        <FiSearch className={styles.iconProcurar} />
                         <input
                             type="text"
                             onChange={(e) => setProcurarPersonagem(e.target.value)}
@@ -163,7 +181,7 @@ function Menu({ setPersonId, onMenuToggle }: MenuProps) {
                         />
                     </div>
 
-                    <section>
+                    <section className={styles.sectionRecentes}>
                         <h2 className={styles.subTitulo}>Recentes</h2>
                         <ul className={`${styles.menuItems} ${styles.containerPerson}`}>
                             {loading ? (
@@ -258,7 +276,7 @@ function Menu({ setPersonId, onMenuToggle }: MenuProps) {
                                     {estaLogado ? (
                                         <>
                                             <li className={styles.navItem}>
-                                                <Link href={`/profile/${usuarioId}`} onClick={closeMenuOnMobile} className={styles.navLink}>
+                                                <Link href={`/profile/${username || usuarioId}`} onClick={closeMenuOnMobile} className={styles.navLink}>
                                                     <FiUser />
                                                     <span>Perfil</span>
                                                 </Link>
@@ -268,6 +286,13 @@ function Menu({ setPersonId, onMenuToggle }: MenuProps) {
                                                 <button onClick={() => setSettingsModalOpen(true)} className={styles.navLink}>
                                                     <FiSettings />
                                                     <span>Configurações</span>
+                                                </button>
+                                            </li>
+
+                                            <li className={styles.navItem}>
+                                                <button onClick={() => setProgressionOpen(true)} className={styles.navLink}>
+                                                    <FiAward />
+                                                    <span>Nível</span>
                                                 </button>
                                             </li>
 

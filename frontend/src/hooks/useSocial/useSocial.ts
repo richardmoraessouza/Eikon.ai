@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { SearchFavoritesUser, SearchLikesUser, SearchQuantityLikes, toggleFavorite, toggleLike, getSeguidoresService, getSeguindoService } from "../../services/socialService";
+import { SearchFavoritesUser, SearchLikesUser, SearchQuantityLikes, toggleFavorite, toggleLike, getSeguidoresService, getSeguindoService } from "../../services/social/socialService";
 import { useAuth } from "../AuthContext/AuthContext";
 import type { SocialContextType, Seguidor } from "../../types/social/social";
 import { FRAME_UPDATED_EVENT, type FrameUpdatedDetail } from "../../utils/frame";

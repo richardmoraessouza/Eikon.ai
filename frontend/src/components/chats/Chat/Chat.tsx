@@ -13,7 +13,6 @@ import ProfilePerson from '@/components/character/CharacteProfile/CharacteProfil
 import { useAuth } from '@/hooks/AuthContext/AuthContext';
 import { ChatMessageSkeleton } from '@/components/chats/ChatMessage/ChatMessageSkeleton/ChatMessageSkeleton';
 import { useMenu } from '@/hooks/MenuContext/MenuContext';
-import type { ChatMessage as ChatMessageType } from '@/types/chat/chat';
 
 function Chat() {
   const params = useParams();
@@ -39,14 +38,14 @@ function Chat() {
       const parsed = Number(id);
       if (!isNaN(parsed) && parsed !== personId) setPersonId(parsed);
     }
-  }, [id]);
+  }, [id, personId]);
 
   useTheme();
 
   useEffect(() => {
     if (!personagemId || isNaN(personagemId)) return;
     searchCharacterById(personagemId).then(setCharacter).catch(console.error);
-  }, [personagemId]);
+  }, [personagemId, searchCharacterById]);
   
   const {
     message,
@@ -55,6 +54,8 @@ function Chat() {
     setReplyTo,
     isLoadingHistory,
     chatHistory,
+    pinnedMessages,
+    isLoadingPinned,
     isLoading,
     isLoadingMore,
     chatEndRef,
@@ -66,13 +67,11 @@ function Chat() {
     handleTogglePinMessage,
   } = useChat(personagemId);
 
-  const pinnedMessages = chatHistory.filter(m => m.pinned);
-
   useEffect(() => {
     if (replyTo && scrollContainerRef.current) {
       scrollContainerRef.current.scrollBy({ top: 60, behavior: 'smooth' });
     }
-  }, [replyTo]);
+  }, [replyTo, scrollContainerRef]);
 
   return (
     <>
@@ -83,6 +82,7 @@ function Chat() {
         perfilPerson={perfilPerson}
         setPerfilPerson={setPerfilPerson}
         pinnedMessages={pinnedMessages}
+        isLoadingPinned={isLoadingPinned}
         onUnpin={(msg) => handleTogglePinMessage(msg)}
       />
 
@@ -144,8 +144,15 @@ function Chat() {
             isLoading={isLoading}
             replyTo={replyTo}
             onChange={(val) => setMessage(val)}
-            onSend={() => enviarMensagem()}
-            onKeyPress={(e) => handleKeyPress(e)}
+            onSend={enviarMensagem}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                enviarMensagem();
+              } else {
+                handleKeyPress(e);
+              }
+            }}
             onCancelReply={() => setReplyTo(null)}
           />
         </main>

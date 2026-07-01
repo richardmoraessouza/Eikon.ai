@@ -1,63 +1,90 @@
 import { useEffect, useState, useCallback } from "react";
 import type { User } from "../../types/users/users";
-import { searchCreatorNameService, updateUserService, getMiniProfileService, updateFrameService} from "../../services/users/userService";
+import {
+  searchCreatorNameService,
+  updateUserService,
+  getMiniProfileService,
+  updateFrameService,
+} from "../../services/users/userService";
 import { FRAME_UPDATED_EVENT, type FrameUpdatedDetail } from "../../utils/frame";
 
 export function useUsers(usuarioId: number | null) {
-    const [users, setUsers] = useState<User[]>([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+  const [users, setUsers]     = useState<User[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError]     = useState<string | null>(null);
 
-    // Busca os dados do criador do personagem
-    useEffect(() => {
-        if (usuarioId === null || usuarioId === undefined) return;
-        
-        async function loadNameUser() {
-            setLoading(true);
-            setError(null);
-            try {
-                const data = await searchCreatorNameService(usuarioId);
-                setUsers([data]);
-            } catch (err: any) {
-                console.error('Error loading name user:', err);
-                setError(err?.message || 'Error loading name user');
-            } finally {
-                setLoading(false);
-            }
-        }
+  // Fetch the character creator's data when usuarioId changes
+  useEffect(() => {
+    if (usuarioId === null || usuarioId === undefined) return;
 
-        loadNameUser();
-    }, [usuarioId]);
+    async function loadNameUser() {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await searchCreatorNameService(usuarioId);
+        setUsers([data]);
+      } catch (err: any) {
+        console.error("Error loading name user:", err);
+        setError(err?.message || "Error loading name user");
+      } finally {
+        setLoading(false);
+      }
+    }
 
-    useEffect(() => {
-        if (!usuarioId) return;
+    loadNameUser();
+  }, [usuarioId]);
 
-        const handler = (event: Event) => {
-            const { usuarioId: updatedId, frame } = (event as CustomEvent<FrameUpdatedDetail>).detail;
-            if (updatedId !== usuarioId) return;
+  // Listen for frame update events and sync local state
+  useEffect(() => {
+    if (!usuarioId) return;
 
-            setUsers(prev =>
-                prev.length > 0 ? [{ ...prev[0], frame }] : prev
-            );
-        };
+    const handler = (event: Event) => {
+      const { usuarioId: updatedId, frame } = (
+        event as CustomEvent<FrameUpdatedDetail>
+      ).detail;
 
-        window.addEventListener(FRAME_UPDATED_EVENT, handler);
-        return () => window.removeEventListener(FRAME_UPDATED_EVENT, handler);
-    }, [usuarioId]);
+      if (updatedId !== usuarioId) return;
 
-    // update user data
-    const updateUser = useCallback(async (id: number, token: string, userData: { nome: string; foto_perfil?: string; descricao?: string }) => {
-        return await updateUserService(id, token, userData);
-    }, []);
+      setUsers((prev) =>
+        prev.length > 0 ? [{ ...prev[0], frame }] : prev
+      );
+    };
 
-    const updateFrame = useCallback(async (usuarioId: number, frame: string) => {
-        return await updateFrameService(usuarioId, frame);
-    }, []);
+    window.addEventListener(FRAME_UPDATED_EVENT, handler);
+    return () => window.removeEventListener(FRAME_UPDATED_EVENT, handler);
+  }, [usuarioId]);
 
-    // Shows user data in mini profile
-    const getMiniProfile = useCallback(async (id: number) => {
-        return await getMiniProfileService(id);
-    }, []);
+  // Update user profile data (name, avatar, description)
+  const updateUser = useCallback(
+    async (
+      id: number,
+      token: string,
+      userData: { nome: string; foto_perfil?: string; descricao?: string; username?: string }
+    ) => {
+      return await updateUserService(id, token, userData);
+    },
+    []
+  );
 
-    return { users, loading, error, updateUser, getMiniProfile, updateFrame};
+  // Update user profile frame
+  const updateFrame = useCallback(
+    async (usuarioId: number, frame: string) => {
+      return await updateFrameService(usuarioId, frame);
+    },
+    []
+  );
+
+  // Fetch user data for mini profile preview
+  const getMiniProfile = useCallback(async (id: number) => {
+    return await getMiniProfileService(id);
+  }, []);
+
+  return {
+    users,
+    loading,
+    error,
+    updateUser,
+    getMiniProfile,
+    updateFrame,
+  };
 }

@@ -145,7 +145,7 @@ export const deleteMessage = async (messageId: number): Promise<{ success: boole
 export const togglePinMessage = async (messageId: number, isPinned: boolean): Promise<BackendMessage> => {
   
   const response = await axios.patch(
-    `${API_URL}/chat/messages/${messageId}/pin`, // Corrigido de /api/chats/... para /chat/...
+    `${API_URL}/chat/messages/${messageId}/pin`,
     { isPinned },
     getAuthHeaders()
   );
@@ -157,9 +157,11 @@ export const togglePinMessage = async (messageId: number, isPinned: boolean): Pr
  */
 export const getPinnedMessages = async (chatId: number): Promise<BackendMessage[]> => {
   const response = await axios.get(
-    `${API_URL}/chat/chats/${chatId}/pinned`, // Corrigido de /api/chats/... para /chat/...
+    `${API_URL}/chat/chats/${chatId}/pinned`,
     getAuthHeaders()
   );
+
+  console.log('[getPinnedMessages] Fetched pinned messages:', response.data);
   return response.data;
 };
 

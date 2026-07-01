@@ -39,7 +39,6 @@
   background: transparent;
   border: none;
   outline: none;
-  font-family: var(--chat-font-family);
   font-size: 0.9rem;
   letter-spacing: var(--chat-letter-spacing);
   color: var(--text-main);

@@ -1,22 +1,16 @@
-/**
- * Componente MiniProfile - Exibe o resumo do perfil do usuário
- * Renderizado nativamente como Server Component (SSR/RSC) para máxima performance.
- */
-
-import React from 'react';
-import Image from 'next/image'; // Importado para otimização nativa de avatares e molduras
+import Image from 'next/image';
 import styles from './MiniProfile.module.css';
 import type { MiniProfileType } from "../../../types/users/users";
 import { normalizeFrame } from "../../../utils/frame";
 
 interface MiniProfileProps extends MiniProfileType {
-  onClose?: () => void;
   badge?: {
     icon?: string;
     nome: string;
     xp: number;
   };
-  nivel?: number;
+  nivel?: number | null;
+  onClose?: () => void;
 }
 
 export const MiniProfile = ({
@@ -42,49 +36,44 @@ export const MiniProfile = ({
       <div className={styles.header}>
         <div className={styles.avatarWrap}>
 
-          {foto ? (
-            <div className="relative w-12 h-12"> {/* Ajuste a largura/altura baseada no seu CSS */}
+          <div className={styles.avatarInner}>
+            {foto ? (
               <Image
                 src={foto}
                 alt={nome || 'Avatar'}
                 fill
-                sizes="48px"
+                sizes="44px"
                 className={styles.avatar}
                 style={{ objectFit: 'cover' }}
-                unoptimized // Útil se as fotos de perfil vierem de URLs externas dinâmicas
+                unoptimized
               />
-            </div>
-          ) : (
-            <div className={styles.avatarFallback}>
-              {iniciais}
-            </div>
-          )}
+            ) : (
+              <div className={styles.avatarFallback}>
+                {iniciais}
+              </div>
+            )}
+          </div>
 
           {caminhoMoldura && (
-            <div className="absolute inset-0 pointer-events-none">
+            <div className={styles.avatarMolduraWrap}>
               <Image
                 src={caminhoMoldura}
                 alt=""
                 fill
-                sizes="48px"
+                sizes="52px"
                 className={styles.avatarMoldura}
                 style={{ objectFit: 'contain' }}
               />
             </div>
           )}
-
-          <span className={`${styles.presenceDot} ${is_online ? styles.dotOnline : styles.dotOffline}`} />
         </div>
 
         <div className={styles.headerInfo}>
-          <span className={styles.nome}>{nome}</span>
-          <span className={styles.descricao}>{descricao}</span>
-          <div className={styles.statusRow}>
-            <span className={`${styles.statusDot} ${is_online ? styles.dotOnline : styles.dotOffline}`} />
-            <span className={`${styles.statusText} ${is_online ? styles.statusOnline : styles.statusOffline}`}>
-              {is_online ? 'Online' : 'Offline'}
-            </span>
-          </div>
+          <span className={styles.nome} title={nome}>{nome}</span>
+          {descricao && <span className={styles.descricao}>{descricao}</span>}
+          <span className={`${styles.statusText} ${is_online ? styles.statusOnline : styles.statusOffline}`}>
+            {is_online ? 'Online' : 'Offline'}
+          </span>
         </div>
       </div>
 
@@ -106,16 +95,15 @@ export const MiniProfile = ({
             </div>
           )}
 
-          {nivel !== undefined && (
+          {nivel !== undefined && nivel !== null && (
             <div className={styles.row}>
-              {/* Removidos os caracteres residuais "fdsd" e "fdsfsd" */}
               <div className={styles.levelCircle}>{nivel}</div>
               <span className={styles.levelLabel}>Nível atual</span>
             </div>
           )}
 
-          </div>
-        )}
+        </div>
+      )}
 
     </div>
   );

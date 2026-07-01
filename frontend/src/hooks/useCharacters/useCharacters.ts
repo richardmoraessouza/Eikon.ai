@@ -13,7 +13,7 @@ import {
   recentCharactersService,
   searchCharacterByNameService
 } from "../../services/characters/characters";
-import { SearchFavoritesUser } from "../../services/socialService";
+import { SearchFavoritesUser } from "../../services/social/socialService";
 import { useEffect, useState, useCallback, useRef } from "react";
 
 export type ProfileCharacterType = "meus-personagens" | "favoritos" | "recentes";

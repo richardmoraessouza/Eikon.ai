@@ -11,6 +11,7 @@ export interface Character {
     favoritadoPeloUsuario?: boolean;
     popular?: boolean;
     destaque?: boolean;
+    public_id: string;
   }
   
 
@@ -44,6 +45,7 @@ export interface CharacterbyId {
   curtidoPeloUsuario?: boolean;
   visualizacoes?: number;
   favoritadoPeloUsuario?: boolean;
+  public_id: string;
 }
 
 // increment the number of views of the character's chat

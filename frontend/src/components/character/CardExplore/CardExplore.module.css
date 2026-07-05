@@ -14,9 +14,16 @@
   align-items: center;
   gap: 10px;
   font-size: 16px;
-  color: var(--text-main);
   font-weight: 500;
   margin: 0;
+  color: var(--text-main);
+}
+
+.headerIcon {
+  display: flex;
+  align-items: center;
+  color: var(--text-main);
+  animation: pulse 1.8s ease-in-out infinite;
 }
 
 @keyframes pulse {
@@ -24,6 +31,7 @@
   50%       { transform: scale(1.2); opacity: 0.7; }
 }
 
+/* ─── BOTÕES NAVEGADORES ───────────────────────────────── */
 .navBtn {
   position: absolute;
   top: 50%;
@@ -81,7 +89,6 @@
   scrollbar-width: none;
   -ms-overflow-style: none;
   scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
   cursor: grab;
   user-select: none;
   align-items: stretch;
@@ -98,9 +105,10 @@
   display: flex;
   flex-flow: row nowrap;
   position: relative;
-  align-items: flex-start;
+  align-items: stretch;
   gap: 8px;
   height: 130px;
+  overflow: visible;
   padding: 16px 12px;
   border-radius: 12px;
   border: 1px solid var(--card-border);
@@ -116,9 +124,18 @@
 }
 
 /* ─── IMAGEM ────────────────────────────────────────────── */
-.image {
-  height: 50px;
+.imageWrapper {
+  position: relative;
+  flex-shrink: 0;
   width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.image {
+  height: 100%;
+  width: 100%;
   border-radius: 50%;
   object-fit: cover;
   flex-shrink: 0;
@@ -126,6 +143,21 @@
   user-select: none;
   -webkit-user-drag: none;
   pointer-events: none;
+}
+
+.authorContainer {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  display: flex;
+  align-items: center;
+  z-index: 3;
+  pointer-events: auto;
+}
+
+.popoverPortal {
+  pointer-events: auto;
+  overflow: visible;
 }
 
 /* ─── INFO ──────────────────────────────────────────────── */
@@ -136,35 +168,37 @@
   flex-flow: column nowrap;
   justify-content: flex-start;
   align-items: flex-start;
-  overflow: hidden;
+  height: 100%;
+  padding-bottom: 26px;
+  color: var(--text-main);
 }
 
 .name {
   margin: 0;
   font-size: 14px;
-  font-weight: 900;
-  width: 100%;
-  color: var(--text-main);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  font-weight: 600;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .bio {
   margin: 4px 0 0;
   font-size: 12px;
   color: var(--text-card);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.4;
   width: 100%;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 2;
   overflow: hidden;
   text-overflow: ellipsis;
-  display: -webkit-box;
-  line-clamp: 2;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  line-height: 1.4;
 }
 
-/* ─── STATS e AUTHOR ────────────────────────────────────── */
+/* ─── STATS E AUTHOR ────────────────────────────────────── */
 .stats {
   position: absolute;
   bottom: 8px;
@@ -183,15 +217,21 @@
 }
 
 .author {
-  position: absolute;
-  bottom: 8px;
-  left: 16px;
+  position: relative;
+  display: block;
   font-size: 11px;
-  color: var(--author-color);
+  font-weight: 500;
+  color: var(--text-main);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: calc(100% - 86px);
+  max-width: 100%;
+  margin: 0;
+}
+
+.author:hover {
+  color: var(--text-main);
+  text-decoration: underline;
 }
 
 /* ─── ESTADOS ───────────────────────────────────────────── */
@@ -201,9 +241,42 @@
   padding: 16px 0;
 }
 
+/* ─── CARD LOADING INDICATOR ───────────────────────────── */
+.cardLoadingIndicator {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px;
+  border-style: dashed;
+  cursor: default;
+  opacity: 0.6;
+}
+
+.cardLoadingIndicator p {
+  margin: 0;
+  font-size: 11px;
+  color: var(--text-card);
+  font-weight: 500;
+}
+
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--card-border);
+  border-top-color: var(--text-main);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 /* ─── BREAKPOINTS ───────────────────────────────────────── */
-@media (max-width: 500px) {
+ @media (max-width: 500px) {
   .card { width: calc(100% - 0px); }
+  .navBtn { display: none; }
 }
 
 @media (min-width: 501px) and (max-width: 749px) {
@@ -214,6 +287,12 @@
   .card { width: calc(33.333% - 8px); }
 }
 
+@media (min-width: 750px) {
+  .container {
+    width: 80%;
+  }
+}
+
 @media (min-width: 1162px) {
   .card { width: calc(25% - 9px); }
 }
@@ -222,11 +301,5 @@
   .image {
     height: 65px;
     width: 65px;
-  }
-}
-
-@media (min-width: 750px) {
-.container {
-    width: 80%;
   }
 }

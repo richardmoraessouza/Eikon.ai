@@ -6,11 +6,11 @@ import Image from 'next/image';
 import { FiSearch, FiPlusCircle, FiUserPlus, FiLogIn, FiLogOut, FiSettings, FiUser, FiAward } from "react-icons/fi";
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useAuth } from '@/hooks/AuthContext/AuthContext';
-import { normalizeFrame } from '@/utils/frame';
-import { buscarPersonagensRecentes } from '@/services/personagemService';
+import { useAuth } from '@/contexts/AuthContext/AuthContext';
+import { getFrameImagePath } from '@/utils/frame';
+import { useProfileCharacters } from '@/hooks/useCharacters/useCharacters';
 import SettingsModal from '@/components/navigation/SettingsModal/SettingsModal';
-import Progression from '@/components/Progression/Progression';
+import Progression from '@/components/profiles/Progression/Progression';
 
 interface MenuProps {
     setPersonId?: React.Dispatch<React.SetStateAction<number>>;
@@ -19,8 +19,7 @@ interface MenuProps {
 
 function Menu({ setPersonId, onMenuToggle }: MenuProps) {
     const { usuario, fotoPerfil, estaLogado, logout, usuarioId, username, token, frame } = useAuth();
-    const [recentes, setRecentes] = useState<any[]>([]);
-    const [loading, setLoading] = useState(false);
+    const { characters: recentes, loading } = useProfileCharacters('recentes', usuarioId);
     const pathname = usePathname();
 
     const [settingsModalOpen, setSettingsModalOpen] = useState(false);
@@ -30,8 +29,7 @@ function Menu({ setPersonId, onMenuToggle }: MenuProps) {
     const [modalOpen, setModaOpen] = useState<boolean>(true);
     const [procurarPersonagem, setProcurarPersonagem] = useState<string>('');
 
-    const frameAtivo = normalizeFrame(frame);
-    const caminhoFrame = frameAtivo ? `/image/frames/${frameAtivo}` : null;
+    const caminhoFrame = getFrameImagePath(frame);
 
     const modalRef = useRef<HTMLDivElement>(null);
     const buttonRef = useRef<HTMLButtonElement>(null);
@@ -64,22 +62,7 @@ function Menu({ setPersonId, onMenuToggle }: MenuProps) {
         }
     }
 
-    useEffect(() => {
-        if (estaLogado && usuarioId && token) {
-            setLoading(true);
-            buscarPersonagensRecentes(usuarioId)
-                .then((recentes) => {
-                    setRecentes(recentes || []);
-                })
-                .catch((err) => {
-                    console.error("Erro ao buscar os últimos personagens:", err);
-                    setRecentes([]);
-                })
-                .finally(() => setLoading(false));
-        } else {
-            setRecentes([]);
-        }
-    }, [usuarioId, estaLogado, token]);
+    // Recentes carregados via `useProfileCharacters('recentes', usuarioId)`
 
     useEffect(() => {
         if (window.innerWidth <= 768) {
@@ -193,17 +176,16 @@ function Menu({ setPersonId, onMenuToggle }: MenuProps) {
                                 ))
                             ) : personagensRecentesFiltrados.length > 0 ? (
                                 personagensRecentesFiltrados.map((item) => {
-                                    const itemId = typeof item === 'number' ? item : item?.id;
-                                    const itemNome = typeof item === 'string' || typeof item === 'number' ? `Personagem ${itemId}` : item?.nome || `Personagem ${itemId}`;
-                                    const itemFoto = typeof item === 'string' || typeof item === 'number' ? '/image/semPerfil.jpg' : item?.fotoia || '/image/semPerfil.jpg';
+                                    const itemPublicId = item?.public_id;
+                                    const itemNome = item?.nome || 'Personagem';
+                                    const itemFoto = item?.fotoia || '/image/semPerfil.jpg';
 
                                     return (
-                                        <li key={itemId}>
+                                        <li key={itemPublicId}>
                                             <Link
-                                                href={`/chat/${itemId}`}
+                                                href={`/chat/${itemPublicId}`}
                                                 className="w-full flex items-center gap-2 p-1 hover:bg-[#2a2a2a] rounded transition-colors"
                                                 onClick={() => {
-                                                    setPersonId && setPersonId(itemId);
                                                     closeMenuOnMobile();
                                                 }}
                                             >

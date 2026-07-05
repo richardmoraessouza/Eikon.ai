@@ -6,7 +6,7 @@ import CardExplore from '../character/CardExplore/CardExplore';
 import ExploreSections from '../character/ExploreSections/ExploreSections';
 import { HeroBanner } from '../character/HeroBanner/HeroBanner';
 import { DiscoveryCards } from '../character/discoveryCards/discoveryCards ';
-import { useAuth } from '../../hooks/AuthContext/AuthContext';
+import { useAuth } from '../../contexts/AuthContext/AuthContext';
 import { useDiscovery, useRecommendations } from '../../hooks/useDiscovery/useDiscovety';
 import styles from './Explorar.module.css';
 import Footer from '../footer-links/Footer/Footer';

@@ -1,4 +1,4 @@
-"use client"; // Obrigatório devido aos estados locais de abas e listeners de teclado ('keydown')
+"use client";
 
 import React, { useState, useEffect } from 'react';
 import { FiLogIn, FiSliders, FiUser, FiImage, FiLayout, FiChevronDown, FiShield } from "react-icons/fi";
@@ -256,7 +256,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
             </div>
           </nav>
 
-          {/* Conteúdo dinâmico */}
+
           <div className={styles.content}>
             {renderContent()}
           </div>

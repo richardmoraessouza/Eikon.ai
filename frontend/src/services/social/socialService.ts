@@ -17,6 +17,11 @@ export async function SearchLikesUser(usuarioId: number, token?: string): Promis
 
 // Route to show the quantity of likes for a character
 export async function SearchQuantityLikes(personagemId: number): Promise<number> {
+  if (!Number.isInteger(personagemId) || personagemId <= 0) {
+    console.warn('[SearchQuantityLikes] Invalid personagemId:', personagemId);
+    return 0;
+  }
+
   const res = await axios.get<LikesQuantityResponse>(`${API_URL}/social/likes-quantity/${personagemId}`);
   return Number(res.data.likes ?? res.data.total ?? 0);
 }

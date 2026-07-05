@@ -1,6 +1,6 @@
 import Menu from '../Menu/Menu';
-import CookieBanner from '../CookieBanner/CookieBanner';
-import { MenuProvider, useMenu } from '../../../hooks/MenuContext/MenuContext';
+import CookieBanner from '../../legal/CookieBanner/CookieBanner';
+import { MenuProvider, useMenu } from '../../../contexts/MenuContext/MenuContext';
 import useAnalytics from '../../../hooks/useAnalytics/useAnalytics';
 
 function LayoutInner({ children }: { children: React.ReactNode }) {

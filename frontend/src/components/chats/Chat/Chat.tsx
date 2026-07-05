@@ -10,13 +10,13 @@ import { useChat } from '@/hooks/useChat/useChat';
 import { ChatMessage } from '@/components/chats/ChatMessage/ChatMessage';
 import { ChatInput } from '@/components/chats/ChatInput/ChatInput';
 import ProfilePerson from '@/components/character/CharacteProfile/CharacteProfile';
-import { useAuth } from '@/hooks/AuthContext/AuthContext';
+import { useAuth } from '@/contexts/AuthContext/AuthContext';
 import { ChatMessageSkeleton } from '@/components/chats/ChatMessage/ChatMessageSkeleton/ChatMessageSkeleton';
-import { useMenu } from '@/hooks/MenuContext/MenuContext';
+import { useMenu } from '@/contexts/MenuContext/MenuContext';
 
 function Chat() {
   const params = useParams();
-  const id = params?.id as string | undefined;
+  const publicIdStr = params?.id as string | undefined;
   const { usuarioId } = useAuth();
   const { menuOpen } = useMenu();
 
@@ -24,29 +24,14 @@ function Chat() {
   const [character, setCharacter] = useState<CharacterbyId | null>(null);
   
   const [perfilPerson, setPerfilPerson] = useState(false);
-
-  const [personId, setPersonId] = useState<number>(() => {
-    const n = id != null ? Number(id) : NaN;
-    return isNaN(n) ? 29 : n;
-  });
-
-  const idNum = id != null ? Number(id) : NaN;
-  const personagemId = !isNaN(idNum) ? idNum : personId;
-
-  useEffect(() => {
-    if (id != null) {
-      const parsed = Number(id);
-      if (!isNaN(parsed) && parsed !== personId) setPersonId(parsed);
-    }
-  }, [id, personId]);
-
+  
   useTheme();
 
   useEffect(() => {
-    if (!personagemId || isNaN(personagemId)) return;
-    searchCharacterById(personagemId).then(setCharacter).catch(console.error);
-  }, [personagemId, searchCharacterById]);
-  
+    if (!publicIdStr) return;
+    searchCharacterById(publicIdStr).then(setCharacter).catch(console.error);
+  }, [publicIdStr, searchCharacterById]);
+
   const {
     message,
     setMessage,
@@ -65,7 +50,7 @@ function Chat() {
     handleKeyPress,
     handleDeleteMessage,
     handleTogglePinMessage,
-  } = useChat(personagemId);
+  } = useChat(publicIdStr);
 
   useEffect(() => {
     if (replyTo && scrollContainerRef.current) {
@@ -76,7 +61,7 @@ function Chat() {
   return (
     <>
       <ProfilePerson
-        personagemId={id ? Number(id) : null}
+        personagemId={publicIdStr ?? null}
         menuOpen={menuOpen}
         usuarioIdAtual={usuarioId || null}
         perfilPerson={perfilPerson}

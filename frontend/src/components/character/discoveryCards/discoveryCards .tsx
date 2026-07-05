@@ -17,6 +17,7 @@ const SKELETON_COUNT = 5;
 
 interface DiscoveryCharacter {
   id: number;
+  public_id: string;
   nome: string;
   fotoia?: string | null;
   username?: string | null;
@@ -245,8 +246,8 @@ export const DiscoveryCards = ({
     carouselRef.current?.scrollBy({ left: dir === "right" ? 240 : -240, behavior: "smooth" });
   };
 
-  const handleCharacterClick = (characterId: number) => {
-    if (!hasDragged) router.push(`/chat/${characterId}`);
+  const handleCharacterClick = (characterPublicId: string) => {
+    if (!hasDragged) router.push(`/chat/${characterPublicId}`);
   };
 
   if (error) return (
@@ -302,7 +303,7 @@ export const DiscoveryCards = ({
 
         <div className={styles.carouselTrack} ref={carouselRef} onScroll={handleScroll} {...dragProps}>
           {characters.map((character) => (
-            <div key={character.id} className={styles.card} onClick={() => handleCharacterClick(character.id)}>
+            <div key={character.public_id ?? character.id} className={styles.card} onClick={() => handleCharacterClick(character.public_id ?? String(character.id))}>
               <div className={styles.imageWrapper} style={{ position: "relative" }}>
                 <Image
                   src={character.fotoia || "/image/semPerfil.jpg"}
@@ -318,7 +319,9 @@ export const DiscoveryCards = ({
 
               <div className={styles.info}>
                 <p className={styles.name}>{character.nome}</p>
-                {character.bio && <p className={styles.bio}>{character.bio}</p>}
+                <p className={styles.bio}>
+                  {character.bio ? character.bio : ` ${character.nome} ainda não tem bio.`}
+                </p>
               </div>
 
               <div className={styles.stats}>

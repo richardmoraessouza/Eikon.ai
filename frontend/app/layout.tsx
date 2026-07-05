@@ -2,8 +2,7 @@
 
 import "./globals.css";
 import "@/styles/themes.css";
-import { AuthProvider } from "@/hooks/AuthContext/AuthContext";
-import { UserSettingsProvider } from "@/contexts/UserSettingsContext/UserSettingsContext";
+import { AuthProvider } from "@/contexts/AuthContext/AuthContext";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { setupAxiosInterceptors } from "@/config/axiosConfig";
 
@@ -17,9 +16,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <GoogleOAuthProvider clientId={CLIENT_ID}>
           <AuthProvider>
-            <UserSettingsProvider>
               {children}
-            </UserSettingsProvider>
           </AuthProvider>
         </GoogleOAuthProvider>
       </body>

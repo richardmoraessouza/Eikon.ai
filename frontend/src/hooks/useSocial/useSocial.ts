@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { SearchFavoritesUser, SearchLikesUser, SearchQuantityLikes, toggleFavorite, toggleLike, getSeguidoresService, getSeguindoService } from "../../services/social/socialService";
-import { useAuth } from "../AuthContext/AuthContext";
+import { useAuth } from "../../contexts/AuthContext/AuthContext";
 import type { SocialContextType, Seguidor } from "../../types/social/social";
 import { FRAME_UPDATED_EVENT, type FrameUpdatedDetail } from "../../utils/frame";
 
@@ -89,8 +89,13 @@ export function useSocial(): SocialContextType {
 
   // Get quantity of likes for a character
   const getQuantityLikes = async (personagemId: number): Promise<number> => {
+    if (!Number.isInteger(personagemId) || personagemId <= 0) {
+      console.warn('[useSocial] getQuantityLikes chamado com personagemId inválido:', personagemId);
+      return 0;
+    }
+
     try {
-        const quantity = await SearchQuantityLikes(personagemId);
+      const quantity = await SearchQuantityLikes(personagemId);
       return quantity ?? 0;
     } catch (err: any) {
       console.error('[useSocial] Erro ao buscar quantidade de likes:', err);

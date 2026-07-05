@@ -59,6 +59,7 @@ export async function getMiniProfileService(usuarioId: number): Promise<MiniProf
         frame:     normalizeFrame(d.frame),
         is_online: d.is_online,
         nivel:     d.nivel ?? null,
+        unlocked_frames: Array.isArray(d.unlocked_frames) ? d.unlocked_frames : [],
     };
   } catch (error) {
     console.error(`Error loading mini profile data for user ${usuarioId}:`, error);
@@ -67,12 +68,15 @@ export async function getMiniProfileService(usuarioId: number): Promise<MiniProf
 }
 
 // Update user frame
-export async function updateFrameService (usuarioId: number, frame: string): Promise<User> {
+export async function updateFrameService (usuarioId: number, frame: string, token?: string): Promise<User & { unlocked_frames?: string[] }> {
     try {
-        const res = await axios.put(`${API_URL}/users/update-frame/${usuarioId}`, { frame });
+        const res = await axios.put(`${API_URL}/users/update-frame/${usuarioId}`, { frame }, {
+            headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        });
         return {
             ...res.data,
             frame: normalizeFrame(res.data?.frame ?? frame),
+            unlocked_frames: Array.isArray(res.data?.unlocked_frames) ? res.data.unlocked_frames : [],
         };
 
     } catch (error: any) {

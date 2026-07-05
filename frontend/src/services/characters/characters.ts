@@ -21,20 +21,20 @@ export const getCharactersPaginated = async (
     }
 };
 
-export async function searchCharacterById(personagemId: number): Promise<CharacterbyId> {
+export async function searchCharacterById(personagemPublicId: string | number): Promise<CharacterbyId> {
     try {
-        const res = await axios.get(`${API_URL}/character/data-character-by-id/${personagemId}`);
+        const res = await axios.get(`${API_URL}/character/data-character-by-public-id/${personagemPublicId}`);
         return res.data;
     } catch (error) {
-        console.error(`Error searching character data for ${personagemId}:`, error);
+        console.error(`Error searching character data for ${personagemPublicId}:`, error);
         throw error;
     }
 }
 
-export async function incrementChatViews(personagemId: number, token: string): Promise<views> {
+export async function incrementChatViews(personagemPublicId: string | number, token: string): Promise<views> {
     try {
         const res = await axios.post<views>(
-            `${API_URL}/character/increment-chat-views/${personagemId}`,
+            `${API_URL}/character/increment-chat-views-public/${personagemPublicId}`,
             {},
             { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -118,7 +118,7 @@ export async function getRecentCharacters(usuarioId: number): Promise<Character[
 
 export async function recentCharactersService(
     usuarioId: number,
-    personagemId: number
+    personagemId: string | number
 ): Promise<RecentCharacter> {
     try {
         const res = await axios.post<RecentCharacter>(
@@ -138,17 +138,34 @@ export async function searchCharacterByNameService(
     tag = '',
     limit: number = 20,
     offset: number = 0
-): Promise<{ success: boolean; resultados: Character[] }> {
+): Promise<Character[]> {
     try {
-        // Se houver tag, concatena &tag=nome-da-tag, senão deixa vazio
         const filtroTag = tag ? `&tag=${encodeURIComponent(tag)}` : '';
-        const url = `${API_URL}/character/search-character?nomePersonagem=${encodeURIComponent(nomePersonagem)}${filtroTag}&limit=${limit}&offset=${offset}`;
+        const url = `${API_URL}/character/search-character?q=${encodeURIComponent(nomePersonagem)}${filtroTag}&limit=${limit}&offset=${offset}`;
         
-        const res = await axios.get<{ success: boolean; resultados: Character[] }>(url);
-        console.log('Resultados da busca por nome:', res.data);
-        return res.data;
+        const res = await axios.get<any>(url);
+        const data = res.data;
+        if (Array.isArray(data)) {
+            return data;
+        }
+        return Array.isArray(data?.resultados) ? data.resultados : [];
     } catch (error) {
         console.error('Error searching character by name:', error);
         throw error;
     }
+}
+
+// Search for recent characters by user
+export async function recentCharacters(usuarioId: number, personagemId: number) {
+  try {
+    const res = await axios.post(`${API_URL}/character/recent-characters/${usuarioId}/${personagemId}`, {});
+    return res.data || {};
+  } catch (err: any) {
+    const status = err.response?.status || 'Conexão';
+    console.error(`[recentCharacters] Erro ${status} ao atualizar personagens recentes`);
+    
+    if (err.response?.data) console.error('Resposta da API:', err.response.data);
+    console.error('Mensagem Axios:', err.message);
+    throw err;
+  }
 }

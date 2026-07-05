@@ -68,8 +68,8 @@ export function useUsers(usuarioId: number | null) {
 
   // Update user profile frame
   const updateFrame = useCallback(
-    async (usuarioId: number, frame: string) => {
-      return await updateFrameService(usuarioId, frame);
+    async (usuarioId: number, frame: string, token?: string) => {
+      return await updateFrameService(usuarioId, frame, token);
     },
     []
   );

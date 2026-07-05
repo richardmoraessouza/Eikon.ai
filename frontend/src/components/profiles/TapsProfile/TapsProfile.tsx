@@ -10,48 +10,32 @@ interface TapsPerfilProps {
 const TapsPerfil = ({ usuarioId }: TapsPerfilProps) => {
     const [abaAtiva, setAbaAtiva] = useState<string>('Personagens');
 
+    const tabs = [
+        { key: 'Personagens', label: 'Personagens' },
+        { key: 'Favoritos', label: 'Favoritos' },
+        { key: 'Recentes', label: 'Recentes' },
+    ];
+
     return (
         <section className="w-full flex flex-col justify-center items-center gap-7 mb-4 text-sm">
             <nav className="w-full flex justify-center items-center gap-4 mb-4 text-sm text-gray-400">
-                
-                {/* Botão Personagens */}
-                <button 
-                    type="button"
-                    onClick={() => setAbaAtiva('Personagens')} 
-                    className={`transition-colors duration-200 cursor-pointer hover:text-white ${
-                        abaAtiva === 'Personagens' ? 'text-white font-medium' : ''
-                    }`}
-                >
-                    Personagens
-                </button>
-        
-                {/* Botão Favoritos */}
-                <button 
-                    type="button"
-                    onClick={() => setAbaAtiva('Favoritos')} 
-                    className={`transition-colors duration-200 cursor-pointer hover:text-white ${
-                        abaAtiva === 'Favoritos' ? 'text-white font-medium' : ''
-                    }`}
-                >
-                    Favoritos
-                </button>
-
-                {/* Botão Recentes */}
-                <button 
-                    type="button"
-                    onClick={() => setAbaAtiva('Recentes')} 
-                    className={`transition-colors duration-200 cursor-pointer hover:text-white ${
-                        abaAtiva === 'Recentes' ? 'text-white font-medium' : ''
-                    }`}
-                >
-                    Recentes
-                </button>
+                {tabs.map((tab) => (
+                    <button
+                        key={tab.key}
+                        type="button"
+                        onClick={() => setAbaAtiva(tab.key)}
+                        className={`transition-colors duration-200 cursor-pointer hover:text-white ${
+                            abaAtiva === tab.key ? 'text-white font-medium' : ''
+                        }`}
+                    >
+                        {tab.label}
+                    </button>
+                ))}
             </nav>
 
-            {/* Renderização condicional dos componentes */}
-            {abaAtiva === 'Personagens' && <CharacterCard type="meus-personagens" abaAtiva={abaAtiva} usuarioId={usuarioId}/>}
-            {abaAtiva === 'Favoritos' && <CharacterCard type="favoritos" abaAtiva={abaAtiva} usuarioId={usuarioId}/>}
-            {abaAtiva === 'Recentes' && <CharacterCard type="recentes" abaAtiva={abaAtiva} usuarioId={usuarioId}/>}
+            {abaAtiva === 'Personagens' && <CharacterCard type="meus-personagens" abaAtiva={abaAtiva} usuarioId={usuarioId} />}
+            {abaAtiva === 'Favoritos' && <CharacterCard type="favoritos" abaAtiva={abaAtiva} usuarioId={usuarioId} />}
+            {abaAtiva === 'Recentes' && <CharacterCard type="recentes" abaAtiva={abaAtiva} usuarioId={usuarioId} />}
         </section>
     );
 };

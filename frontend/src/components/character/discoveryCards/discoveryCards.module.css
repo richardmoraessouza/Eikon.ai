@@ -168,13 +168,17 @@
   flex-flow: column nowrap;
   justify-content: flex-start;
   align-items: flex-start;
-  overflow: hidden;
   height: 100%;
   padding-bottom: 26px;
   color: var(--text-main);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+}
+
+.name {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .bio {
@@ -183,14 +187,16 @@
   color: var(--text-card);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   line-height: 1.4;
-  width: 90%;
+  width: 100%;
+  word-break: break-word;
+  overflow-wrap: anywhere;
   display: -webkit-box;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
+  -webkit-line-clamp: 3; 
+  line-clamp: 3;
+  overflow: hidden;
   text-overflow: ellipsis;
 }
-
 /* ─── STATS E AUTHOR ────────────────────────────────────── */
 .stats {
   position: absolute;

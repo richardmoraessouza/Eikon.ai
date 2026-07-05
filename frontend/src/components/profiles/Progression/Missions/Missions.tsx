@@ -1,15 +1,15 @@
 "use client";
 
 import styles from "./Missions.module.css";
-import { useAuth } from "@/hooks/AuthContext/AuthContext";
+import { useAuth } from "@/contexts/AuthContext/AuthContext";
 import Image from 'next/image'
 import { useMissions } from "@/hooks/useMissions/UseMissions";
 import { useDragScroll } from "@/hooks/useDragScroll/useDragScroll";
 
 interface MissionsProps {
-  coletadas: Set<string>;
-  coletandoMissao: string | null;
-  onColetar: (nome: string, xp: number) => void;
+  coletadas: Set<number>;
+  coletandoMissao: number | null;
+  onColetar: (missionId: number, nome: string) => void;
 }
 
 const MISSION_ICONS: Record<string, string> = {
@@ -75,8 +75,9 @@ export default function Missions({ coletadas, coletandoMissao, onColetar }: Miss
       >
         {missions.map((m) => {
           const concluida  = m.progresso >= m.objetivo;
-          const coletada   = coletadas.has(m.titulo);
-          const coletando  = coletandoMissao === m.titulo;
+          const jáColetada = Boolean(m.coletada_em);
+          const coletada   = jáColetada || coletadas.has(m.mission_id);
+          const coletando  = coletandoMissao === m.mission_id;
           const bar        = Math.min(100, Math.round((m.progresso / m.objetivo) * 100));
           const podeColeta = concluida && !coletada;
 
@@ -112,7 +113,7 @@ export default function Missions({ coletadas, coletandoMissao, onColetar }: Miss
               <button
                 type="button"
                 className={styles.missionRewardBtn}
-                onClick={() => podeColeta && onColetar(m.titulo, m.xp)}
+                onClick={() => podeColeta && onColetar(m.mission_id, m.titulo)}
                 disabled={!podeColeta}
               >
                 <p

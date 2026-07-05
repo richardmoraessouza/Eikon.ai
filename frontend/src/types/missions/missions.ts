@@ -4,6 +4,7 @@ export interface DailyMission {
   usuario_id: number;
   progresso: number;
   completada: boolean;
+  coletada_em?: string | null;
   data_atribuida: string;
   tipo: string;
   titulo: string;

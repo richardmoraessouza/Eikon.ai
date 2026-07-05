@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback, useMemo } from "react";
 import styles from "./Progression.module.css";
-import { useAuth } from "@/hooks/AuthContext/AuthContext";
+import { useAuth } from "@/contexts/AuthContext/AuthContext";
 import { useMissions } from "@/hooks/useMissions/UseMissions";
 import { useDragScroll } from "@/hooks/useDragScroll/useDragScroll";
 import Missions from "./Missions/Missions";
@@ -25,15 +25,13 @@ export default function Progression({ onClose }: ProgressionProps) {
   const { usuarioId, token } = useAuth();
   const usuarioIdNum = useMemo(() => (usuarioId ? Number(usuarioId) : undefined), [usuarioId]);
 
-  const { getUserLevel, getUserXp, addXp } = useMissions(usuarioIdNum);
+  const { getUserLevel, getUserXp, claimMission } = useMissions(usuarioIdNum);
 
   const [currentLevel, setCurrentLevel]       = useState(1);
   const [xpAtual, setXpAtual]                 = useState(0);
   const [loading, setLoading]                 = useState(true);
-  const [enviandoXp, setEnviandoXp]           = useState(false);
-  const [erroXp, setErroXp]                   = useState<string | null>(null);
-  const [coletadas, setColetadas]             = useState<Set<string>>(new Set());
-  const [coletandoMissao, setColetandoMissao] = useState<string | null>(null);
+  const [coletadas, setColetadas]             = useState<Set<number>>(new Set());
+  const [coletandoMissao, setColetandoMissao] = useState<number | null>(null);
 
   const { carouselRef: trackScrollRef, dragProps, hasDragged, resetHasDragged } = useDragScroll({ axis: "x", speed: 1.5 });
 
@@ -95,41 +93,28 @@ export default function Progression({ onClose }: ProgressionProps) {
     return () => document.removeEventListener("keydown", handleKey);
   }, [onClose]);
 
-  async function enviarXpTeste() {
-    if (!usuarioIdNum || !token || enviandoXp) return;
-    try {
-      setEnviandoXp(true);
-      setErroXp(null);
-      const resultado = await addXp(usuarioIdNum, 100, token);
-      if (resultado) {
-        setCurrentLevel(Number(resultado.nivel) || currentLevelNum);
-        setXpAtual(Number(resultado.xp_atual) || 0);
-      }
-    } catch (err) {
-      console.error("Erro ao enviar XP:", err);
-      setErroXp("Não foi possível enviar XP. Tente novamente.");
-    } finally {
-      setEnviandoXp(false);
-    }
-  }
-
-  const coletarMissao = useCallback(async (missaoNome: string, xpGanho: number) => {
+  const coletarMissao = useCallback(async (missionId: number, missaoNome: string) => {
     if (!usuarioIdNum || !token) return;
-    if (coletadas.has(missaoNome) || coletandoMissao) return;
+    if (coletadas.has(missionId) || coletandoMissao !== null) return;
+
     try {
-      setColetandoMissao(missaoNome);
-      const resultado = await addXp(usuarioIdNum, xpGanho, token);
+      setColetandoMissao(missionId);
+      const resultado = await claimMission(missionId);
+
+      if (resultado?.updated) {
+        setCurrentLevel(Number(resultado.updated.nivel) || currentLevelNum);
+        setXpAtual(Number(resultado.updated.xp_atual) || 0);
+      }
+
       if (resultado) {
-        setCurrentLevel(Number(resultado.nivel) || currentLevelNum);
-        setXpAtual(Number(resultado.xp_atual) || 0);
-        setColetadas((prev) => new Set(prev).add(missaoNome));
+        setColetadas((prev) => new Set(prev).add(missionId));
       }
     } catch (err) {
-      console.error("Erro ao coletar XP:", err);
+      console.error("Erro ao coletar missão:", err);
     } finally {
       setColetandoMissao(null);
     }
-  }, [usuarioIdNum, token, coletadas, coletandoMissao, addXp]);
+  }, [usuarioIdNum, token, coletadas, coletandoMissao, claimMission]);
 
   if (!usuarioId) {
     return (
@@ -194,12 +179,7 @@ export default function Progression({ onClose }: ProgressionProps) {
                 <div className={styles.xpBarFill} style={{ width: `${pct}%` }} />
               </div>
             </div>
-            <button className={styles.xpButton} onClick={enviarXpTeste} disabled={enviandoXp}>
-              {enviandoXp ? "Enviando..." : "+100 XP"}
-            </button>
           </div>
-
-          {erroXp && <p className={styles.errorText}>{erroXp}</p>}
         </div>
 
         <Missions

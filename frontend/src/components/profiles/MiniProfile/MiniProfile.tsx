@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import styles from './MiniProfile.module.css';
 import type { MiniProfileType } from "../../../types/users/users";
-import { normalizeFrame } from "../../../utils/frame";
+import { getFrameImagePath } from "../../../utils/frame";
 
 interface MiniProfileProps extends MiniProfileType {
   badge?: {
@@ -11,6 +11,7 @@ interface MiniProfileProps extends MiniProfileType {
   };
   nivel?: number | null;
   onClose?: () => void;
+  loading?: boolean;
 }
 
 export const MiniProfile = ({
@@ -21,13 +22,46 @@ export const MiniProfile = ({
   is_online,
   badge,
   nivel,
+  loading = false,
 }: MiniProfileProps) => {
-  const frameAtivo = normalizeFrame(frame);
-  const caminhoMoldura = frameAtivo ? `/image/frames/${frameAtivo}` : null;
+  const caminhoMoldura = getFrameImagePath(frame);
 
   const iniciais = nome
     ? nome.split(' ').slice(0, 2).map((n) => n[0]).join('').toUpperCase()
     : '?';
+
+  if (loading) {
+    return (
+      <div className={styles.card}>
+        <div className={styles.header}>
+          <div className={styles.avatarWrap}>
+            <div className={`${styles.avatarInner} ${styles.skeleton}`} />
+          </div>
+
+          <div className={styles.headerInfo}>
+            <span className={`${styles.skeletonLine} ${styles.skeletonNome}`} />
+            <span className={`${styles.skeletonLine} ${styles.skeletonDescricao}`} />
+            <span className={`${styles.skeletonLine} ${styles.skeletonStatus}`} />
+          </div>
+        </div>
+
+        <div className={styles.body}>
+          <div className={styles.row}>
+            <div className={`${styles.badgeIcon} ${styles.skeleton}`} />
+            <div className={styles.badgeInfo}>
+              <span className={`${styles.skeletonLine} ${styles.skeletonBadgeName}`} />
+              <span className={`${styles.skeletonLine} ${styles.skeletonBadgeXp}`} />
+            </div>
+          </div>
+
+          <div className={styles.row}>
+            <div className={`${styles.levelCircle} ${styles.skeleton}`} />
+            <span className={`${styles.skeletonLine} ${styles.skeletonLevelLabel}`} />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.card}>

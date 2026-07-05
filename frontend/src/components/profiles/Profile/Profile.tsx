@@ -1,16 +1,16 @@
-'use client'; // Necessário no Next.js (App Router) devido ao uso de hooks, efeitos de ciclo de vida e requisições no cliente
+'use client';
 
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
 import axios from 'axios';
 import styles from './Profile.module.css';
-import { useAuth } from '../../../hooks/AuthContext/AuthContext';
+import { useAuth } from '../../../contexts/AuthContext/AuthContext';
 import { useSeguir } from '../../../hooks/useSocial/useSocial';
 import ModalSeguidores from '../ModalSeguidores/ModalSeguidores';
 import TapsProfile from '../TapsProfile/TapsProfile';
 import { API_URL } from '../../../config/api';
-import { FRAME_UPDATED_EVENT, normalizeFrame, type FrameUpdatedDetail } from '../../../utils/frame';
+import { FRAME_UPDATED_EVENT, getFrameImagePath, normalizeFrame, type FrameUpdatedDetail } from '../../../utils/frame';
 
 interface UsuarioAlvo {
   nome: string;
@@ -157,8 +157,7 @@ function Profile() {
     ? false
     : (ehMeuProprioPerfil ? meuNome == null : !usuarioBuscado);
 
-  const frameAtivo = normalizeFrame(frame);
-  const caminhoFrame = frameAtivo ? `/image/frames/${frameAtivo}` : null;
+  const caminhoFrame = getFrameImagePath(frame);
   const usuarioModalId = idAlvo ?? (meuId != null ? Number(meuId) : 0);
   const usuarioLogadoId = meuId != null ? Number(meuId) : 0;
 

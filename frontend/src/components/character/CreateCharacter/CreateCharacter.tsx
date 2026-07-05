@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import styles from './CreateCharacter.module.css';
 import { FiEdit2 } from "react-icons/fi";
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/hooks/AuthContext/AuthContext';
+import { useAuth } from '@/contexts/AuthContext/AuthContext';
 import { useCharacters } from '@/hooks/useCharacters/useCharacters';
 import { converterBase64 } from '@/utils/CorverteImagem/corverteImagem';
 import { QuickCreateMode } from '@/components/character/quick-create/quick-create';

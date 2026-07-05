@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useAuth } from '../AuthContext/AuthContext';
+import { useAuth } from '../../contexts/AuthContext/AuthContext';
 import { useCharacters } from '../useCharacters/useCharacters';
 import type { ChatMessage as ChatMessageType, ReplyQuote } from '../../types/chat/chat';
 import * as chatApiService from '../../services/chat/chatService';
@@ -28,13 +28,13 @@ const MISSION_LABELS: Record<string, string> = {
   MAKE_CHARACTER_LOVE:  '🏆 Missão completa: Personagem apaixonado!',
 };
 
-export function useChat(personagemId: number) {
+export function useChat(personagemId: string | number | undefined) {
   const { usuarioId, token } = useAuth();
   const { incrementChatViews, recentCharacters } = useCharacters();
 
   const [message, setMessage] = useState('');
   const [replyTo, setReplyTo] = useState<ReplyQuote | null>(() => {
-    if (!personagemId || isNaN(personagemId)) return null;
+    if (!personagemId) return null;
     const saved = storage.get(`replyTo_${personagemId}`);
     if (saved) {
       try { return JSON.parse(saved) as ReplyQuote; }
@@ -65,7 +65,7 @@ export function useChat(personagemId: number) {
   }, []);
 
   useEffect(() => {
-    if (!personagemId || isNaN(personagemId)) return;
+    if (!personagemId) return;
     const saved = storage.get(`replyTo_${personagemId}`);
     if (saved) {
       try { setReplyTo(JSON.parse(saved) as ReplyQuote); }
@@ -82,12 +82,12 @@ export function useChat(personagemId: number) {
     setHasMore(true);
     setIsLoadingHistory(true);
 
-    if (!personagemId || isNaN(personagemId)) return;
+    if (!personagemId) return;
 
     async function loadInitialHistory() {
       try {
         setIsLoadingHistory(true);
-        const history = await chatApiService.fetchChatHistory(personagemId, token, 30, 0);
+        const history = await chatApiService.fetchChatHistory(personagemId as string | number, token, 30, 0);
         setChatHistory(history);
         if (history.length < 30) setHasMore(false);
       } catch (err) {
@@ -101,7 +101,7 @@ export function useChat(personagemId: number) {
     async function loadPinned() {
       try {
         setIsLoadingPinned(true);
-        const history = await chatApiService.fetchChatHistory(personagemId, token, 1000, 0);
+        const history = await chatApiService.fetchChatHistory(personagemId as string | number, token, 1000, 0);
         const formattedPinned = history
           .filter((msg) => msg.pinned)
           .map((msg): ChatMessageType => ({
@@ -126,7 +126,7 @@ export function useChat(personagemId: number) {
   }, [personagemId, token]);
 
   useEffect(() => {
-    if (!usuarioId || !personagemId || isNaN(personagemId)) return;
+    if (!usuarioId || !personagemId) return;
 
     timerStartRef.current = Date.now();
     timerFlushedRef.current = false;
@@ -138,10 +138,13 @@ export function useChat(personagemId: number) {
       const seconds = getElapsed();
       if (seconds < 5) return;
       timerFlushedRef.current = true;
+      const charId = personagemId as string | number;
+      if (!charId) return;
+
       if (useBeacon) {
-        chatApiService.beaconConversationTime({ characterId: personagemId, seconds });
+        chatApiService.beaconConversationTime({ characterId: charId, seconds });
       } else {
-        chatApiService.saveConversationTime({ characterId: personagemId, seconds }).catch(console.error);
+        chatApiService.saveConversationTime({ characterId: charId, seconds }).catch(console.error);
       }
     };
 
@@ -166,7 +169,7 @@ export function useChat(personagemId: number) {
 
     try {
       setIsLoadingMore(true);
-      const olderHistory = await chatApiService.fetchChatHistory(personagemId, token, 30, nextOffset);
+      const olderHistory = await chatApiService.fetchChatHistory(personagemId as string | number, token, 30, nextOffset);
       if (olderHistory.length < 30) setHasMore(false);
       if (olderHistory.length > 0) {
         setChatHistory((prev) => [...olderHistory, ...prev]);
@@ -198,6 +201,7 @@ export function useChat(personagemId: number) {
     const trimmedMessage = message.trim();
     if (isLoading || !trimmedMessage || !personagemId) return;
 
+    const charId = personagemId as string | number;
     const currentQuote = replyTo ? replyTo : undefined;
     const replyToId = replyTo?.id || null;
 
@@ -222,16 +226,16 @@ export function useChat(personagemId: number) {
     setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 10);
 
     try {
-      const data = await chatApiService.sendChatMessage(personagemId, trimmedMessage, token, replyToId);
+      const data = await chatApiService.sendChatMessage(charId, trimmedMessage, token, replyToId);
 
-      if (usuarioId && personagemId) {
-        recentCharacters(Number(usuarioId), Number(personagemId)).catch((e) =>
+      if (usuarioId && charId) {
+        recentCharacters(Number(usuarioId), charId).catch((e) =>
           console.warn('[Analytics Warning] Recent tracking engine issue:', e.message)
         );
       }
 
-      if (personagemId && token) {
-        incrementChatViews(personagemId, token ?? undefined).catch((e) =>
+      if (charId && token) {
+        incrementChatViews(charId, token ?? undefined).catch((e) =>
           console.warn('[Analytics Warning] View frame tracker engine issue:', e.message)
         );
       }

@@ -6,7 +6,7 @@ import Image from 'next/image';
 import axios from 'axios';
 import { FiX } from "react-icons/fi";
 import { API_URL } from '../../../config/api';
-import { FRAME_UPDATED_EVENT, normalizeFrame, type FrameUpdatedDetail } from '../../../utils/frame';
+import { FRAME_UPDATED_EVENT, getFrameImagePath, normalizeFrame, type FrameUpdatedDetail } from '../../../utils/frame';
 import styles from './ModalSeguidores.module.css';
 
 interface Seguidor {
@@ -115,7 +115,7 @@ function ModalSeguidores({ tipo, lista = [], onClose, usuario, usuarioLogado }: 
                 ) : (
                     <ul>
                         {usuarios.map((item) => {
-                            const frameAtivo = normalizeFrame(item.frame);
+                            const frameAtivo = getFrameImagePath(item.frame);
                             const nomeExibido = item.nome || `Usuário ${item.id}`;
 
                             return (
@@ -135,7 +135,7 @@ function ModalSeguidores({ tipo, lista = [], onClose, usuario, usuarioLogado }: 
                                         />
                                         {frameAtivo && (
                                             <Image
-                                                src={`/image/frames/${frameAtivo}`}
+                                                src={frameAtivo}
                                                 alt="Frame"
                                                 width={56}
                                                 height={56}

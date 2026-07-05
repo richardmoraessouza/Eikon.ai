@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import styles from './CharacteProfile.module.css';
-import { useAuth } from '../../../hooks/AuthContext/AuthContext';
+import { useAuth } from '../../../contexts/AuthContext/AuthContext';
 import { useCharacters } from '../../../hooks/useCharacters/useCharacters';
 import { useSocial } from '../../../hooks/useSocial/useSocial';
 import { useUsers } from "../../../hooks/useUsers/useUsers";
@@ -16,7 +16,7 @@ import type { MiniProfileType } from "../../../types/users/users";
 import type { ChatMessage as ChatMessageType } from '../../../types/chat/chat';
 
 interface ProfilePersonProps {
-  personagemId: number | null;
+  personagemId: string | number | null;
   menuOpen: boolean;
   usuarioIdAtual: number | null;
   perfilPerson: boolean;

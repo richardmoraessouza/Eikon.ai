@@ -35,4 +35,5 @@ export interface MiniProfileType {
   frame?: string | null;
   is_online?: boolean;
   nivel?: number | null;
+  unlocked_frames?: string[];
 }

@@ -1,72 +1,203 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useCharacters } from "../../../hooks/useCharacters/useCharacters";
 import { useSocial } from "../../../hooks/useSocial/useSocial";
 import { useDragScroll } from "../../../hooks/useDragScroll/useDragScroll";
+import { FiMessageSquare, FiChevronLeft, FiChevronRight, FiHeart } from "react-icons/fi";
+import { searchCreatorNameService, getMiniProfileService } from "../../../services/users/userService";
+import { FRAME_UPDATED_EVENT, type FrameUpdatedDetail } from "../../../utils/frame";
+import MiniProfile from "../../profiles/MiniProfile/MiniProfile";
+import type { MiniProfileType } from "../../../types/users/users";
 import type { Character } from "../../../types/characters/characters";
 import styles from "./CardExplore.module.css";
-import { FiMessageSquare, FiHeart, FiChevronLeft, FiChevronRight } from "react-icons/fi";
-import { searchCreatorNameService } from "../../../services/users/userService";
 
-const SKELETON_COUNT = 5; 
+const SKELETON_COUNT = 5;
+
+interface PopoverPosition {
+  top: number;
+  left: number;
+}
+
+const POPOVER_WIDTH = 252;
+const POPOVER_MARGIN = 16;
+const POPOVER_GAP = 8;
 
 const CardExplore = () => {
   const router = useRouter();
   const { carouselRef, hasDragged, dragProps } = useDragScroll();
   const { exploreCharacters, exploreLoading, exploreError, exploreHasMore, loadMoreExplore } = useCharacters();
   const { isLiked, handleToggleLike, getQuantityLikes } = useSocial();
+
+  const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Guarda um "id de requisição" para descartar respostas de hover desatualizadas
+  // (ex.: usuário passa o mouse rápido do card A para o card B).
+  const hoverRequestRef = useRef(0);
+
   const [likesCount, setLikesCount] = useState<Record<number, number>>({});
   const [creatorNames, setCreatorNames] = useState<Record<number, string>>({});
+  const [creatorUsernames, setCreatorUsernames] = useState<Record<number, string | null>>({});
+  const [activeProfile, setActiveProfile] = useState<MiniProfileType | null>(null);
+  const [activeCardId, setActiveCardId] = useState<number | null>(null);
+  const [popoverPos, setPopoverPos] = useState<PopoverPosition | null>(null);
+  const [mounted, setMounted] = useState(false);
 
+  useEffect(() => setMounted(true), []);
+
+  // Limpa qualquer timer de hover pendente ao desmontar o componente.
+  useEffect(() => {
+    return () => {
+      if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
+    };
+  }, []);
+
+  useEffect(() => {
+    const handler = (event: Event) => {
+      const { usuarioId, frame } = (event as CustomEvent<FrameUpdatedDetail>).detail;
+      setActiveProfile(prev =>
+        prev && prev.usuarioId === usuarioId ? { ...prev, frame } : prev
+      );
+    };
+    window.addEventListener(FRAME_UPDATED_EVENT, handler);
+    return () => window.removeEventListener(FRAME_UPDATED_EVENT, handler);
+  }, []);
+
+  const computePosition = (anchor: HTMLElement) => {
+    const rect = anchor.getBoundingClientRect();
+    let left = rect.left + rect.width / 2 - POPOVER_WIDTH / 2;
+    left = Math.max(
+      POPOVER_MARGIN,
+      Math.min(left, window.innerWidth - POPOVER_WIDTH - POPOVER_MARGIN)
+    );
+    const top = Math.max(POPOVER_MARGIN, rect.top - POPOVER_GAP);
+    setPopoverPos({ top, left });
+  };
+
+  const closePopover = () => {
+    hoverRequestRef.current += 1; // invalida qualquer fetch de perfil em andamento
+    setActiveProfile(null);
+    setActiveCardId(null);
+    setPopoverPos(null);
+  };
+
+  const handleMouseEnterAuthor = (
+    e: React.MouseEvent<HTMLDivElement>,
+    userId: number,
+    characterId: number
+  ) => {
+    if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
+    const anchor = e.currentTarget;
+    const requestId = ++hoverRequestRef.current;
+
+    hoverTimerRef.current = setTimeout(async () => {
+      computePosition(anchor);
+      setActiveCardId(characterId);
+      try {
+        const data = await getMiniProfileService(userId);
+        // Só aplica o resultado se ainda for o hover mais recente,
+        // evitando mostrar o perfil errado quando o mouse já mudou de card.
+        if (hoverRequestRef.current === requestId) {
+          setActiveProfile(data);
+        }
+      } catch (err) {
+        console.error("Erro ao carregar dados do mini perfil:", err);
+      }
+    }, 200);
+  };
+
+  const handleMouseLeaveAuthor = () => {
+    if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
+    hoverTimerRef.current = setTimeout(closePopover, 120);
+  };
+
+  const handleAuthorClick = (e: React.MouseEvent<HTMLDivElement>, userId: number) => {
+    e.stopPropagation();
+    if (hasDragged) return;
+
+    const username = creatorUsernames[userId];
+    // Só navega quando o username já está disponível. Nunca usa o ID na URL.
+    if (username) {
+      router.push(`/profile/${username}`);
+    }
+  };
+
+  useEffect(() => {
+    if (!activeCardId) return;
+    const handleWindowChange = () => closePopover();
+    window.addEventListener("scroll", handleWindowChange, true);
+    window.addEventListener("resize", handleWindowChange);
+    return () => {
+      window.removeEventListener("scroll", handleWindowChange, true);
+      window.removeEventListener("resize", handleWindowChange);
+    };
+  }, [activeCardId]);
+
+  // Carrega nome/username dos criadores em paralelo e usa updates funcionais
+  // para não sobrescrever dados carregados por execuções concorrentes deste efeito.
   useEffect(() => {
     async function loadCreatorNames() {
-      const namesMap: Record<number, string> = { ...creatorNames };
-      let changed = false;
+      const idsToFetch = Array.from(
+        new Set(exploreCharacters.map(c => c.usuario_id).filter((id): id is number => !!id))
+      ).filter(id => !(id in creatorNames));
 
-      for (const character of exploreCharacters) {
-        if (namesMap[character.id] !== undefined) continue;
+      if (idsToFetch.length === 0) return;
 
-        try {
-          if (character.nome_criador) {
-            namesMap[character.id] = character.nome_criador;
-            changed = true;
-          } else if (character.usuario_id) {
-            const creator = await searchCreatorNameService(character.usuario_id);
-            namesMap[character.id] = creator.nome;
-            changed = true;
-          } else {
-            namesMap[character.id] = "Desconhecido";
-            changed = true;
+      const results = await Promise.all(
+        idsToFetch.map(async (id) => {
+          try {
+            const creator = await searchCreatorNameService(id);
+            return { id, nome: creator.nome, username: creator.username ?? null };
+          } catch {
+            return { id, nome: "Desconhecido", username: null };
           }
-        } catch {
-          namesMap[character.id] = "Desconhecido";
-          changed = true;
-        }
-      }
-      if (changed) setCreatorNames(namesMap);
+        })
+      );
+
+      setCreatorNames(prev => {
+        const next = { ...prev };
+        results.forEach(({ id, nome }) => { next[id] = nome; });
+        return next;
+      });
+      setCreatorUsernames(prev => {
+        const next = { ...prev };
+        results.forEach(({ id, username }) => { next[id] = username; });
+        return next;
+      });
     }
     if (exploreCharacters.length > 0) loadCreatorNames();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [exploreCharacters]);
 
+  // Carrega contagem de likes em paralelo, também com update funcional.
   useEffect(() => {
     async function loadLikesCount() {
-      const likesMap: Record<number, number> = { ...likesCount };
-      let changed = false;
+      const idsToFetch = exploreCharacters
+        .map(c => c.id)
+        .filter(id => likesCount[id] === undefined);
 
-      for (const character of exploreCharacters) {
-        if (likesMap[character.id] !== undefined) continue;
-        
-        const total = await getQuantityLikes(character.id);
-        likesMap[character.id] = total;
-        changed = true;
-      }
-      if (changed) setLikesCount(likesMap);
+      if (idsToFetch.length === 0) return;
+
+      const results = await Promise.all(
+        idsToFetch.map(async (id) => {
+          try {
+            return { id, count: await getQuantityLikes(id) };
+          } catch {
+            return { id, count: 0 };
+          }
+        })
+      );
+
+      setLikesCount(prev => {
+        const next = { ...prev };
+        results.forEach(({ id, count }) => { next[id] = count; });
+        return next;
+      });
     }
     if (exploreCharacters.length > 0) loadLikesCount();
-  }, [exploreCharacters]);
+  }, [exploreCharacters, getQuantityLikes]);
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     if (!exploreHasMore || exploreLoading) return;
@@ -84,12 +215,11 @@ const CardExplore = () => {
   };
 
   const scroll = (dir: "left" | "right") => {
-    if (!carouselRef.current) return;
-    carouselRef.current.scrollBy({ left: dir === "right" ? 160 : -160, behavior: "smooth" });
+    carouselRef.current?.scrollBy({ left: dir === "right" ? 240 : -240, behavior: "smooth" });
   };
 
-  const handleCharacterClick = (characterId: number) => {
-    if (!hasDragged) router.push(`/chat/${characterId}`);
+  const handleCharacterClick = (characterPublicId: string) => {
+    if (!hasDragged) router.push(`/chat/${characterPublicId}`);
   };
 
   if (exploreError) return (
@@ -107,9 +237,11 @@ const CardExplore = () => {
       <div className={styles.carouselWrapper}>
         <div className={styles.carouselTrack} aria-busy="true" aria-label="Carregando conteúdos">
           {Array.from({ length: SKELETON_COUNT }).map((_, index) => (
-            <div key={index} className={styles.skeletonCard}>
-              <div className={styles.skeletonImage} />
-              <div className={styles.skeletonInfo}>
+            <div key={index} className={`${styles.card} ${styles.skeletonCard}`}>
+              <div className={styles.imageWrapper}>
+                <div className={styles.skeletonImage} />
+              </div>
+              <div className={styles.info}>
                 <div className={styles.skeletonName} />
                 <div className={styles.skeletonBio} />
               </div>
@@ -141,27 +273,21 @@ const CardExplore = () => {
           <FiChevronRight size={16} />
         </button>
 
-        <div
-          className={styles.carouselTrack}
-          ref={carouselRef}
-          onScroll={handleScroll}
-          {...dragProps}
-        >
-          {exploreCharacters.map((character: Character, index: number) => (
-            <div
-              key={`${character.id}-${index}`}
-              className={styles.card}
-              onClick={() => handleCharacterClick(character.id)}
-            >
-             
-              <Image
+        <div className={styles.carouselTrack} ref={carouselRef} onScroll={handleScroll} {...dragProps}>
+          {exploreCharacters.map((character: Character) => (
+            <div key={character.public_id ?? character.id} className={styles.card} onClick={() => handleCharacterClick(character.public_id ?? String(character.id))}>
+              <div className={styles.imageWrapper} style={{ position: "relative" }}>
+                <Image
                   src={character.fotoia || "/image/semPerfil.jpg"}
                   alt={character.nome}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 240px"
                   className={styles.image}
+                  style={{ objectFit: "cover" }}
                   draggable={false}
-                  width={50}
-                  height={50}
-              />
+                  unoptimized
+                />
+              </div>
 
               <div className={styles.info}>
                 <p className={styles.name}>{character.nome}</p>
@@ -188,10 +314,20 @@ const CardExplore = () => {
                 </div>
               </div>
 
-              <p className={styles.author}>@{creatorNames[character.id] || "Desconhecido"}</p>
+              <div
+                className={styles.authorContainer}
+                onMouseEnter={(e) => character.usuario_id != null && handleMouseEnterAuthor(e, character.usuario_id, character.id)}
+                onMouseLeave={handleMouseLeaveAuthor}
+                onClick={(e) => character.usuario_id != null && handleAuthorClick(e, character.usuario_id)}
+              >
+                <p className={styles.author}>
+                  {character.usuario_id
+                    ? `@${creatorUsernames[character.usuario_id] || creatorNames[character.usuario_id] || "Desconhecido"}`
+                    : "@Desconhecido"}
+                </p>
+              </div>
             </div>
           ))}
-
           {exploreLoading && (
             <div className={`${styles.card} ${styles.cardLoadingIndicator}`}>
               <div className={styles.spinner}></div>
@@ -200,6 +336,35 @@ const CardExplore = () => {
           )}
         </div>
       </div>
+
+      {mounted && activeProfile && activeCardId !== null && popoverPos &&
+        createPortal(
+          <div
+            className={styles.popoverPortal}
+            style={{
+              position: "fixed",
+              top: popoverPos.top,
+              left: popoverPos.left,
+              transform: `translateY(calc(-100% - ${POPOVER_GAP}px))`,
+              width: POPOVER_WIDTH,
+              maxWidth: `calc(100vw - ${POPOVER_MARGIN * 2}px)`,
+              zIndex: 2147483647,
+            }}
+            onMouseEnter={() => hoverTimerRef.current && clearTimeout(hoverTimerRef.current)}
+            onMouseLeave={closePopover}
+          >
+            <MiniProfile
+              usuarioId={activeProfile.usuarioId}
+              nome={activeProfile.nome}
+              foto={activeProfile.foto}
+              descricao={activeProfile.descricao}
+              frame={activeProfile.frame}
+              nivel={activeProfile.nivel}
+              is_online={activeProfile.is_online}
+            />
+          </div>,
+          document.body
+        )}
     </article>
   );
 };

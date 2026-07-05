@@ -202,3 +202,69 @@
   font-weight: 500;
   color: var(--profile-text-muted);
 }
+
+/* ── Skeleton ── */
+.skeleton,
+.skeletonLine {
+  position: relative;
+  overflow: hidden;
+  background-color: #e2e2e2;
+  border-radius: 4px;
+}
+
+.skeleton::after,
+.skeletonLine::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.6) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: shimmer 1.4s infinite;
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.skeletonLine {
+  display: block;
+  height: 12px;
+  border-radius: 4px;
+}
+
+.skeletonNome {
+  width: 70%;
+  height: 14px;
+  margin-bottom: 6px;
+}
+
+.skeletonDescricao {
+  width: 90%;
+  margin-bottom: 6px;
+}
+
+.skeletonStatus {
+  width: 40%;
+  height: 10px;
+}
+
+.skeletonBadgeName {
+  width: 60%;
+  margin-bottom: 6px;
+}
+
+.skeletonBadgeXp {
+  width: 80%;
+  height: 10px;
+}
+
+.skeletonLevelLabel {
+  width: 50%;
+}

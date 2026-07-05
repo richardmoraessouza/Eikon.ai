@@ -1,35 +1,86 @@
-'use client'; // Obrigatório no Next.js (App Router) para uso de hooks e interações
+'use client';
 
-import { useEffect, useState } from 'react';
-import Image from 'next/image'; // Importação do componente de imagens otimizadas do Next.js
-import { FiCheck } from 'react-icons/fi';
-import { useAuth } from '../../../../../hooks/AuthContext/AuthContext';
+import { useEffect, useMemo, useState } from 'react';
+import Image from 'next/image';
+import { FiCheck, FiLock } from 'react-icons/fi';
+import { useAuth } from '../../../../../contexts/AuthContext/AuthContext';
 import { useUsers } from '../../../../../hooks/useUsers/useUsers';
 import { normalizeFrame } from '../../../../../utils/frame';
 import styles from './TapsFrames.module.css';
 
 const FRAMES = [
-  { id: 'frameCat', file: 'frameCat.png', label: 'Cat' },
-  { id: 'frameCyberpunk', file: 'frameCyberpunk.png', label: 'Cyberpunk' },
-  { id: 'frameFoxy', file: 'frameFoxy.png', label: 'Foxy' },
-  { id: 'frameDark', file: 'frameDark.png', label: 'Dark' },
-  { id: 'frameRainbow', file: 'frameRainbow.png', label: 'Rainbow' },
-  { id: 'frameHorror', file: 'frameHorror.png', label: 'Horror' },
+  { id: 'cat', value: 'cat', file: 'frameCat.png', label: 'Cat', legacyValues: ['bronze'] },
+  { id: 'cyberpunk', value: 'cyberpunk', file: 'frameCyberpunk.png', label: 'Cyberpunk' },
+  { id: 'foxy', value: 'foxy', file: 'frameFoxy.png', label: 'Foxy' },
+  { id: 'dark', value: 'dark', file: 'frameDark.png', label: 'Dark', legacyValues: ['diamond'] },
+  { id: 'rainbow', value: 'rainbow', file: 'frameRainbow.png', label: 'Rainbow' },
+  { id: 'horror', value: 'horror', file: 'frameHorror.png', label: 'Horror' },
 ];
 
+const resolveFrameValue = (value: string | null | undefined) => {
+  const normalized = normalizeFrame(value);
+  if (!normalized) return null;
+
+  const match = FRAMES.find((frame) => {
+    const legacyValues = frame.legacyValues ?? [];
+    return frame.value === normalized || frame.file === normalized || frame.id === normalized || legacyValues.includes(normalized);
+  });
+
+  return match?.value ?? null;
+};
+
 const TapsFrames = () => {
-  const { usuarioId, fotoPerfil, frame, updateProfile } = useAuth();
-  const [selected, setSelected] = useState<string | null>(() => normalizeFrame(frame));
+  const { usuarioId, fotoPerfil, frame, token, updateProfile } = useAuth();
+  const [selected, setSelected] = useState<string | null>(() => resolveFrameValue(frame));
   const [saving, setSaving] = useState(false);
-  const { updateFrame } = useUsers(usuarioId);
   const [sucesso, setSucesso] = useState(false);
+  const [unlockedFrames, setUnlockedFrames] = useState<string[]>([]);
+  const { updateFrame, getMiniProfile } = useUsers(usuarioId);
 
   useEffect(() => {
-    setSelected(normalizeFrame(frame));
+    setSelected(resolveFrameValue(frame));
   }, [frame]);
 
-  const handleSelect = (file: string) => {
-    setSelected(prev => (prev === file ? null : file));
+  useEffect(() => {
+    if (!usuarioId) return;
+
+    let cancelled = false;
+
+    const carregarDesbloqueios = async () => {
+      try {
+        const miniProfile = await getMiniProfile(usuarioId);
+        if (cancelled) return;
+        setUnlockedFrames(Array.isArray(miniProfile.unlocked_frames) ? miniProfile.unlocked_frames : []);
+      } catch (err) {
+        console.error('Erro ao carregar molduras desbloqueadas:', err);
+      }
+    };
+
+    carregarDesbloqueios();
+    return () => {
+      cancelled = true;
+    };
+  }, [usuarioId, getMiniProfile]);
+
+  const selectedFrame = useMemo(() => {
+    return FRAMES.find((frameItem) => frameItem.value === selected) ?? null;
+  }, [selected]);
+
+  const isFrameUnlocked = (frameItem: (typeof FRAMES)[number]) => {
+    const legacyValues = frameItem.legacyValues ?? [];
+    return unlockedFrames.includes(frameItem.value) || legacyValues.some((legacyValue) => unlockedFrames.includes(legacyValue));
+  };
+
+  const groupedFrames = useMemo(() => {
+    const unlocked = FRAMES.filter((frameItem) => isFrameUnlocked(frameItem));
+    const locked = FRAMES.filter((frameItem) => !isFrameUnlocked(frameItem));
+    return { unlocked, locked };
+  }, [unlockedFrames]);
+
+  const handleSelect = (value: string) => {
+    const frameItem = FRAMES.find((item) => item.value === value);
+    if (!frameItem || !isFrameUnlocked(frameItem)) return;
+    setSelected((prev) => (prev === value ? null : value));
   };
 
   const handleSave = async () => {
@@ -37,15 +88,19 @@ const TapsFrames = () => {
 
     const frameToSave = selected ?? '';
 
+    if (frameToSave && !unlockedFrames.includes(frameToSave)) {
+      return;
+    }
+
     try {
       setSaving(true);
 
-      const updated = await updateFrame(usuarioId, frameToSave);
+      const updated = await updateFrame(usuarioId, frameToSave, token ?? undefined);
       const savedFrame = normalizeFrame(updated?.frame ?? frameToSave);
 
       updateProfile({ frame: savedFrame });
-
-      setSelected(savedFrame);
+      setSelected(resolveFrameValue(savedFrame));
+      setUnlockedFrames(Array.isArray((updated as { unlocked_frames?: string[] }).unlocked_frames) ? (updated as { unlocked_frames?: string[] }).unlocked_frames! : unlockedFrames);
       setSucesso(true);
       setTimeout(() => setSucesso(false), 3000);
     } catch (err) {
@@ -100,12 +155,12 @@ const TapsFrames = () => {
             height={160}
             priority // Carrega com prioridade por ser o elemento visual principal do topo
           />
-          {selected && (
+          {selectedFrame && (
             <Image
-              src={`/image/frames/${selected}`}
+              src={`/image/frames/${selectedFrame.file}`}
               alt="Frame selecionado"
               className={styles.previewBigFrame}
-              width={170} // Ajuste ligeiramente maior que o avatar para sobreposição correta
+              width={170}
               height={170}
               priority
             />
@@ -122,7 +177,7 @@ const TapsFrames = () => {
         <button
           className={`${styles.frameCard} ${selected === null ? styles.frameCardSelected : ''}`}
           onClick={() => setSelected(null)}
-          type="button" // Boa prática adicionar explicitamente o tipo do botão
+          type="button"
         >
           <div className={styles.previewWrapper}>
             <Image
@@ -141,38 +196,91 @@ const TapsFrames = () => {
           <span className={styles.frameLabel}>Nenhuma</span>
         </button>
 
-        {FRAMES.map(frameItem => (
-          <button
-            key={frameItem.id}
-            className={`${styles.frameCard} ${selected === frameItem.file ? styles.frameCardSelected : ''}`}
-            onClick={() => handleSelect(frameItem.file)}
-            type="button"
-          >
-            <div className={styles.previewWrapper}>
-              <Image
-                src={fotoPerfil || '/image/semPerfil.jpg'}
-                alt="Preview"
-                className={styles.previewAvatar}
-                width={64} // Deve bater com o tamanho estipulado pelo CSS do grid
-                height={64}
-              />
-              <Image
-                src={`/image/frames/${frameItem.file}`}
-                alt={frameItem.label}
-                className={styles.previewFrame}
-                width={70} // Proporcional ao tamanho do avatar do grid
-                height={70}
-              />
-              {selected === frameItem.file && (
-                <div className={styles.selectedBadge}>
-                  <FiCheck size={10} />
-                </div>
-              )}
-            </div>
-            <span className={styles.frameLabel}>{frameItem.label}</span>
-          </button>
-        ))}
+        {groupedFrames.unlocked.map((frameItem) => {
+          const isUnlocked = unlockedFrames.includes(frameItem.value);
+          const isSelected = selected === frameItem.value;
+
+          return (
+            <button
+              key={frameItem.id}
+              className={`${styles.frameCard} ${isSelected ? styles.frameCardSelected : ''}`}
+              onClick={() => handleSelect(frameItem.value)}
+              type="button"
+              disabled={!isUnlocked}
+            >
+              <div className={styles.previewWrapper}>
+                <Image
+                  src={fotoPerfil || '/image/semPerfil.jpg'}
+                  alt="Preview"
+                  className={styles.previewAvatar}
+                  width={64}
+                  height={64}
+                />
+                <Image
+                  src={`/image/frames/${frameItem.file}`}
+                  alt={frameItem.label}
+                  className={styles.previewFrame}
+                  width={70}
+                  height={70}
+                />
+                {isSelected && (
+                  <div className={styles.selectedBadge}>
+                    <FiCheck size={10} />
+                  </div>
+                )}
+              </div>
+              <span className={styles.frameLabel}>{frameItem.label}</span>
+            </button>
+          );
+        })}
       </div>
+
+      {groupedFrames.locked.length > 0 && (
+        <>
+          <p className={styles.sectionLabel}>Bloqueadas</p>
+          <div className={styles.grid}>
+            {groupedFrames.locked.map((frameItem) => {
+              const isSelected = selected === frameItem.value;
+
+              return (
+                <button
+                  key={frameItem.id}
+                  className={`${styles.frameCard} ${styles.frameCardLocked} ${isSelected ? styles.frameCardSelected : ''}`}
+                  onClick={() => handleSelect(frameItem.value)}
+                  type="button"
+                  disabled
+                >
+                  <div className={styles.previewWrapper}>
+                    <Image
+                      src={fotoPerfil || '/image/semPerfil.jpg'}
+                      alt="Preview"
+                      className={styles.previewAvatar}
+                      width={64}
+                      height={64}
+                    />
+                    <Image
+                      src={`/image/frames/${frameItem.file}`}
+                      alt={frameItem.label}
+                      className={styles.previewFrame}
+                      width={70}
+                      height={70}
+                    />
+                    <div className={styles.lockBadge}>
+                      <FiLock size={10} />
+                    </div>
+                    {isSelected && (
+                      <div className={styles.selectedBadge}>
+                        <FiCheck size={10} />
+                      </div>
+                    )}
+                  </div>
+                  <span className={styles.frameLabel}>{frameItem.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </>
+      )}
 
       <div className={styles.footer}>
         {sucesso && (

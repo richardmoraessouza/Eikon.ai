@@ -5,8 +5,8 @@ import Image from 'next/image'; // Importação do componente de imagem otimizad
 import styles from './TapsProfileEdit.module.css';
 import { FiCamera, FiUser, FiFileText, FiCheck, FiAlertCircle } from "react-icons/fi";
 import { useUsers } from '../../../../../hooks/useUsers/useUsers';
-import { useAuth } from '../../../../../hooks/AuthContext/AuthContext';
-import { normalizeFrame } from '../../../../../utils/frame';
+import { useAuth } from '../../../../../contexts/AuthContext/AuthContext';
+import { getFrameImagePath } from '../../../../../utils/frame';
 
 const USERNAME_REGEX = /^[a-zA-Z0-9._]*$/;
 const USERNAME_MIN = 3;
@@ -34,8 +34,7 @@ const TapsProfileEdit: React.FC = () => {
     const [erro, setErro] = useState<string | null>(null);
     const [salvando, setSalvando] = useState(false);
 
-    const frameAtivo = normalizeFrame(frame);
-    const caminhoFrame = frameAtivo ? `/image/frames/${frameAtivo}` : null;
+    const caminhoFrame = getFrameImagePath(frame);
 
     useEffect(() => {
         // No Next.js, verificamos se estamos no lado do cliente antes de acessar o localStorage

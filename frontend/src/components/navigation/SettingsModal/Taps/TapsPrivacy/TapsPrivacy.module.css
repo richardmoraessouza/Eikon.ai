@@ -1,78 +1,99 @@
 .privacyContainer {
-    font-family: "Motiva Sans", Sans-Serif, Arial;
-    color: #d2d6d8;
-    padding: 0.5rem;
+    font-family: var(--chat-font-family);
+}
+
+.section {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
 }
 
 .optionRow {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    background-color: var(--bg-card); 
-    padding: 0.85rem 1rem;
-    margin-bottom: 2px; 
-    min-height: 40px;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px 4px;
+    border-bottom: 1px solid var(--settings-border);
 }
 
-.optionRow:hover {
-    background-color: var(--bg-card-hover);
+.optionRow:first-child {
+    padding-top: 4px;
+}
+
+.optionRow:last-child {
+    border-bottom: none;
+    padding-bottom: 4px;
 }
 
 .optionText {
-    font-size: 0.9rem;
-    color: #b8b6b4;
+    font-size: 14.5px;
+    color: var(--settings-text);
+    line-height: 1.45;
+    letter-spacing: var(--chat-letter-spacing);
 }
 
-/* --- O SWITCH REDONDO (TOGGLE BUTTON) --- */
+.optionSubtext {
+    font-size: 12.5px;
+    color: var(--settings-text-muted);
+    margin-top: 2px;
+}
+
+.optionInfo {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Toggle switch */
 .switch {
     position: relative;
     display: inline-block;
-    width: 44px;
-    height: 22px;
+    width: 42px;
+    height: 24px;
+    flex-shrink: 0;
 }
 
-/* Esconde o checkbox padrão */
 .switch input {
     opacity: 0;
     width: 0;
     height: 0;
 }
 
-/* O corpo do switch (desativado = cinza/branco) */
 .slider {
     position: absolute;
     cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #4b5563;
-    transition: .2s;
-    border-radius: 22px;
+    inset: 0;
+    background-color: var(--settings-border);
+    transition: background-color 0.25s ease;
+    border-radius: 999px;
 }
 
-/* A bolinha branca interna */
-.slider:before {
+.slider::before {
     position: absolute;
     content: "";
-    height: 16px;
-    width: 16px;
+    height: 18px;
+    width: 18px;
     left: 3px;
-    bottom: 3px;
-    background-color: white;
-    transition: .2s;
+    top: 3px;
+    background-color: #ffffff;
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
-/* Quando ativado: Fundo Azul Steam */
-input:checked + .slider {
-    background-color: #66c0f4; 
+.switch input:checked + .slider {
+    background-color: #2e9fff;
 }
 
-/* Quando ativado: Move a bolinha para a direita */
-input:checked + .slider:before {
-    transform: translateX(22px);
+.switch input:checked + .slider::before {
+    transform: translateX(18px);
+}
+
+.switch input:focus-visible + .slider {
+    outline: 2px solid var(--settings-accent, #3b82f6);
+    outline-offset: 2px;
+}
+
+.switch input:disabled + .slider {
+    opacity: 0.4;
+    cursor: not-allowed;
 }

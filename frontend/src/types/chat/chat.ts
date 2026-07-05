@@ -38,7 +38,7 @@ export interface BackendMessage {
 }
 
 export interface ConversationTimePayload {
-  characterId: number;
+  characterId: string | number;
   seconds: number;
 }
 

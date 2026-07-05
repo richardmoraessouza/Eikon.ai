@@ -17,7 +17,7 @@ const getAuthHeaders = () => {
  * Fetch a single message by ID (used to populate quote/reply references)
  */
 export const getMessageById = async (
-  characterId: number,
+  characterId: string | number,
   messageId: number,
   token: string | null
 ): Promise<ChatMessageType | null> => {
@@ -50,7 +50,7 @@ export const getMessageById = async (
  * Includes reply_to_id for reconstructing quoted/replied messages
  */
 export const fetchChatHistory = async (
-  characterId: number, 
+  characterId: string | number, 
   token: string | null,
   limit: number = 30,
   offset: number = 0
@@ -101,7 +101,7 @@ export const fetchChatHistory = async (
  * Supports optional replyToId to establish quote/reply relationships
  */
 export const sendChatMessage = async (
-  characterId: number,
+  characterId: string | number,
   message: string,
   token: string | null,
   replyToId?: number | null
@@ -127,7 +127,7 @@ export const sendChatMessage = async (
 /**
  * Signals backend layers to wipe or invalidate cached text histories inside memory maps
  */
-export const clearChatMemory = async (characterId: number): Promise<void> => {
+export const clearChatMemory = async (characterId: string | number): Promise<void> => {
   await axios.delete(`${API_URL}/chat/${characterId}/limpar`, getAuthHeaders());
 };
 
@@ -201,7 +201,7 @@ export const saveConversationTime = async (
  * Fetch total conversation time with a character
  */
 export const fetchConversationTime = async (
-  characterId: number
+  characterId: string | number
 ): Promise<ConversationTimeFetchResponse> => {
   const response = await axios.get<ConversationTimeFetchResponse>(
     `${API_URL}/chat/conversation-time/${characterId}`,

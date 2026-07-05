@@ -1,5 +1,6 @@
 export interface PopularCharacter {
   id: number;
+  public_id?: string;
   nome: string;
   fotoia: string;
   bio?: string;

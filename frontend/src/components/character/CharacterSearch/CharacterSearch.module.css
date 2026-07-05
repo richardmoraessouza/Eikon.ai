@@ -87,6 +87,10 @@
   margin: 2px 0;
 }
 
+.authorWrapper {
+  position: relative;
+  display: inline-block;
+}
 
 .polyTagItem {
   background-color: rgba(255, 255, 255, 0.08);
@@ -154,8 +158,9 @@
 
 .miniProfilePopup {
   position: absolute;
-  top: 100%;
+  bottom: 100%;
   left: 0;
+  margin-bottom: 8px;
   z-index: 50;
   cursor: default;
 }

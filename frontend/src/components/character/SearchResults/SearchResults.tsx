@@ -80,7 +80,7 @@ function SearchResultsContent() {
                     <article className={styles.gridCards}>
                         {searchResults.map((personagem: any) => (
                             <CharacterSearch
-                                key={personagem.id}
+                                key={personagem.public_id}
                                 personagem={personagem}
                                 creatorsMap={creatorsMap}
                                 setCreatorsMap={setCreatorsMap}

@@ -15,6 +15,7 @@ import {
 } from "../../services/characters/characters";
 import { SearchFavoritesUser } from "../../services/social/socialService";
 import { useEffect, useState, useCallback, useRef } from "react";
+import { useAuth } from "../../contexts/AuthContext/AuthContext";
 
 export type ProfileCharacterType = "meus-personagens" | "favoritos" | "recentes";
 
@@ -96,14 +97,14 @@ export function useCharacters() {
 
   // Fetches a single character's full data by ID
   const searchCharacterById = useCallback(async (
-    personagemId: number
+    personagemId: string | number
   ): Promise<CharacterbyId> => {
     return await searchCharacterByIdService(personagemId);
   }, []);
 
   // Increments the chat view count for a character — requires a valid token
   const incrementChatViews = useCallback(async (
-    personagemId: number | null,
+    personagemId: string | number | null,
     token: string | null
   ): Promise<views | null> => {
     if (personagemId === null || !token) return null;
@@ -143,7 +144,7 @@ export function useCharacters() {
   // search for characters recently accessed by the user, ordered by most recent
   const recentCharacters = useCallback(async (
   usuarioId: number,
-  personagemId: number
+  personagemId: string | number
   ): Promise<RecentCharacter | null> => {
     try {
       return await recentCharactersService(usuarioId, personagemId);
@@ -162,8 +163,7 @@ export function useCharacters() {
     setSearchError(null);
     lastSearchParamsRef.current = { nome: nomePersonagem, tag };
     try {
-      const data = await searchCharacterByNameService(nomePersonagem, tag, SEARCH_LIMIT, 0);
-      const resultados = data.resultados ?? [];
+      const resultados = await searchCharacterByNameService(nomePersonagem, tag, SEARCH_LIMIT, 0);
       setSearchResults(resultados);
       setSearchOffset(SEARCH_LIMIT);
       setSearchHasMore(resultados.length === SEARCH_LIMIT);
@@ -189,8 +189,7 @@ export function useCharacters() {
     searchLoadingRef.current = true;
     setSearchLoading(true);
     try {
-      const data = await searchCharacterByNameService(nome, tag, SEARCH_LIMIT, searchOffset);
-      const novos = data.resultados ?? [];
+      const novos = await searchCharacterByNameService(nome, tag, SEARCH_LIMIT, searchOffset);
       setSearchResults(prev => [...prev, ...novos]);
       setSearchOffset(prev => prev + SEARCH_LIMIT);
       if (novos.length < SEARCH_LIMIT) setSearchHasMore(false);
@@ -212,7 +211,6 @@ export function useCharacters() {
     setSearchHasMore(resultados.length >= SEARCH_LIMIT);
     lastSearchParamsRef.current = { nome, tag };
   }, []);
-
 
   return {
     // Explore feed data and pagination controls
@@ -303,4 +301,3 @@ export function useProfileCharacters(
 
   return { characters, loading, load, removeCharacter };
 }
-

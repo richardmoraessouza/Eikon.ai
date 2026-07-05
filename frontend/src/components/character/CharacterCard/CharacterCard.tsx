@@ -11,7 +11,7 @@ import {
   FiUsers,
   FiMoreVertical
 } from "react-icons/fi";
-import { useAuth } from "@/hooks/AuthContext/AuthContext";
+import { useAuth } from "@/contexts/AuthContext/AuthContext";
 import {
   useProfileCharacters,
   type ProfileCharacter
@@ -87,6 +87,11 @@ function CharacterCard({ type, abaAtiva, usuarioId: externalUsuarioId }: Charact
     async function loadMissingLikes() {
       const results = await Promise.all(
         characters.map(async character => {
+          if (!Number.isInteger(character.id) || character.id <= 0) {
+            console.warn('[CharacterCard] Ignoring character with invalid id:', character);
+            return null;
+          }
+
           const total =
             character.likes ?? (await getQuantityLikes(character.id));
           return [character.id, total] as const;
@@ -97,7 +102,9 @@ function CharacterCard({ type, abaAtiva, usuarioId: externalUsuarioId }: Charact
 
       setLikesCount(prev => {
         const next = { ...prev };
-        for (const [id, total] of results) {
+        for (const item of results) {
+          if (!item) continue;
+          const [id, total] = item;
           if (next[id] === undefined) next[id] = total;
         }
         return next;
@@ -182,8 +189,8 @@ function CharacterCard({ type, abaAtiva, usuarioId: externalUsuarioId }: Charact
     router.push("/create-character");
   };
 
-  const handleCardClick = (personagemId: number) => {
-    router.push(`/personagem/${personagemId}`);
+  const handleCardClick = (personagemPublicId: string) => {
+    router.push(`/personagem/${personagemPublicId}`);
   };
 
   if (loading) {
@@ -224,18 +231,18 @@ function CharacterCard({ type, abaAtiva, usuarioId: externalUsuarioId }: Charact
 
         return (
           <div
-            key={p.id}
+            key={p.public_id}
             className={styles.character}
             onClick={(e) => {
               const isInteractive = (e.target as HTMLElement).closest("button");
-              if (!isInteractive) handleCardClick(p.id);
+              if (!isInteractive) handleCardClick(p.public_id);
             }}
             role="button"
             tabIndex={0}
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
-                handleCardClick(p.id);
+                handleCardClick(p.public_id);
               }
             }}
           >

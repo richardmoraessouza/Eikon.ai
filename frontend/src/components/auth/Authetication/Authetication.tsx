@@ -6,11 +6,12 @@ import axios from 'axios';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useAuth } from '@/hooks/AuthContext/AuthContext';
+import { useAuth } from '@/contexts/AuthContext/AuthContext';
 import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 import { API_URL } from '@/config/api';
 import { converterBase64 } from '@/utils/CorverteImagem/corverteImagem';
+import { getFrameImagePath } from '@/utils/frame';
 
 interface SituacaoProps {
     verificar: boolean;
@@ -220,8 +221,8 @@ function Authentication({ verificar }: SituacaoProps) {
                     <div className={styles.avatarWrap}>
                         <div className={styles.avatarRel}>
                             <Image src={imgPerfil || '/image/semPerfil.jpg'} alt="Foto de perfil" className={styles.avatarImg} width={100} height={100} />
-                            {dados?.frame && (
-                                <Image src={`/image/frames/${dados.frame}`} alt="Frame" className={styles.avatarFrame} width={100} height={100} />
+                            {getFrameImagePath(dados?.frame) && (
+                                <Image src={getFrameImagePath(dados?.frame)!} alt="Frame" className={styles.avatarFrame} width={100} height={100} />
                             )}
                             <div className={styles.avatarEdit}>
                                 <label htmlFor="foto" title="Alterar foto" style={{ cursor: 'pointer', margin: 0 }}>

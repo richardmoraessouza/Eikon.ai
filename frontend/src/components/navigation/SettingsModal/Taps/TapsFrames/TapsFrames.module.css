@@ -49,6 +49,16 @@
   z-index: 2;
 }
 
+.previewAvatarEmpty {
+  width: 79%;
+  height: 79%;
+  border-radius: 50%;
+  background: var(--bg-card, #1e1e1e);
+  border: 1px solid var(--card-border, rgba(255, 255, 255, 0.1));
+  position: relative;
+  z-index: 1;
+}
+
 .previewBigLabel {
   font-size: 0.75rem;
   color: var(--profile-text-muted);

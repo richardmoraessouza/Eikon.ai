@@ -37,18 +37,11 @@ const TapsProfileEdit: React.FC = () => {
     const caminhoFrame = getFrameImagePath(frame);
 
     useEffect(() => {
-        // No Next.js, verificamos se estamos no lado do cliente antes de acessar o localStorage
         if (typeof window !== 'undefined') {
-            const storedNome = localStorage.getItem('usuario_nome') || ctxNome;
-            const storedFoto = localStorage.getItem('usuario_foto') || ctxFotoPerfil;
-            const storedDescricao = localStorage.getItem('usuario_descricao') || ctxDescricao;
-
-            const storedUsername = localStorage.getItem('usuario_username') || '';
-
-            setNovoNome(storedNome || '');
-            setImgPerfil(storedFoto || '');
-            setDescricao(storedDescricao || '');
-            setUsername(storedUsername || '');
+            setNovoNome(ctxNome || '');
+            setImgPerfil(ctxFotoPerfil || '');
+            setDescricao(ctxDescricao || '');
+            setUsername('');
         }
     }, [ctxNome, ctxFotoPerfil, ctxDescricao]);
 
@@ -129,13 +122,6 @@ const TapsProfileEdit: React.FC = () => {
                 foto_perfil: imgPerfil,
                 descricao: descricao
             });
-
-            if (typeof window !== 'undefined') {
-                localStorage.setItem('usuario_nome', novoNome);
-                localStorage.setItem('usuario_username', username);
-                localStorage.setItem('usuario_foto', imgPerfil);
-                localStorage.setItem('usuario_descricao', descricao);
-            }
 
             updateProfile({
                 nome: novoNome,

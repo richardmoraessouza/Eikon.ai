@@ -17,13 +17,14 @@ const SKELETON_COUNT = 5;
 
 interface DiscoveryCharacter {
   id: number;
-  public_id: string;
+  public_id?: string;
   nome: string;
   fotoia?: string | null;
   username?: string | null;
   bio?: string | null;
   usuario_id?: number;
   visualizacoes?: number;
+  tags?: Array<string | { nome?: string | null; name?: string | null } | null> | null;
 }
 
 interface DiscoveryCardsProps {
@@ -235,13 +236,36 @@ export const DiscoveryCards = ({
     }
   };
 
-  const handleLikeClick = async (e: React.MouseEvent<SVGElement>, characterId: number) => {
+  const handleLikeClick = async (
+    e: React.MouseEvent<SVGElement>,
+    characterId: number
+  ) => {
     e.stopPropagation();
-    await handleToggleLike(characterId);
-    const updatedTotal = await getQuantityLikes(characterId);
-    setLikesCount(prev => ({ ...prev, [characterId]: updatedTotal }));
-  };
 
+    const liked = isLiked(characterId);
+
+    // Atualiza o contador imediatamente
+    setLikesCount(prev => ({
+      ...prev,
+      [characterId]: Math.max(
+        0,
+        (prev[characterId] ?? 0) + (liked ? -1 : 1)
+      ),
+    }));
+
+    try {
+      await handleToggleLike(characterId);
+    } catch {
+      // Se der erro, desfaz a alteração
+      setLikesCount(prev => ({
+        ...prev,
+        [characterId]: Math.max(
+          0,
+          (prev[characterId] ?? 0) + (liked ? 1 : -1)
+        ),
+      }));
+    }
+  };
   const scroll = (dir: "left" | "right") => {
     carouselRef.current?.scrollBy({ left: dir === "right" ? 240 : -240, behavior: "smooth" });
   };
@@ -249,6 +273,14 @@ export const DiscoveryCards = ({
   const handleCharacterClick = (characterPublicId: string) => {
     if (!hasDragged) router.push(`/chat/${characterPublicId}`);
   };
+
+  const normalizeTags = (tags?: DiscoveryCharacter["tags"]) =>
+    (tags ?? [])
+      .map((tag) => {
+        if (typeof tag === "string") return tag;
+        return tag?.nome || tag?.name || "";
+      })
+      .filter(Boolean);
 
   if (error) return (
     <article className={styles.container}>
@@ -302,8 +334,11 @@ export const DiscoveryCards = ({
         </button>
 
         <div className={styles.carouselTrack} ref={carouselRef} onScroll={handleScroll} {...dragProps}>
-          {characters.map((character) => (
-            <div key={character.public_id ?? character.id} className={styles.card} onClick={() => handleCharacterClick(character.public_id ?? String(character.id))}>
+          {characters.map((character) => {
+            const displayTags = normalizeTags(character.tags);
+
+            return (
+              <div key={character.public_id ?? character.id} className={styles.card} onClick={() => handleCharacterClick(character.public_id ?? String(character.id))}>
               <div className={styles.imageWrapper} style={{ position: "relative" }}>
                 <Image
                   src={character.fotoia || "/image/semPerfil.jpg"}
@@ -322,6 +357,28 @@ export const DiscoveryCards = ({
                 <p className={styles.bio}>
                   {character.bio ? character.bio : ` ${character.nome} ainda não tem bio.`}
                 </p>
+                {displayTags.length > 0 && (
+                  <div className={styles.tagsContainer}>
+                    {displayTags.map((tag, index) => (
+                      <span key={`${tag}-${index}`} className={styles.tagItem}>
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                <div
+                  className={styles.authorContainer}
+                  onMouseEnter={(e) => character.usuario_id != null && handleMouseEnterAuthor(e, character.usuario_id, character.id)}
+                  onMouseLeave={handleMouseLeaveAuthor}
+                  onClick={(e) => character.usuario_id != null && handleAuthorClick(e, character.usuario_id)}
+                >
+                  <p className={styles.author}>
+                    {character.usuario_id
+                      ? `@${creatorUsernames[character.usuario_id] || creatorNames[character.usuario_id] || "Desconhecido"}`
+                      : "@Desconhecido"}
+                  </p>
+                </div>
               </div>
 
               <div className={styles.stats}>
@@ -344,20 +401,9 @@ export const DiscoveryCards = ({
                 </div>
               </div>
 
-              <div
-                className={styles.authorContainer}
-                onMouseEnter={(e) => character.usuario_id != null && handleMouseEnterAuthor(e, character.usuario_id, character.id)}
-                onMouseLeave={handleMouseLeaveAuthor}
-                onClick={(e) => character.usuario_id != null && handleAuthorClick(e, character.usuario_id)}
-              >
-                <p className={styles.author}>
-                  {character.usuario_id
-                    ? `@${creatorUsernames[character.usuario_id] || creatorNames[character.usuario_id] || "Desconhecido"}`
-                    : "@Desconhecido"}
-                </p>
-              </div>
             </div>
-          ))}
+            );
+          })}
           {loading && (
             <div className={`${styles.card} ${styles.cardLoadingIndicator}`}>
               <div className={styles.spinner}></div>

@@ -1,3 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600&display=swap');
+
+/* ── TOKENS (local to this component) ── */
 .containerPerfil {
   width: 100vw;
   min-height: 100dvh;
@@ -5,7 +8,7 @@
   flex-direction: column;
   align-items: center;
   overflow-y: auto;
-  background: var(--bg-main);
+  font-family: 'Inter', -apple-system, sans-serif;
 }
 
 /* ── HERO ── */
@@ -14,36 +17,87 @@
   flex-direction: column;
   align-items: center;
   gap: 12px;
-  padding: 48px 20px 32px;
+  padding: 56px 20px 40px;
   width: 100%;
   max-width: 640px;
 }
 
-/* ── AVATAR ── */
+.heroCard {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  padding: 40px 32px 32px;
+  border-radius: 28px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* ── HEADER (avatar + identity) ── */
+.profileHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+  z-index: 2;
+}
+
+/* ── AVATAR + XP RING ── */
 .avatarWrapper {
   position: relative;
-  width: 130px;   
-  height: 130px;
+  width: 112px;
+  height: 112px;
   display: flex;
   align-items: center;
   justify-content: center;
-  -webkit-user-select: none; 
-  -ms-user-select: none;     
-  user-select: none;        
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
   -webkit-user-drag: none;
 }
 
+.xpRing {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+  z-index: 1;
+}
+
+.xpRingTrack {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.12);
+  stroke-width: 4;
+}
+
+.xpRingFill {
+  fill: none;
+  stroke: var(--accent-strong);
+  stroke-width: 4;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.6s ease;
+}
+
 .avatar {
-  width: 83%;  
-  height: 81%;
-  border-radius: 50%; 
+  width: 78%;
+  height: 78%;
+  border-radius: 50%;
   object-fit: cover;
   position: relative;
-  z-index: 1; 
+  z-index: 2;
   border: none;
-  -webkit-user-select: none; 
-  -ms-user-select: none;    
-  user-select: none;       
+  box-shadow: 0 0 0 4px var(--bg-main);
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
   -webkit-user-drag: none;
 }
 
@@ -52,25 +106,64 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: contain; 
+  width: 108% !important;
+  height: 108% !important;
+  object-fit: contain;
   pointer-events: none;
-  z-index: 2; 
+  z-index: 3;
 }
 
-/* ── NOME ── */
+.levelChip {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  z-index: 4;
+  min-width: 26px;
+  height: 26px;
+  padding: 0 6px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Sora', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #fff;
+  background: var(--accent);
+  border: 2px solid var(--bg-main);
+  box-shadow: 0 4px 10px -4px rgba(0, 0, 0, 0.6);
+}
+
+/* ── IDENTITY ── */
+.profileIdentity {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
 .nome {
-  font-size: 1.25rem;
+  font-family: 'Sora', sans-serif;
+  font-size: 1.35rem;
   font-weight: 700;
   color: var(--text-main);
   margin: 0;
+  letter-spacing: -0.01em;
 }
 
 .username {
-  color: #888;
-  font-size: 0.9rem;
-  margin-top: -4px;
+  color: #8a8a95;
+  font-size: 0.86rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+.xpText {
+  margin: 4px 0 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--accent-strong);
+  letter-spacing: 0.01em;
 }
 
 /* ── DESCRIÇÃO ── */
@@ -79,53 +172,265 @@
   color: var(--profile-text-muted);
   text-align: center;
   max-width: 400px;
-  line-height: 1.5;
+  line-height: 1.55;
   word-break: break-word;
 }
 
-/* ── STATS ── */
-.stats {
+/* ── STATS (inline, estilo timeline social) ── */
+.statsInline {
   display: flex;
   align-items: center;
-  gap: 0;
-  background: var(--bg-card);
-  border: 1px solid var(--card-border);
-  border-radius: 14px;
-  overflow: hidden;
-  margin-top: 4px;
+  gap: 26px;
 }
 
-.statBtn {
+.statItem {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 2px;
-  padding: 12px 28px;
+  gap: 6px;
   background: transparent;
   border: none;
   cursor: pointer;
-  transition: background 0.2s;
+  padding: 4px 2px;
+  color: var(--profile-text-muted);
+  transition: color 0.2s ease, transform 0.15s ease;
 }
 
-.statBtn:hover {
-  background: var(--profile-accent-hover);
+.statItem:hover:not(:disabled) {
+  color: var(--text-main);
+}
+
+.statItem:hover:not(:disabled) .statIcon {
+  color: var(--accent-strong);
+}
+
+.statItem:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.statItem:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.statIcon {
+  color: var(--profile-text-muted);
+  transition: color 0.2s ease;
 }
 
 .statNumber {
-  font-size: 1rem;
+  font-family: 'Sora', sans-serif;
+  font-size: 0.92rem;
   font-weight: 700;
   color: var(--text-main);
 }
 
 .statLabel {
-  font-size: 0.7rem;
-  color: var(--profile-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  font-size: 0.76rem;
+  font-weight: 500;
 }
 
-.statDivider {
-  width: 1px;
+/* ── FOLLOW BUTTONS ── */
+.btnSeguir,
+.btnDeixarSeguir {
+  margin-top: 6px;
+  padding: 11px 32px;
+  border-radius: 999px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: transform 0.15s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+}
+
+.btnSeguir {
+  color: #e6e8ec;
+  background: var(--accent);
+  box-shadow: 0 10px 24px -12px rgba(0, 0, 0, 0.5);
+}
+
+.btnSeguir:hover {
+  transform: translateY(-1px);
+  background: var(--accent-strong);
+  box-shadow: 0 12px 28px -12px rgba(0, 0, 0, 0.55);
+}
+
+.btnDeixarSeguir {
+  color: var(--text-main);
+  background: transparent;
+  border-color: var(--glass-border);
+}
+
+.btnDeixarSeguir:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.btnSeguir:active,
+.btnDeixarSeguir:active {
+  transform: scale(0.97);
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 480px) {
+  .heroCard {
+    padding: 32px 20px 26px;
+    border-radius: 22px;
+  }
+
+  .avatarWrapper {
+    width: 92px;
+    height: 92px;
+  }
+
+  .nome {
+    font-size: 1.15rem;
+  }
+
+  .statsInline {
+    gap: 18px;
+  }
+}
+
+/* ── ACCESSIBILITY ── */
+.statItem:focus-visible,
+.btnSeguir:focus-visible,
+.btnDeixarSeguir:focus-visible {
+  outline: 2px solid var(--accent-strong);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .statItem,
+  .btnSeguir,
+  .btnDeixarSeguir,
+  .xpRingFill {
+    transition: none;
+  }
+}
+
+/* ============================================================
+   SKELETON — Profile.module.css
+   ============================================================ */
+
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background-color: rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  isolation: isolate;
+}
+
+.skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.10) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: skeleton-shimmer 1.6s ease-in-out infinite;
+}
+
+@keyframes skeleton-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* ---------- Avatar ---------- */
+.skeletonAvatar {
+  border-radius: 50%;
+  width: 112px;
+  height: 112px;
+  box-shadow: 0 0 0 4px var(--bg-main);
+}
+
+/* ---------- Linhas de texto genéricas ---------- */
+.skeletonLine {
+  height: 14px;
+  border-radius: 6px;
+}
+
+.skeletonName {
+  width: 160px;
+  height: 22px;
+  margin-bottom: 8px;
+}
+
+.skeletonUsername {
+  width: 100px;
+  height: 14px;
+}
+
+.skeletonDescLong {
+  width: 92%;
+  max-width: 420px;
+  margin-top: 12px;
+}
+
+.skeletonDescShort {
+  width: 60%;
+  max-width: 260px;
+  margin-top: 8px;
+}
+
+/* ---------- Stats (seguidores / seguindo) ---------- */
+.skeletonStats {
+  display: flex;
+  gap: 24px;
+  margin-top: 8px;
+  width: 100%;
+  justify-content: center;
+}
+
+.skeletonStat {
+  width: 90px;
   height: 32px;
-  background: var(--card-border);
+  border-radius: 10px;
+}
+
+/* ---------- Botão (Seguir / Deixar de seguir) ---------- */
+.skeletonButton {
+  width: 100%;
+  max-width: 220px;
+  height: 44px;
+  border-radius: 999px;
+  margin-top: 8px;
+}
+
+/* ---------- Acessibilidade: reduz movimento se o usuário preferir ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton::after {
+    animation: none;
+  }
+  .skeleton {
+    background-color: rgba(255, 255, 255, 0.10);
+  }
+}
+
+/* ---------- Responsivo ---------- */
+@media (max-width: 480px) {
+  .skeletonAvatar {
+    width: 92px;
+    height: 92px;
+  }
+
+  .skeletonName {
+    width: 130px;
+  }
+
+  .skeletonStats {
+    gap: 16px;
+  }
+
+  .skeletonStat {
+    width: 76px;
+    height: 30px;
+  }
 }

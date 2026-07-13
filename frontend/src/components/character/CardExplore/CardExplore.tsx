@@ -4,10 +4,10 @@ import React, { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { useCharacters } from "../../../hooks/useCharacters/useCharacters";
+import { useExploreCharacters } from "../../../hooks/useCharacters/useExploreCharacters";
 import { useSocial } from "../../../hooks/useSocial/useSocial";
 import { useDragScroll } from "../../../hooks/useDragScroll/useDragScroll";
-import { FiMessageSquare, FiChevronLeft, FiChevronRight, FiHeart } from "react-icons/fi";
+import { FiMessageSquare, FiHeart } from "react-icons/fi";
 import { searchCreatorNameService, getMiniProfileService } from "../../../services/users/userService";
 import { FRAME_UPDATED_EVENT, type FrameUpdatedDetail } from "../../../utils/frame";
 import MiniProfile from "../../profiles/MiniProfile/MiniProfile";
@@ -29,13 +29,16 @@ const POPOVER_GAP = 8;
 const CardExplore = () => {
   const router = useRouter();
   const { carouselRef, hasDragged, dragProps } = useDragScroll();
-  const { exploreCharacters, exploreLoading, exploreError, exploreHasMore, loadMoreExplore } = useCharacters();
+  const { exploreCharacters, exploreLoading, exploreError, exploreHasMore, loadMoreExplore } = useExploreCharacters();
   const { isLiked, handleToggleLike, getQuantityLikes } = useSocial();
 
   const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   // Guarda um "id de requisição" para descartar respostas de hover desatualizadas
   // (ex.: usuário passa o mouse rápido do card A para o card B).
   const hoverRequestRef = useRef(0);
+
+  // Controla a exibição do fade de scroll enquanto o usuário rola o carrossel.
+  const scrollFadeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [likesCount, setLikesCount] = useState<Record<number, number>>({});
   const [creatorNames, setCreatorNames] = useState<Record<number, string>>({});
@@ -44,13 +47,19 @@ const CardExplore = () => {
   const [activeCardId, setActiveCardId] = useState<number | null>(null);
   const [popoverPos, setPopoverPos] = useState<PopoverPosition | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [likedOverride, setLikedOverride] = useState<Record<number, boolean>>({});
+  const [scrollFade, setScrollFade] = useState({ left: false, right: false });
 
   useEffect(() => setMounted(true), []);
 
-  // Limpa qualquer timer de hover pendente ao desmontar o componente.
+  const isCharacterLiked = (id: number) =>
+  likedOverride[id] ?? isLiked(id);
+
+  // Limpa qualquer timer pendente ao desmontar o componente.
   useEffect(() => {
     return () => {
       if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
+      if (scrollFadeTimerRef.current) clearTimeout(scrollFadeTimerRef.current);
     };
   }, []);
 
@@ -199,28 +208,83 @@ const CardExplore = () => {
     if (exploreCharacters.length > 0) loadLikesCount();
   }, [exploreCharacters, getQuantityLikes]);
 
+  const updateScrollFade = (target: HTMLDivElement) => {
+    const canScrollLeft = target.scrollLeft > 4;
+    const canScrollRight =
+      target.scrollWidth - (target.scrollLeft + target.clientWidth) > 4;
+    setScrollFade({ left: canScrollLeft, right: canScrollRight });
+  };
+
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    if (!exploreHasMore || exploreLoading) return;
     const target = e.currentTarget;
+
+    updateScrollFade(target);
+
+    if (!exploreHasMore || exploreLoading) return;
     if (target.scrollWidth - (target.scrollLeft + target.clientWidth) < 300) {
       loadMoreExplore();
     }
   };
 
-  const handleLikeClick = async (e: React.MouseEvent<SVGElement>, characterId: number) => {
-    e.stopPropagation();
-    await handleToggleLike(characterId);
-    const updatedTotal = await getQuantityLikes(characterId);
-    setLikesCount(prev => ({ ...prev, [characterId]: updatedTotal }));
-  };
+  // Calcula o fade inicial assim que os cards carregam (caso já haja
+  // conteúdo suficiente para rolar, mesmo sem o usuário ter interagido).
+  useEffect(() => {
+    if (carouselRef.current) updateScrollFade(carouselRef.current);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [exploreCharacters]);
 
-  const scroll = (dir: "left" | "right") => {
-    carouselRef.current?.scrollBy({ left: dir === "right" ? 240 : -240, behavior: "smooth" });
+  const handleLikeClick = async (
+    e: React.MouseEvent<SVGElement>,
+    characterId: number
+  ) => {
+    e.stopPropagation();
+
+    const liked = isCharacterLiked(characterId);
+
+    // Atualiza UI imediatamente
+    setLikedOverride(prev => ({
+      ...prev,
+      [characterId]: !liked,
+    }));
+
+    setLikesCount(prev => ({
+      ...prev,
+      [characterId]: Math.max(
+        0,
+        (prev[characterId] ?? 0) + (liked ? -1 : 1)
+      ),
+    }));
+
+    try {
+      await handleToggleLike(characterId);
+    } catch {
+      // Desfaz caso dê erro
+      setLikedOverride(prev => ({
+        ...prev,
+        [characterId]: liked,
+      }));
+
+      setLikesCount(prev => ({
+        ...prev,
+        [characterId]: Math.max(
+          0,
+          (prev[characterId] ?? 0) + (liked ? 1 : -1)
+        ),
+      }));
+    }
   };
 
   const handleCharacterClick = (characterPublicId: string) => {
     if (!hasDragged) router.push(`/chat/${characterPublicId}`);
   };
+
+  const normalizeTags = (tags?: Character["tags"]) =>
+    (tags ?? [])
+      .map((tag) => {
+        if (typeof tag === "string") return tag;
+        return tag?.nome || tag?.name || "";
+      })
+      .filter(Boolean);
 
   if (exploreError) return (
     <article className={styles.container}>
@@ -266,12 +330,14 @@ const CardExplore = () => {
       </div>
 
       <div className={styles.carouselWrapper}>
-        <button onClick={() => scroll("left")} className={`${styles.navBtn} ${styles.navLeft}`} aria-label="Anterior">
-          <FiChevronLeft size={16} />
-        </button>
-        <button onClick={() => scroll("right")} className={`${styles.navBtn} ${styles.navRight}`} aria-label="Próximo">
-          <FiChevronRight size={16} />
-        </button>
+        <div
+          className={`${styles.scrollFade} ${styles.scrollFadeLeft} ${scrollFade.left ? styles.visible : ""}`}
+          aria-hidden="true"
+        />
+        <div
+          className={`${styles.scrollFade} ${styles.scrollFadeRight} ${scrollFade.right ? styles.visible : ""}`}
+          aria-hidden="true"
+        />
 
         <div className={styles.carouselTrack} ref={carouselRef} onScroll={handleScroll} {...dragProps}>
           {exploreCharacters.map((character: Character) => (
@@ -291,7 +357,34 @@ const CardExplore = () => {
 
               <div className={styles.info}>
                 <p className={styles.name}>{character.nome}</p>
+                <div
+                  className={styles.authorContainer}
+                  onMouseEnter={(e) => character.usuario_id != null && handleMouseEnterAuthor(e, character.usuario_id, character.id)}
+                  onMouseLeave={handleMouseLeaveAuthor}
+                  onClick={(e) => character.usuario_id != null && handleAuthorClick(e, character.usuario_id)}
+                >
+                  <p className={styles.author}>
+                    {character.usuario_id
+                      ? `@${creatorUsernames[character.usuario_id] || creatorNames[character.usuario_id] || "Desconhecido"}`
+                      : "@Desconhecido"}
+                  </p>
+                </div>
+
                 {character.bio && <p className={styles.bio}>{character.bio}</p>}
+                {(() => {
+                  const displayTags = normalizeTags(character.tags);
+                  return displayTags.length > 0 ? (
+                    <div className={styles.tagsContainer}>
+                      {displayTags.map((tag, index) => (
+                        <span key={`${tag}-${index}`} className={styles.tagItem}>
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  ) : null;
+                })()}
+
+             
               </div>
 
               <div className={styles.stats}>
@@ -301,8 +394,8 @@ const CardExplore = () => {
                     onClick={(e) => handleLikeClick(e, character.id)}
                     style={{
                       cursor: "pointer",
-                      color: isLiked(character.id) ? "#ef4444" : "currentColor",
-                      fill: isLiked(character.id) ? "#ef4444" : "none",
+                      color: isCharacterLiked(character.id) ? "#ef4444" : "currentColor",
+                      fill: isCharacterLiked(character.id) ? "#ef4444" : "none",
                       transition: "all 0.2s",
                     }}
                   />
@@ -312,19 +405,6 @@ const CardExplore = () => {
                   <FiMessageSquare size={12} />
                   <span>{character.visualizacoes ?? 0}</span>
                 </div>
-              </div>
-
-              <div
-                className={styles.authorContainer}
-                onMouseEnter={(e) => character.usuario_id != null && handleMouseEnterAuthor(e, character.usuario_id, character.id)}
-                onMouseLeave={handleMouseLeaveAuthor}
-                onClick={(e) => character.usuario_id != null && handleAuthorClick(e, character.usuario_id)}
-              >
-                <p className={styles.author}>
-                  {character.usuario_id
-                    ? `@${creatorUsernames[character.usuario_id] || creatorNames[character.usuario_id] || "Desconhecido"}`
-                    : "@Desconhecido"}
-                </p>
               </div>
             </div>
           ))}

@@ -7,6 +7,10 @@ export interface User {
     username?: string;
     avatarUrl?: string;
     frame: string | null;
+    hide_favorite_character?: boolean;
+    hide_recent_character?: boolean;
+    hide_followers?: boolean;
+    hide_following?: boolean;
 }
 
 export interface UpdateUserResponse {

@@ -40,7 +40,7 @@ function CreateCharacter() {
     const [erro, setErro] = useState('');
     const nomeInputRef = useRef<HTMLInputElement>(null);
 
-    const { token, usuarioId } = useAuth();
+    const { token, usuarioId, estaLogado, loading } = useAuth();
     const { createCharacter, updateCharacter, searchCharacterById } = useCharacters();
     const router = useRouter();
 
@@ -65,6 +65,12 @@ function CreateCharacter() {
             }
         }
     }, []);
+
+    useEffect(() => {
+        if (!loading && (!estaLogado || !usuarioId)) {
+            router.replace('/login');
+        }
+    }, [loading, estaLogado, usuarioId, router]);
 
     useEffect(() => {
         const carregarDadosPersonagem = async () => {
@@ -121,9 +127,14 @@ function CreateCharacter() {
             return;
         }
 
-        if (!token || !usuarioId) {
+        if (loading) {
+            setErro("Aguarde enquanto validamos sua sessão...");
+            return;
+        }
+
+        if (!estaLogado || !usuarioId) {
             setErro("Você precisa estar autenticado para criar um personagem.");
-            router.push('/entrar');
+            router.replace('/login');
             return;
         }
 
@@ -154,7 +165,7 @@ function CreateCharacter() {
             if (err?.response?.status === 401) {
                 setErro("Sua sessão expirou. Por favor, faça login novamente.");
                 localStorage.clear();
-                router.push('/entrar');
+                router.replace('/login');
                 return;
             }
             const mensagemErro = err?.response?.data?.message ||

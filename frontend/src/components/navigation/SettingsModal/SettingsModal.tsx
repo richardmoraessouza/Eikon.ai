@@ -6,6 +6,7 @@ import TapsFrames from './Taps/TapsFrames/TapsFrames';
 import TapsProfileEdit from './Taps/TapsProfileEdit/TapsProfileEdit';
 import TapsPreferencesTheme from './Taps/TapsPreferencesTheme/TapsPreferencesTheme';
 import TapsPrivacy from './Taps/TapsPrivacy/TapsPrivacy';
+import TapsAccount from './Taps/TapsAccount/TapsAccount';
 import styles from './SettingsModal.module.css';
 
 interface SettingsModalProps {
@@ -75,23 +76,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
         return (
           <div>
             <h2 className={styles.titleTab}>Conta</h2>
-            <div
-              style={{
-                backgroundColor: 'var(--settings-active, #202024)',
-                border: '1px solid var(--settings-border, #3f3f46)',
-              }}
-              className={styles.accountCard}
-            >
-              <div>
-                <span style={{ color: 'var(--settings-text-muted, #a1a1aa)' }} className={styles.planCaption}>
-                  O seu plano atual
-                </span>
-                <span className={styles.planType}>Grátis</span>
-              </div>
-              <button className={styles.btnUpgrade}>
-                Atualizar
-              </button>
-            </div>
+            <TapsAccount />
           </div>
         );
       case 'preferencias':

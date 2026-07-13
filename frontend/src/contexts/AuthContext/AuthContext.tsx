@@ -1,8 +1,10 @@
 "use client";
 
 import React, { createContext, useState, useEffect, useContext, type ReactNode } from 'react';
-import { searchCreatorNameService } from '@/services/users/userService';
+import axios from 'axios';
+import { API_URL } from '@/config/api';
 import { dispatchFrameUpdated, normalizeFrame } from '@/utils/frame';
+import { clearCurrentAuthToken, getCurrentAuthToken, setCurrentAuthToken } from '@/config/authTokenStore';
 interface UserData {
     id: number;
     nome: string;
@@ -10,6 +12,10 @@ interface UserData {
     foto_perfil?: string; 
     descricao?: string;
     username?: string;
+    hide_favorite_character?: boolean;
+    hide_recent_character?: boolean;
+    hide_followers?: boolean;
+    hide_following?: boolean;
     token: string;
     frame?: string | null;
 }
@@ -21,12 +27,16 @@ interface AuthContextType {
     fotoPerfil: string | null;
     descricao: string | null;
     frame: string | null;
+    hideFavoriteCharacter: boolean;
+    hideRecentCharacter: boolean;
+    hideFollowers: boolean;
+    hideFollowing: boolean;
     token: string | null;
     estaLogado: boolean;
     loading: boolean;
     login: (userData: UserData) => void;
     logout: () => void;
-    updateProfile: (profileData: { nome?: string; foto_perfil?: string; descricao?: string; username?: string; frame?: string | null }) => void;
+    updateProfile: (profileData: { nome?: string; foto_perfil?: string; descricao?: string; username?: string; frame?: string | null; hideFavoriteCharacter?: boolean; hideRecentCharacter?: boolean; hideFollowers?: boolean; hideFollowing?: boolean }) => void;
 }
 
 const initialContextValue: AuthContextType = {
@@ -36,6 +46,10 @@ const initialContextValue: AuthContextType = {
     fotoPerfil: null,
     descricao: null,
     frame: null,
+    hideFavoriteCharacter: false,
+    hideRecentCharacter: false,
+    hideFollowers: false,
+    hideFollowing: false,
     token: null,
     estaLogado: false,
     loading: true,
@@ -58,92 +72,80 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [descricao, setDescricao] = useState<string | null>(null);
     const [frame, setFrame] = useState<string | null>(null);
     const [token, setToken] = useState<string | null>(null);
+    const [hideFavoriteCharacter, setHideFavoriteCharacter] = useState<boolean>(false);
+    const [hideRecentCharacter, setHideRecentCharacter] = useState<boolean>(false);
+    const [hideFollowers, setHideFollowers] = useState<boolean>(false);
+    const [hideFollowing, setHideFollowing] = useState<boolean>(false);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const restoreSession = async () => {
-            const storedToken     = localStorage.getItem('token')?.trim() || null;
-            const storedNome      = localStorage.getItem('usuario_nome')?.trim() || null;
-            const storedId        = localStorage.getItem('usuario_id')?.trim() || null;
-            const storedFoto      = localStorage.getItem('usuario_foto')?.trim() || null;
-            const storedDescricao = localStorage.getItem('usuario_descricao')?.trim() || null;
-            const storedFrame     = localStorage.getItem('usuario_frame')?.trim() || null;
-            const storedUsername  = localStorage.getItem('usuario_username')?.trim() || null;
+            try {
+                const response = await axios.get(`${API_URL}/auth/me`, { withCredentials: true });
+                const userData = response.data;
+                const recoveredToken = userData?.token ?? getCurrentAuthToken();
 
-            const parsedId = storedId ? parseInt(storedId, 10) : null;
-
-            if (storedToken && storedNome && parsedId) {
-                if (storedToken.includes('.')) {
-                    setToken(storedToken);
-                    setUsuario(storedNome);
-                    setUsuarioId(parsedId);
-                    setUsername(storedUsername);
-                    setFotoPerfil(storedFoto);
-                    setDescricao(storedDescricao);
-                    setFrame(storedFrame);
-
-                    try {
-                        const userData = await searchCreatorNameService(parsedId);
-
-                        if (userData.nome) {
-                            setUsuario(userData.nome);
-                            localStorage.setItem('usuario_nome', userData.nome);
-                        }
-
-                        if (userData.username) {
-                            setUsername(userData.username);
-                            localStorage.setItem('usuario_username', userData.username);
-                        }
-
-                        if (userData.foto_perfil) {
-                            setFotoPerfil(userData.foto_perfil);
-                            localStorage.setItem('usuario_foto', userData.foto_perfil);
-                        }
-
-                        if (userData.descricao !== undefined) {
-                            setDescricao(userData.descricao || null);
-                            localStorage.setItem('usuario_descricao', userData.descricao || '');
-                        }
-
-                        if (userData.frame !== undefined) {
-                            const frameFromApi = normalizeFrame(userData.frame);
-                            setFrame(frameFromApi);
-                            localStorage.setItem('usuario_frame', frameFromApi ?? '');
-                        }
-                    } catch (err) {
-                        console.warn('[Auth] Não foi possível sincronizar perfil:', err);
-                    }
+                if (recoveredToken) {
+                    setCurrentAuthToken(recoveredToken);
+                    setToken(recoveredToken);
                 } else {
-                    console.warn('[Auth] Token inválido, limpando...');
-                    localStorage.clear();
+                    setToken(null);
                 }
-            }
 
-            setLoading(false);
+                if (userData?.id) {
+                    setUsuario(userData.nome || null);
+                    setUsuarioId(userData.id);
+                    setUsername(userData.username || null);
+                    setFotoPerfil(userData.foto_perfil || null);
+                    setDescricao(userData.descricao || null);
+                    setFrame(normalizeFrame(userData.frame));
+                    setHideFavoriteCharacter(Boolean(userData.hide_favorite_character ?? false));
+                    setHideRecentCharacter(Boolean(userData.hide_recent_character ?? false));
+                    setHideFollowers(Boolean(userData.hide_followers ?? false));
+                    setHideFollowing(Boolean(userData.hide_following ?? false));
+                }
+            } catch (err) {
+                console.warn('[Auth] Sessão não recuperada:', err);
+                clearCurrentAuthToken();
+                setToken(null);
+                setUsuario(null);
+                setUsuarioId(null);
+                setUsername(null);
+                setFotoPerfil(null);
+                setDescricao(null);
+                setFrame(null);
+                setHideFavoriteCharacter(false);
+                setHideRecentCharacter(false);
+                setHideFollowers(false);
+                setHideFollowing(false);
+            } finally {
+                setLoading(false);
+            }
         };
 
         restoreSession();
     }, []);
 
     const login = (userData: UserData) => {
-        localStorage.setItem('token',              userData.token);
-        localStorage.setItem('usuario_nome',       userData.nome);
-        localStorage.setItem('usuario_id',         userData.id.toString());
-        localStorage.setItem('usuario_username',   userData.username || '');
-        localStorage.setItem('usuario_foto',       userData.foto_perfil || '');
-        localStorage.setItem('usuario_descricao',  userData.descricao || '');
-        localStorage.setItem('usuario_frame',      userData.frame || '');
+        if (userData.token) {
+            setCurrentAuthToken(userData.token);
+        }
 
-        setToken(userData.token);
+        setToken(userData.token || null);
         setUsuario(userData.nome);
         setUsuarioId(userData.id);
         setUsername(userData.username || null);
         setFotoPerfil(userData.foto_perfil || null);
         setDescricao(userData.descricao || null);
         setFrame(normalizeFrame(userData.frame));
+        setHideFavoriteCharacter(Boolean(userData.hide_favorite_character));
+        setHideRecentCharacter(Boolean(userData.hide_recent_character));
+        setHideFollowers(Boolean(userData.hide_followers));
+        setHideFollowing(Boolean(userData.hide_following));
     };
 
     const logout = () => {
+        clearCurrentAuthToken();
         localStorage.clear();
         sessionStorage.clear();
 
@@ -158,31 +160,38 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         window.location.href = '/';
     };
 
-    const updateProfile = (profileData: { nome?: string; foto_perfil?: string; descricao?: string; username?: string; frame?: string | null }) => {
+    const updateProfile = (profileData: { nome?: string; foto_perfil?: string; descricao?: string; username?: string; frame?: string | null; hideFavoriteCharacter?: boolean; hideRecentCharacter?: boolean; hideFollowers?: boolean; hideFollowing?: boolean }) => {
         if (profileData.nome) {
             setUsuario(profileData.nome);
-            localStorage.setItem('usuario_nome', profileData.nome);
         }
         if (profileData.foto_perfil) {
             setFotoPerfil(profileData.foto_perfil);
-            localStorage.setItem('usuario_foto', profileData.foto_perfil);
         }
         if (profileData.descricao !== undefined) {
             setDescricao(profileData.descricao);
-            localStorage.setItem('usuario_descricao', profileData.descricao);
         }
         if (profileData.username !== undefined) {
             setUsername(profileData.username || null);
-            localStorage.setItem('usuario_username', profileData.username || '');
         }
         if (profileData.frame !== undefined) {
             const frameValue = normalizeFrame(profileData.frame);
             setFrame(frameValue);
-            localStorage.setItem('usuario_frame', frameValue ?? '');
 
             if (usuarioId) {
                 dispatchFrameUpdated(usuarioId, frameValue);
             }
+        }
+        if (profileData.hideFavoriteCharacter !== undefined) {
+            setHideFavoriteCharacter(profileData.hideFavoriteCharacter);
+        }
+        if (profileData.hideRecentCharacter !== undefined) {
+            setHideRecentCharacter(profileData.hideRecentCharacter);
+        }
+        if (profileData.hideFollowers !== undefined) {
+            setHideFollowers(profileData.hideFollowers);
+        }
+        if (profileData.hideFollowing !== undefined) {
+            setHideFollowing(profileData.hideFollowing);
         }
     };
 
@@ -193,8 +202,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         fotoPerfil,
         descricao,
         frame,
+        hideFavoriteCharacter,
+        hideRecentCharacter,
+        hideFollowers,
+        hideFollowing,
         token,
-        estaLogado: !!usuarioId,
+        estaLogado: Boolean(usuarioId),
         loading,
         login,
         logout,

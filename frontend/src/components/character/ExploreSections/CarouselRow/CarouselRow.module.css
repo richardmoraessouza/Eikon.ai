@@ -1,84 +1,109 @@
-.carouselWrapper {
-  position: relative;
-  width: 95%;
-  overflow: visible; /* precisa ficar visível pro popover do autor não ser cortado */
+.container {
+  width: 100%;
 }
 
-@media (min-width: 750px) {
-  .carouselWrapper {
-    width: 80%;
-  }
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.header h2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0;
+  color: var(--text-main);
+}
+
+.tagsContainer {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow: hidden;
+  gap: 4px;
+  margin: 5px 0 2px;
+  max-width: 100%;
+}
+
+.tagItem {
+  background-color: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: #9ca3af;
+  font-size: 9px;
+  font-weight: 500;
+  padding: 2px 7px;
+  border-radius: 20px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.headerIcon {
+  display: flex;
+  align-items: center;
+  color: var(--text-main);
+  animation: pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1);   opacity: 1; }
+  50%       { transform: scale(1.2); opacity: 0.7; }
+}
+
+/* ─── FADE DE SCROLL ───────────────────────────────────── */
+.scrollFade {
+  position: absolute;
+  top: 0;
+  bottom: 10px;
+  width: 48px;
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+
+.scrollFade.visible {
+  opacity: 1;
+}
+
+.scrollFadeRight {
+  right: 0;
+  background: linear-gradient(to right, transparent, var(--bg-card));
+}
+
+.scrollFadeLeft {
+  left: 0;
+  background: linear-gradient(to left, transparent, var(--bg-card));
+}
+
+/* ─── CAROUSEL ─────────────────────────────────────────── */
+.carouselWrapper {
+  position: relative;
+  overflow: visible;
 }
 
 .carouselTrack {
   display: flex;
   flex-wrap: nowrap;
-  gap: 12px;
+  gap: 14px;
   overflow-x: auto;
-  scroll-snap-type: x mandatory;
+  scroll-snap-type: x proximity;
   scrollbar-width: none;
   -ms-overflow-style: none;
   scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
   cursor: grab;
   user-select: none;
   align-items: stretch;
-  width: 100%;
-  padding: 4px 0;
+  padding: 4px 2px 10px;
 }
 
-.carouselTrack:active { 
-  cursor: grabbing; 
-}
+.carouselTrack:active { cursor: grabbing; }
+.carouselTrack::-webkit-scrollbar { display: none; }
 
-.carouselTrack::-webkit-scrollbar { 
-  display: none; 
-}
-
-/* BOTÕES DE SETA */
-.navBtn {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 2;
-  width: 32px;
-  height: 32px;
-  border-radius: 4px;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-main);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.navBtn:hover {
-  background: transparent;
-}
-
-.carouselWrapper:hover .navBtn {
-  opacity: 1;
-}
-
-.navBtn svg {
-  transition: transform 0.3s ease;
-}
-
-.navBtn:hover svg {
-  transform: scale(1.2);
-}
-
-.navBtn:active svg {
-  transform: scale(0.95);
-}
-
-.navLeft  { left: 8px; }
-.navRight { right: 8px; }
-
-/* CARD HORIZONTAL */
+/* ─── CARD ──────────────────────────────────────────────── */
 .card {
   flex-shrink: 0;
   box-sizing: border-box;
@@ -87,62 +112,93 @@
   flex-flow: row nowrap;
   position: relative;
   align-items: stretch;
-  gap: 8px;
-  height: 130px;
+  gap: 10px;
+  width: 300px;
+  min-height: 130px;
+  height: auto;
   overflow: visible;
-  padding: 16px 12px;
-  border-radius: 12px;
-  border: 1px solid var(--card-border, #27272a);
-  background: var(--bg-card, #18181b);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid var(--card-border);
+  background: var(--bg-card);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
   cursor: pointer;
-  transition: border-color 0.15s, background-color 0.15s;
+  transition: border-color 0.2s ease, box-shadow 0.25s ease, transform 0.2s ease;
   user-select: none;
 }
 
 .card:hover {
-  border-color: #3f3f46;
-  background-color: #202023;
+  border-color: var(--border-color-hover);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
 }
 
-/* IMAGEM */
+.card:active {
+  transform: translateY(0);
+}
+
+/* ─── IMAGEM ────────────────────────────────────────────── */
 .imageWrapper {
   position: relative;
   flex-shrink: 0;
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
+  width: 62px;
+  height: 102px;
+  border-radius: 10px;
   overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+.imageWrapper::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0) 60%, rgba(0,0,0,0.18) 100%);
+  pointer-events: none;
 }
 
 .image {
   height: 100%;
   width: 100%;
-  border-radius: 50%;
+  border-radius: 10px;
   object-fit: cover;
   flex-shrink: 0;
   display: block;
   user-select: none;
   -webkit-user-drag: none;
   pointer-events: none;
+  transition: transform 0.35s ease;
 }
 
+.authorContainer {
+  display: flex;
+  align-items: center;
+  pointer-events: auto;
+  margin-top: 2px;
+}
+
+.popoverPortal {
+  pointer-events: auto;
+  overflow: visible;
+}
+
+/* ─── INFO ──────────────────────────────────────────────── */
 .info {
   flex: 1;
   min-width: 0;
   display: flex;
-  flex-flow: column nowrap;
+  flex-direction: column;
   justify-content: flex-start;
   align-items: flex-start;
-  height: 100%;
-  padding-bottom: 26px;
+  padding-bottom: 15px;
   color: var(--text-main);
 }
 
+
 .name {
   margin: 0;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 14.5px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
   word-break: break-word;
   overflow-wrap: anywhere;
 }
@@ -152,132 +208,101 @@
   font-size: 12px;
   color: var(--text-card);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  line-height: 1.4;
+  line-height: 1.45;
   width: 100%;
   word-break: break-word;
   overflow-wrap: anywhere;
   display: -webkit-box;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3; 
-  line-clamp: 3;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-
+/* ─── STATS E AUTHOR ────────────────────────────────────── */
 .stats {
   position: absolute;
-  bottom: 8px;
+  bottom: 10px;
   right: 12px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   font-size: 11px;
-  color: #71717a;
+  font-weight: 500;
+  color: #888;
 }
 
 .stat {
   display: flex;
   align-items: center;
-  gap: 3px;
-}
-
-/* AUTOR + POPOVER */
-.authorContainer {
-  position: absolute;
-  bottom: 8px;
-  left: 8px;
-  display: flex;
-  align-items: center;
-  z-index: 3;
-  pointer-events: auto;
-  max-width: calc(100% - 150px);
+  gap: 4px;
+  transition: color 0.15s ease;
 }
 
 .author {
-  position: relative;
-  display: block;
-  font-size: 11px;
-  color: #a1a1aa;
-  opacity: 0.6;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%;
-  margin: 0;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--author-color);
+  transition: color 0.15s ease;
 }
+
 
 .author:hover {
-  opacity: 1;
+  color: var(--text-main);
   text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
-.popoverPortal {
-  pointer-events: auto;
-  overflow: visible;
-}
-
-.empty {
-  color: #71717a;
+/* ─── ESTADOS ───────────────────────────────────────────── */
+.loading, .error, .empty {
+  color: #888;
   font-size: 14px;
-  padding: 32px 0;
-  text-align: center;
-  width: 100%;
+  padding: 16px 0;
 }
 
-/* SKELETON */
-.skeletonCard {
+/* ─── CARD LOADING INDICATOR ───────────────────────────── */
+.cardLoadingIndicator {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px;
+  border-style: dashed;
   cursor: default;
-  pointer-events: none;
+  opacity: 0.6;
 }
 
-.skeletonImage {
-  flex-shrink: 0;
-  width: 50px;
-  height: 50px;
+.cardLoadingIndicator p {
+  margin: 0;
+  font-size: 11px;
+  color: var(--text-card);
+  font-weight: 500;
+}
+
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--card-border);
+  border-top-color: var(--text-main);
   border-radius: 50%;
-  background: linear-gradient(90deg, #27272a 25%, #3f3f46 50%, #27272a 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.4s ease-in-out infinite;
+  animation: spin 0.7s linear infinite;
 }
 
-.skeletonName {
-  width: 70%;
-  height: 14px;
-  border-radius: 4px;
-  margin-bottom: 8px;
-  background: linear-gradient(90deg, #27272a 25%, #3f3f46 50%, #27272a 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.4s ease-in-out infinite;
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
-.skeletonBio {
-  width: 90%;
-  height: 12px;
-  border-radius: 4px;
-  background: linear-gradient(90deg, #27272a 25%, #3f3f46 50%, #27272a 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.4s ease-in-out infinite;
-}
+/* ─── BREAKPOINTS ───────────────────────────────────────── */
 
-@keyframes shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
-}
-
-/* RESPONSIVIDADE EM ROTAÇÃO horizontal */
+/* Em telas pequenas, o scroll deve travar em um único card por vez
+   em vez de parar "no meio" entre dois cards. */
 @media (max-width: 500px) {
-  .card { width: 100%; }
-}
-@media (min-width: 501px) and (max-width: 749px) {
-  .card { width: calc(50% - 6px); }
-}
-@media (min-width: 750px) and (max-width: 1161px) {
-  .card { width: calc(33.333% - 8px); }
-}
-@media (min-width: 1162px) {
-  .card { width: calc(25% - 9px); }
-}
-@media (min-width: 1025px) {
-  .image { height: 65px; width: 65px; }
-  .imageWrapper { width: 65px; height: 65px; }
+  .carouselTrack {
+    scroll-snap-type: x mandatory;
+  }
+
+  .card {
+    scroll-snap-align: center;
+    scroll-snap-stop: always;
+  }
 }

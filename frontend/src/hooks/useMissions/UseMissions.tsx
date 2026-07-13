@@ -18,8 +18,14 @@ export function useMissions(usuarioId: number | undefined) {
   // Carrega as missões diárias do banco de dados
   
   useEffect(() => {
-    if (usuarioId == null || Number.isNaN(usuarioId)) return;
-    const id = usuarioId; // narrowed: const, TS confia que é `number` daqui pra frente
+    if (usuarioId == null || Number.isNaN(usuarioId)) {
+      setMissions([]);
+      setLoading(false);
+      setError(null);
+      return;
+    }
+
+    const id = usuarioId;
 
     async function loadMissions() {
       try {
@@ -27,7 +33,6 @@ export function useMissions(usuarioId: number | undefined) {
         setError(null);
 
         const data = await getDailyMissions(id, token ?? undefined);
-
         setMissions(data);
       } catch (err) {
         console.error("Error loading daily missions hook:", err);

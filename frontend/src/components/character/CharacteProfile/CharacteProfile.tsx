@@ -123,7 +123,10 @@ const CharacterProfile: React.FC<ProfilePersonProps> = ({
     if (!personagem?.id) return;
     const loadLikesCount = async () => {
       try {
-        const total = await getQuantityLikes(personagem.id);
+        const pid = Number(personagem.id);
+        if (!Number.isInteger(pid)) return;
+        const total = await getQuantityLikes(pid);
+        console.log('[CharacteProfile] loadLikesCount', pid, total);
         setLikesCount(total);
       } catch (err) {
         console.error('Erro ao buscar likes:', err);
@@ -137,12 +140,14 @@ const CharacterProfile: React.FC<ProfilePersonProps> = ({
   const handleLikeClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     if (!personagem?.id) return;
-    if (!usuarioId || !token) { router.push('/entrar'); return; }
+    if (!usuarioId || !token) { router.replace('/login'); return; }
     if (isLoadingLike) return;
     setIsLoadingLike(true);
     try {
-      await handleToggleLike(personagem.id);
-      const updatedTotal = await getQuantityLikes(personagem.id);
+      const pid = Number(personagem.id);
+      if (!Number.isInteger(pid)) return;
+      await handleToggleLike(pid);
+      const updatedTotal = await getQuantityLikes(pid);
       setLikesCount(updatedTotal);
     } catch (err) {
       console.error('Erro ao fazer like:', err);
@@ -154,11 +159,13 @@ const CharacterProfile: React.FC<ProfilePersonProps> = ({
   const handleFavoriteClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     if (!personagem?.id) return;
-    if (!usuarioId || !token) { router.push('/entrar'); return; }
+    if (!usuarioId || !token) { router.replace('/login'); return; }
     if (isLoadingFav) return;
     setIsLoadingFav(true);
     try {
-      await handleToggleFavorite(personagem.id);
+      const pid = Number(personagem.id);
+      if (!Number.isInteger(pid)) return;
+      await handleToggleFavorite(pid);
     } catch (err) {
       console.error('Erro ao alternar favorito:', err);
     } finally {
@@ -236,8 +243,8 @@ const CharacterProfile: React.FC<ProfilePersonProps> = ({
                       size={15}
                       style={{
                         cursor: 'pointer',
-                        color: isLiked(personagem.id) ? '#ef4444' : 'currentColor',
-                        fill: isLiked(personagem.id) ? '#ef4444' : 'none',
+                          color: isLiked(Number(personagem.id)) ? '#ef4444' : 'currentColor',
+                          fill: isLiked(Number(personagem.id)) ? '#ef4444' : 'none',
                         transition: 'all 0.2s'
                       }}
                     />
@@ -251,8 +258,8 @@ const CharacterProfile: React.FC<ProfilePersonProps> = ({
                       size={15}
                       style={{
                         cursor: 'pointer',
-                        color: isFavorite(personagem.id) ? '#eab308' : 'currentColor', 
-                        fill: isFavorite(personagem.id) ? '#eab308' : 'none',
+                        color: isFavorite(Number(personagem.id)) ? '#eab308' : 'currentColor', 
+                        fill: isFavorite(Number(personagem.id)) ? '#eab308' : 'none',
                         transition: 'all 0.2s'
                       }}
                     />

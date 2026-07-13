@@ -87,7 +87,7 @@ export function useChat(personagemId: string | number | undefined) {
     async function loadInitialHistory() {
       try {
         setIsLoadingHistory(true);
-        const history = await chatApiService.fetchChatHistory(personagemId as string | number, token, 30, 0);
+        const history = await chatApiService.fetchChatHistory(personagemId as string | number, 30, 0);
         setChatHistory(history);
         if (history.length < 30) setHasMore(false);
       } catch (err) {
@@ -101,7 +101,7 @@ export function useChat(personagemId: string | number | undefined) {
     async function loadPinned() {
       try {
         setIsLoadingPinned(true);
-        const history = await chatApiService.fetchChatHistory(personagemId as string | number, token, 1000, 0);
+        const history = await chatApiService.fetchChatHistory(personagemId as string | number, 1000, 0);
         const formattedPinned = history
           .filter((msg) => msg.pinned)
           .map((msg): ChatMessageType => ({
@@ -169,7 +169,7 @@ export function useChat(personagemId: string | number | undefined) {
 
     try {
       setIsLoadingMore(true);
-      const olderHistory = await chatApiService.fetchChatHistory(personagemId as string | number, token, 30, nextOffset);
+      const olderHistory = await chatApiService.fetchChatHistory(personagemId as string | number, 30, nextOffset);
       if (olderHistory.length < 30) setHasMore(false);
       if (olderHistory.length > 0) {
         setChatHistory((prev) => [...olderHistory, ...prev]);
@@ -204,6 +204,7 @@ export function useChat(personagemId: string | number | undefined) {
     const charId = personagemId as string | number;
     const currentQuote = replyTo ? replyTo : undefined;
     const replyToId = replyTo?.id || null;
+    const optimisticMessageId = -(Date.now() + Math.floor(Math.random() * 1000));
 
     setMessage('');
     setIsLoading(true);
@@ -211,7 +212,7 @@ export function useChat(personagemId: string | number | undefined) {
     setChatHistory((prev) => [
       ...prev,
       {
-        id: Date.now(),
+        id: optimisticMessageId,
         sender: 'user',
         text: trimmedMessage,
         pinned: false,
@@ -226,7 +227,16 @@ export function useChat(personagemId: string | number | undefined) {
     setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 10);
 
     try {
-      const data = await chatApiService.sendChatMessage(charId, trimmedMessage, token, replyToId);
+      const data = await chatApiService.sendChatMessage(charId, trimmedMessage, replyToId);
+
+      if (data?.id) {
+        setChatHistory((prev) =>
+          prev.map((m) => (m.id === optimisticMessageId ? { ...m, id: data.id as number } : m))
+        );
+        setPinnedMessages((prev) =>
+          prev.map((m) => (m.id === optimisticMessageId ? { ...m, id: data.id as number } : m))
+        );
+      }
 
       if (usuarioId && charId) {
         recentCharacters(Number(usuarioId), charId).catch((e) =>

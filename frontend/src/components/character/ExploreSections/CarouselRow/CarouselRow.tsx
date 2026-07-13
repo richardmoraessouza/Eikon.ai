@@ -7,7 +7,7 @@ import Image from "next/image";
 import { useSocial } from "../../../../hooks/useSocial/useSocial";
 import { useDragScroll } from "../../../../hooks/useDragScroll/useDragScroll";
 import type { Character } from "../../../../types/characters/characters";
-import { FiMessageSquare, FiHeart, FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import { FiMessageSquare, FiHeart } from "react-icons/fi";
 import { searchCreatorNameService, getMiniProfileService } from "../../../../services/users/userService";
 import { FRAME_UPDATED_EVENT, type FrameUpdatedDetail } from "../../../../utils/frame";
 import MiniProfile from "../../../profiles/MiniProfile/MiniProfile";
@@ -202,22 +202,53 @@ export const CarouselRow = ({ characters, loading = false }: CarouselRowProps) =
     if (characters.length > 0) loadLikesCount();
   }, [characters, getQuantityLikes]);
 
-  const handleLikeClick = async (e: React.MouseEvent<SVGElement>, characterId: number) => {
+  const handleLikeClick = async (
+    e: React.MouseEvent<SVGElement>,
+    characterId: number
+  ) => {
     e.stopPropagation();
-    await handleToggleLike(characterId);
-    const updatedTotal = await getQuantityLikes(characterId);
-    setLikesCount(prev => ({ ...prev, [characterId]: Number(updatedTotal) || 0 }));
+
+    const liked = isLiked(characterId);
+
+    // Atualiza o contador imediatamente
+    setLikesCount(prev => ({
+      ...prev,
+      [characterId]: Math.max(
+        0,
+        (prev[characterId] ?? 0) + (liked ? -1 : 1)
+      ),
+    }));
+
+    try {
+      await handleToggleLike(characterId);
+    } catch {
+      // Se der erro, desfaz a alteração
+      setLikesCount(prev => ({
+        ...prev,
+        [characterId]: Math.max(
+          0,
+          (prev[characterId] ?? 0) + (liked ? 1 : -1)
+        ),
+      }));
+    }
   };
 
-  const scroll = (dir: "left" | "right") => {
-    if (!carouselRef.current) return;
-    carouselRef.current.scrollBy({ left: dir === "right" ? 240 : -240, behavior: "smooth" });
+  const handleCharacterClick = (character: Character) => {
+    if (!hasDragged) router.push(`/chat/${character.public_id ?? character.id}`);
   };
+
+  const normalizeTags = (tags?: Array<string | { nome?: string | null; name?: string | null } | null>) =>
+    (tags ?? [])
+      .map((tag) => {
+        if (typeof tag === "string") return tag;
+        return tag?.nome || tag?.name || "";
+      })
+      .filter(Boolean);
 
   if (loading && characters.length === 0) {
     return (
       <div className={styles.carouselWrapper}>
-        <div className={styles.carouselTrack} aria-busy="true">
+        <div className={styles.carouselTrack} aria-busy="true" aria-label="Carregando conteúdos">
           {Array.from({ length: SKELETON_COUNT }).map((_, index) => (
             <div key={`skeleton-${index}`} className={`${styles.card} ${styles.skeletonCard}`}>
               <div className={styles.imageWrapper}>
@@ -240,72 +271,80 @@ export const CarouselRow = ({ characters, loading = false }: CarouselRowProps) =
 
   return (
     <div className={styles.carouselWrapper}>
-      <button onClick={() => scroll("left")} className={`${styles.navBtn} ${styles.navLeft}`} aria-label="Anterior" type="button">
-        <FiChevronLeft size={16} />
-      </button>
-      <button onClick={() => scroll("right")} className={`${styles.navBtn} ${styles.navRight}`} aria-label="Próximo" type="button">
-        <FiChevronRight size={16} />
-      </button>
-
       <div className={styles.carouselTrack} ref={carouselRef} {...dragProps}>
-        {characters.map((character: Character) => (
-          <div
-            key={character.public_id ?? character.id}
-            className={styles.card}
-            onClick={() => !hasDragged && router.push(`/chat/${character.public_id}`)}
-          >
-            <div className={styles.imageWrapper} style={{ position: "relative" }}>
-              <Image
-                src={character.fotoia || "/image/semPerfil.jpg"}
-                alt={character.nome}
-                fill
-                sizes="(max-width: 768px) 100vw, 240px"
-                className={styles.image}
-                style={{ objectFit: "cover" }}
-                draggable={false}
-                unoptimized
-              />
-            </div>
+        {characters.map((character: Character) => {
+          const displayTags = normalizeTags(character.tags);
 
-            <div className={styles.info}>
-              <p className={styles.name}>{character.nome}</p>
-              {character.bio && <p className={styles.bio}>{character.bio}</p>}
-            </div>
-
-            <div className={styles.stats}>
-              <div className={styles.stat}>
-                <FiHeart
-                  size={12}
-                  onClick={(e) => handleLikeClick(e, character.id)}
-                  style={{
-                    cursor: "pointer",
-                    color: isLiked(character.id) ? "#ef4444" : "currentColor",
-                    fill: isLiked(character.id) ? "#ef4444" : "none",
-                    transition: "all 0.2s",
-                  }}
-                />
-                <span>{likesCount[character.id] ?? 0}</span>
-              </div>
-              <div className={styles.stat}>
-                <FiMessageSquare size={12} />
-                <span>{character.visualizacoes ?? 0}</span>
-              </div>
-            </div>
-
+          return (
             <div
-              className={styles.authorContainer}
-              onMouseEnter={(e) => character.usuario_id != null && handleMouseEnterAuthor(e, character.usuario_id, character.id)}
-              onMouseLeave={handleMouseLeaveAuthor}
-              onClick={(e) => character.usuario_id != null && handleAuthorClick(e, character.usuario_id)}
+              key={character.public_id ?? character.id}
+              className={styles.card}
+              onClick={() => handleCharacterClick(character)}
             >
-              <p className={styles.author}>
-                {character.usuario_id
-                  ? `@${creatorUsernames[character.usuario_id] || creatorNames[character.usuario_id] || character.nome_criador || "Desconhecido"}`
-                  : `@${character.nome_criador || "Desconhecido"}`}
-              </p>
+              <div className={styles.imageWrapper} style={{ position: "relative" }}>
+                <Image
+                  src={character.fotoia || "/image/semPerfil.jpg"}
+                  alt={character.nome}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 240px"
+                  className={styles.image}
+                  style={{ objectFit: "cover" }}
+                  draggable={false}
+                  unoptimized
+                />
+              </div>
+
+              <div className={styles.info}>
+                <p className={styles.name}>{character.nome}</p>
+                <p className={styles.bio}>
+                  {character.bio ? character.bio : ` ${character.nome} ainda não tem bio.`}
+                </p>
+                {displayTags.length > 0 && (
+                  <div className={styles.tagsContainer}>
+                    {displayTags.map((tag, index) => (
+                      <span key={`${tag}-${index}`} className={styles.tagItem}>
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                <div
+                  className={styles.authorContainer}
+                  onMouseEnter={(e) => character.usuario_id != null && handleMouseEnterAuthor(e, character.usuario_id, character.id)}
+                  onMouseLeave={handleMouseLeaveAuthor}
+                  onClick={(e) => character.usuario_id != null && handleAuthorClick(e, character.usuario_id)}
+                >
+                  <p className={styles.author}>
+                    {character.usuario_id
+                      ? `@${creatorUsernames[character.usuario_id] || creatorNames[character.usuario_id] || character.nome_criador || "Desconhecido"}`
+                      : `@${character.nome_criador || "Desconhecido"}`}
+                  </p>
+                </div>
+              </div>
+
+              <div className={styles.stats}>
+                <div className={styles.stat}>
+                  <FiHeart
+                    size={12}
+                    onClick={(e) => handleLikeClick(e, character.id)}
+                    style={{
+                      cursor: "pointer",
+                      color: isLiked(character.id) ? "#ef4444" : "currentColor",
+                      fill: isLiked(character.id) ? "#ef4444" : "none",
+                      transition: "all 0.2s",
+                    }}
+                  />
+                  <span>{likesCount[character.id] ?? 0}</span>
+                </div>
+                <div className={styles.stat}>
+                  <FiMessageSquare size={12} />
+                  <span>{character.visualizacoes ?? 0}</span>
+                </div>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {mounted && activeProfile && activeCardId !== null && popoverPos &&

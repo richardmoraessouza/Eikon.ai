@@ -8,16 +8,18 @@ import { setupAxiosInterceptors } from "@/config/axiosConfig";
 
 setupAxiosInterceptors();
 
-const CLIENT_ID = "921532693870-aj4mm1u6blg21blnq0pmr8p611jce9ja.apps.googleusercontent.com";
+const CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!;
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="pt-BR">
       <body>
         <GoogleOAuthProvider clientId={CLIENT_ID}>
-          <AuthProvider>
-              {children}
-          </AuthProvider>
+          <AuthProvider>{children}</AuthProvider>
         </GoogleOAuthProvider>
       </body>
     </html>

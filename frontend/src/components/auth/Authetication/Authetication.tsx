@@ -38,6 +38,7 @@ function Authentication({ verificar }: SituacaoProps) {
     const [dados, setDados] = useState<dadosUsuario | null>(null);
     const [username, setUsername] = useState<string>('');
     const [usernameErro, setUsernameErro] = useState<string>('');
+    const [googleCredential, setGoogleCredential] = useState<string | null>(null);
 
     const router = useRouter();
     const { login } = useAuth();
@@ -45,7 +46,11 @@ function Authentication({ verificar }: SituacaoProps) {
     const onSuccess = async (credentialResponse: any) => {
         try {
             const tokenGoogle = credentialResponse.credential;
+            setGoogleCredential(tokenGoogle || null);
             try {
+                // O decode local do JWT do Google é usado apenas para preencher campos de UI
+                // (por exemplo, sugerir o nome do usuário). Ele nunca deve ser a fonte de verdade
+                // para autenticação; a autenticação real acontece no backend com o credential.
                 const decoded: { email?: string } = jwtDecode(tokenGoogle);
                 if (decoded.email) setGmail(decoded.email);
             } catch (decodeErr) {
@@ -61,8 +66,19 @@ function Authentication({ verificar }: SituacaoProps) {
     useEffect(() => {
         const buscarDados = async () => {
             try {
-                const res = await axios.get(`${API_URL}/auth/gmail/${gmail}`);
-                setDados(res.data);
+                const res = await axios.get(`${API_URL}/auth/check-email/${gmail}`, { withCredentials: true });
+                const user = res.data?.user;
+
+                if (user) {
+                    setDados({
+                        nome: user.nome || user.username || '',
+                        foto_pefil: user.foto_perfil || '',
+                        frame: user.frame || '',
+                        username: user.username || ''
+                    });
+                } else {
+                    setDados(null);
+                }
             } catch (err) {
                 if (axios.isAxiosError(err) && err.response?.status === 404) {
                     if (condicaoUsuario) setLoginErro("Ops! Parece que você ainda não tem uma conta.");
@@ -72,7 +88,7 @@ function Authentication({ verificar }: SituacaoProps) {
             }
         };
         if (gmail) buscarDados();
-    }, [gmail]);
+    }, [gmail, condicaoUsuario]);
 
     useEffect(() => {
         if (condicaoUsuario && dados) {
@@ -104,6 +120,11 @@ function Authentication({ verificar }: SituacaoProps) {
         e.preventDefault();
         setLoginErro('');
 
+        if (!googleCredential) {
+            setLoginErro("É necessário concluir o login com o Google antes de continuar.");
+            return;
+        }
+
         // Na tela de cadastro, valida o username antes de mandar pro backend
         if (!condicaoUsuario) {
             const erroUsername = validarUsername(username);
@@ -115,12 +136,7 @@ function Authentication({ verificar }: SituacaoProps) {
 
         try {
             if (condicaoUsuario) {
-                const res = await axios.post(`${API_URL}/auth/login`, { gmail });
-
-                if (!res.data.token) {
-                    setLoginErro("Erro: O servidor não enviou o token de acesso.");
-                    return;
-                }
+                const res = await axios.post(`${API_URL}/auth/login`, { credential: googleCredential }, { withCredentials: true });
 
                 login({
                     id: res.data.id,
@@ -128,20 +144,20 @@ function Authentication({ verificar }: SituacaoProps) {
                     gmail: res.data.gmail,
                     foto_perfil: res.data.foto_perfil,
                     descricao: res.data.descricao,
-                    token: res.data.token,
-                    frame: res.data.frame
+                    frame: res.data.frame,
+                    token: ''
                 });
 
                 router.replace('/');
             } else {
                 // O backend deve comparar username de forma case-insensitive (LOWER(username))
                 // para "lucas", "Lucas" e "LUCAS" contarem como o mesmo username já em uso
-                const res = await axios.post(`${API_URL}/auth/register`, { gmail, nome: username, username, imgPerfil });
-
-                if (!res.data.token) {
-                    setLoginErro("Erro ao gerar token no cadastro.");
-                    return;
-                }
+                const res = await axios.post(`${API_URL}/auth/register`, {
+                    credential: googleCredential,
+                    nome: username,
+                    username,
+                    imgPerfil
+                }, { withCredentials: true });
 
                 const usuarioData = res.data.usuario || res.data;
 
@@ -150,8 +166,8 @@ function Authentication({ verificar }: SituacaoProps) {
                     nome: usuarioData.nome || username,
                     gmail: usuarioData.gmail,
                     foto_perfil: usuarioData.foto_perfil || imgPerfil,
-                    token: res.data.token,
-                    frame: usuarioData.frame
+                    frame: usuarioData.frame,
+                    token: ''
                 });
 
                 router.replace('/');

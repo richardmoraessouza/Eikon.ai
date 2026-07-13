@@ -6,16 +6,24 @@ function getAuthHeaders(token?: string) {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
+function isAuthError(error: unknown) {
+  return axios.isAxiosError(error) && [401, 403].includes(error.response?.status ?? 0);
+}
+
 // Busca as 5 missões diárias do usuário (ou força o sorteio no back-end)
 export async function getDailyMissions(usuarioId: number, token?: string): Promise<DailyMission[]> {
+  if (!usuarioId) return [];
+
   try {
     const res = await axios.get<DailyMission[]>(`${API_URL}/missions/daily/${usuarioId}`, {
       headers: getAuthHeaders(token),
     });
     return res.data;
   } catch (err) {
-    console.error("Error searching daily missions:", err);
-    throw err;
+    if (!isAuthError(err)) {
+      console.error("Error searching daily missions:", err);
+    }
+    return [];
   }
 }
 
@@ -43,7 +51,7 @@ export async function updateMissionProgress(
 
 // search user level by ID
 export async function getUserLevelService(usuarioId: number, token?: string): Promise<number> {
-    if (!usuarioId) throw new Error('Usuario ID é obrigatório');
+    if (!usuarioId) return 1;
 
     try {
         const response = await axios.get(`${API_URL}/users/level-user/${usuarioId}`, {
@@ -51,14 +59,16 @@ export async function getUserLevelService(usuarioId: number, token?: string): Pr
         });
         return response.data.nivel ?? 1;
     } catch (error: any) {
-        console.error(`Error fetching user level`, error.response?.data);
-        throw error;
+        if (!isAuthError(error)) {
+            console.error(`Error fetching user level`, error.response?.data);
+        }
+        return 1;
     }
 }
 
 // Search user xp by ID
 export async function getUserXpService(usuarioId: number, token?: string): Promise<number> {
-    if (!usuarioId) throw new Error('Usuario ID é obrigatório');
+    if (!usuarioId) return 0;
 
     try {
         const response = await axios.get(`${API_URL}/users/xp-user/${usuarioId}`, {
@@ -66,8 +76,10 @@ export async function getUserXpService(usuarioId: number, token?: string): Promi
         });
         return response.data.xp ?? 0;
     } catch (error: any) {
-        console.error(`Error fetching user XP`, error.response?.data);
-        throw error;
+        if (!isAuthError(error)) {
+            console.error(`Error fetching user XP`, error.response?.data);
+        }
+        return 0;
     }
 }
 

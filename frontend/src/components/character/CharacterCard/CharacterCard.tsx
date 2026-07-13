@@ -3,19 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import {
-  FiMessageSquare,
-  FiHeart,
-  FiEdit2,
-  FiStar,
-  FiUsers,
-  FiMoreVertical
-} from "react-icons/fi";
+import { FiMessageSquare, FiHeart, FiEdit2, FiUsers, FiMoreVertical, FiGlobe, FiLock } from "react-icons/fi";
 import { useAuth } from "@/contexts/AuthContext/AuthContext";
-import {
-  useProfileCharacters,
-  type ProfileCharacter
-} from "@/hooks/useCharacters/useCharacters";
+import { useProfileCharacters, type ProfileCharacter } from "@/hooks/useCharacters/useProfileCharacters";
+import { useCharacters } from "@/hooks/useCharacters/useCharacters";
 import { useSocial } from "@/hooks/useSocial/useSocial";
 import styles from "./CharacterCard.module.css";
 
@@ -23,7 +14,11 @@ interface CharacterCardProps {
   type: "meus-personagens" | "favoritos" | "recentes";
   abaAtiva?: string;
   usuarioId?: number | null;
+  hideFavoriteCharacter?: boolean;
+  hideRecentCharacter?: boolean;
 }
+
+type CharacterComVisibilidade = ProfileCharacter & { publico?: boolean; is_public?: boolean };
 
 const EMPTY_MESSAGES: Record<CharacterCardProps["type"], string> = {
   "meus-personagens": "Você ainda não criou nenhum personagem.",
@@ -39,33 +34,55 @@ function formatInteractions(count: number): string {
   return String(count);
 }
 
-function CharacterCard({ type, abaAtiva, usuarioId: externalUsuarioId }: CharacterCardProps) {
-  const { usuarioId: loggedUsuarioId, token } = useAuth();
+function CharacterCard({ type, abaAtiva, usuarioId: externalUsuarioId, hideFavoriteCharacter, hideRecentCharacter }: CharacterCardProps) {
+  const {
+    usuarioId: loggedUsuarioId,
+    token,
+    hideFavoriteCharacter: ctxHideFavorite,
+    hideRecentCharacter: ctxHideRecent,
+    estaLogado,
+    loading: authLoading,
+  } = useAuth();
   const router = useRouter();
 
   const usuarioIdFinal =
     externalUsuarioId !== undefined ? externalUsuarioId : loggedUsuarioId;
 
-  const { characters, loading, removeCharacter } = useProfileCharacters(
+  const resolvedHideFavorite = hideFavoriteCharacter === undefined ? ctxHideFavorite : hideFavoriteCharacter;
+  const resolvedHideRecent = hideRecentCharacter === undefined ? ctxHideRecent : hideRecentCharacter;
+  
+  const isOwnProfile =
+    loggedUsuarioId != null && usuarioIdFinal === loggedUsuarioId;
+
+  const isHidden =
+    !isOwnProfile && (
+      (type === "favoritos" && Boolean(resolvedHideFavorite)) ||
+      (type === "recentes" && Boolean(resolvedHideRecent))
+    );
+
+  const { characters, loading } = useProfileCharacters(
     type,
     usuarioIdFinal,
     abaAtiva
   );
 
+  // Instanciando o hook geral para obter a função updateVisibility
+  const { updateVisibility } = useCharacters();
+
+  if (isHidden) {
+    return null;
+  }
+
   const {
     isLiked,
-    isFavorite,
     handleToggleLike,
-    handleToggleFavorite,
     getQuantityLikes
   } = useSocial();
 
   const [likesCount, setLikesCount] = useState<Record<number, number>>({});
   const [openMenuId, setOpenMenuId] = useState<number | null>(null);
+  const [publicoOverride, setPublicoOverride] = useState<Record<number, boolean>>({});
   const menuRef = useRef<HTMLDivElement>(null);
-
-  const isOwnProfile =
-    loggedUsuarioId != null && usuarioIdFinal === loggedUsuarioId;
 
   useEffect(() => {
     if (characters.length === 0) return;
@@ -131,29 +148,16 @@ function CharacterCard({ type, abaAtiva, usuarioId: externalUsuarioId }: Charact
   }, [openMenuId]);
 
   const requireAuth = () => {
-    if (!loggedUsuarioId || !token || token.trim() === "") {
-      router.push("/entrar");
+    if (authLoading) {
       return false;
     }
-    return true;
-  };
 
-  const handleFavorito = async (p: ProfileCharacter) => {
-    if (!requireAuth()) return;
-
-    const eraFavorito = isFavorite(p.id);
-
-    try {
-      await handleToggleFavorite(p.id);
-      localStorage.setItem("favoritos_updated", Date.now().toString());
-
-      if (type === "favoritos" && isOwnProfile && eraFavorito) {
-        removeCharacter(p.id);
-      }
-    } catch (err: any) {
-      console.error("Erro ao alternar favorito:", err);
-      if (err?.response?.status === 401) router.push("/entrar");
+    if (!estaLogado || !loggedUsuarioId) {
+      router.replace("/login");
+      return false;
     }
+
+    return true;
   };
 
   const handleLike = async (personagemId: number) => {
@@ -178,7 +182,7 @@ function CharacterCard({ type, abaAtiva, usuarioId: externalUsuarioId }: Charact
           : Math.max(0, (prev[personagemId] ?? 0) - 1)
       }));
       console.error("Erro ao dar like:", err);
-      if (err?.response?.status === 401) router.push("/entrar");
+      if (err?.response?.status === 401) router.replace("/login");
     }
   };
 
@@ -189,8 +193,32 @@ function CharacterCard({ type, abaAtiva, usuarioId: externalUsuarioId }: Charact
     router.push("/create-character");
   };
 
+  const isPublicoPersonagem = (p: CharacterComVisibilidade) => {
+    const valorExplicito = p.is_public ?? p.publico;
+    return publicoOverride[p.id] ?? valorExplicito ?? true;
+  };
+
+  const handleTogglePublico = async (p: CharacterComVisibilidade) => {
+    if (!requireAuth()) return;
+
+    const atual = isPublicoPersonagem(p);
+    const novoValor = !atual;
+
+    // Atualização otimista na UI
+    setPublicoOverride(prev => ({ ...prev, [p.id]: novoValor }));
+
+    try {
+      // Usando a função correta do hook passando public_id, boolean e token
+      await updateVisibility(p.public_id, novoValor, token);
+    } catch (err: any) {
+      // Reverte o estado caso dê erro
+      setPublicoOverride(prev => ({ ...prev, [p.id]: atual }));
+      if (err?.response?.status === 401) router.replace("/login");
+    }
+  };
+
   const handleCardClick = (personagemPublicId: string) => {
-    router.push(`/personagem/${personagemPublicId}`);
+    router.push(`/chat/${personagemPublicId}`);
   };
 
   if (loading) {
@@ -222,16 +250,17 @@ function CharacterCard({ type, abaAtiva, usuarioId: externalUsuarioId }: Charact
 
   return (
     <article className={styles.cardsPersonagens}>
-      {characters.map((p: ProfileCharacter) => {
+      {characters.map((p: CharacterComVisibilidade, idx: number) => {
         const interactions = p.visualizacoes ?? 0;
         const likes = likesCount[p.id] ?? p.likes ?? 0;
         const menuOpen = openMenuId === p.id;
         const canEdit = isOwnProfile && type === "meus-personagens";
         const liked = isLiked(p.id);
+        const publico = isPublicoPersonagem(p);
 
         return (
           <div
-            key={p.public_id}
+            key={p.public_id ?? p.id ?? `char-${idx}`}
             className={styles.character}
             onClick={(e) => {
               const isInteractive = (e.target as HTMLElement).closest("button");
@@ -247,7 +276,7 @@ function CharacterCard({ type, abaAtiva, usuarioId: externalUsuarioId }: Charact
             }}
           >
             <div className={styles.avatarWrapper}>
-              <img
+              <Image
                 src={p.fotoia || "/image/semPerfil.jpg"}
                 alt={p.nome}
                 className={styles.cardImg}
@@ -265,76 +294,74 @@ function CharacterCard({ type, abaAtiva, usuarioId: externalUsuarioId }: Charact
                   <FiMessageSquare size={12} aria-hidden="true" />
                   {formatInteractions(interactions)}
                 </span>
+
                 <span className={styles.metadataDot} aria-hidden="true">·</span>
-                <span className={`${styles.metadataItem} ${liked ? styles.metadataItemLiked : ""}`}>
+
+                <button
+                  type="button"
+                  className={`${styles.metadataItem} ${styles.metadataBtn} ${liked ? styles.metadataItemLiked : ""}`}
+                  aria-label={liked ? `Remover curtida de ${p.nome}` : `Curtir ${p.nome}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleLike(p.id);
+                  }}
+                >
                   <FiHeart size={12} aria-hidden="true" />
                   {formatInteractions(likes)}
-                </span>
+                </button>
               </div>
             </div>
 
-            <div className={styles.actions}>
-              {canEdit && (
-                <button
-                  type="button"
-                  className={`${styles.actionBtn} ${styles.editBtn}`}
-                  aria-label={`Editar ${p.nome}`}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleEdit(p);
-                  }}
-                >
-                  <FiEdit2 size={16} />
-                </button>
-              )}
+            {canEdit && (
+              <div className={styles.actions}>
+                <div className={styles.menuWrapper} ref={menuOpen ? menuRef : undefined}>
+                  <button
+                    type="button"
+                    className={styles.actionBtn}
+                    aria-label={`Opções de ${p.nome}`}
+                    aria-expanded={menuOpen}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setOpenMenuId(menuOpen ? null : p.id);
+                    }}
+                  >
+                    <FiMoreVertical size={16} />
+                  </button>
 
-              <div className={styles.menuWrapper} ref={menuOpen ? menuRef : undefined}>
-                <button
-                  type="button"
-                  className={styles.actionBtn}
-                  aria-label={`Opções de ${p.nome}`}
-                  aria-expanded={menuOpen}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setOpenMenuId(menuOpen ? null : p.id);
-                  }}
-                >
-                  <FiMoreVertical size={16} />
-                </button>
+                  {menuOpen && (
+                    <div className={styles.menuDropdown} role="menu">
+                      <button
+                        type="button"
+                        className={styles.menuItem}
+                        role="menuitem"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setOpenMenuId(null);
+                          handleEdit(p);
+                        }}
+                      >
+                        <FiEdit2 size={14} />
+                        Editar
+                      </button>
 
-                {menuOpen && (
-                  <div className={styles.menuDropdown} role="menu">
-                    <button
-                      type="button"
-                      className={`${styles.menuItem} ${isLiked(p.id) ? styles.menuItemActive : ""}`}
-                      role="menuitem"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setOpenMenuId(null);
-                        handleLike(p.id);
-                      }}
-                    >
-                      <FiHeart size={14} />
-                      {isLiked(p.id) ? "Remover curtida" : "Curtir"}
-                    </button>
-
-                    <button
-                      type="button"
-                      className={`${styles.menuItem} ${isFavorite(p.id) ? styles.menuItemFavorite : ""}`}
-                      role="menuitem"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setOpenMenuId(null);
-                        handleFavorito(p);
-                      }}
-                    >
-                      <FiStar size={14} />
-                      {isFavorite(p.id) ? "Remover dos favoritos" : "Favoritar"}
-                    </button>
-                  </div>
-                )}
+                      <button
+                        type="button"
+                        className={styles.menuItem}
+                        role="menuitem"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setOpenMenuId(null);
+                          handleTogglePublico(p);
+                        }}
+                      >
+                        {publico ? <FiLock size={14} /> : <FiGlobe size={14} />}
+                        {publico ? "Tornar privado" : "Tornar público"}
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         );
       })}

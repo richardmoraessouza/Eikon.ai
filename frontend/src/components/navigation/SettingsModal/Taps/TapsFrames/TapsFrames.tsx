@@ -251,13 +251,7 @@ const TapsFrames = () => {
                   disabled
                 >
                   <div className={styles.previewWrapper}>
-                    <Image
-                      src={fotoPerfil || '/image/semPerfil.jpg'}
-                      alt="Preview"
-                      className={styles.previewAvatar}
-                      width={64}
-                      height={64}
-                    />
+                    <div className={styles.previewAvatarEmpty} />
                     <Image
                       src={`/image/frames/${frameItem.file}`}
                       alt={frameItem.label}

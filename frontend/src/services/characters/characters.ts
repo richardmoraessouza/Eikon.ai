@@ -1,7 +1,9 @@
 import { API_URL } from "../../config/api";
 import axios from "axios";
-import type { Character, CharacterbyId, views, Tag, RecentCharacter } from "../../types/characters/characters";
+import type { Character, CharacterbyId, views, Tag, RecentCharacter, VisibilityResponse } from "../../types/characters/characters";
 
+
+console.log('API_URL:', API_URL); // Log the API_URL to verify it's correct
 export const getCharactersPaginated = async (
     limit = 20,
     offset = 0,
@@ -45,21 +47,21 @@ export async function incrementChatViews(personagemPublicId: string | number, to
     }
 }
 
-export async function updateCharacterService(personagemId: number, payload: any, token: string): Promise<Character> {
+export async function updateCharacterService(personagemId: number, payload: any, token?: string | null): Promise<Character> {
     const res = await axios.put(
         `${API_URL}/character/update-character/${personagemId}`,
         payload,
-        { headers: { Authorization: `Bearer ${token}` } }
+        token ? { headers: { Authorization: `Bearer ${token}` } } : {}
     );
     return res.data;
 }
 
-export async function createCharacterService(usuarioId: number, payload: any, token: string): Promise<Character> {
+export async function createCharacterService(usuarioId: number, payload: any, token?: string | null): Promise<Character> {
     try {
         const res = await axios.post(
             `${API_URL}/character/create-character/${usuarioId}`,
             payload,
-            { headers: { Authorization: `Bearer ${token}` } }
+            token ? { headers: { Authorization: `Bearer ${token}` } } : {}
         );
         return res.data;
     } catch (err: any) {
@@ -168,4 +170,22 @@ export async function recentCharacters(usuarioId: number, personagemId: number) 
     console.error('Mensagem Axios:', err.message);
     throw err;
   }
+}
+
+export async function updateCharacterVisibilityService(
+    publicId: string,
+    isPublic: boolean,
+    token?: string | null
+): Promise<VisibilityResponse> {
+    try {
+        const res = await axios.patch<VisibilityResponse>(
+            `${API_URL}/character/update-visibility/${publicId}`,
+            { is_public: isPublic },
+            token ? { headers: { Authorization: `Bearer ${token}` } } : {}
+        );
+        return res.data;
+    } catch (error: any) {
+        console.error(`[updateCharacterVisibilityService] Erro ao alterar visibilidade para ${publicId}:`, error?.response?.data || error?.message);
+        throw error;
+    }
 }

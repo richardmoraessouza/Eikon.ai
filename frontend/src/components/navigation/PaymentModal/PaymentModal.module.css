@@ -1,0 +1,235 @@
+/* PaymentModal.module.css */
+.overlay {
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  animation: fadeIn 0.25s ease-out forwards;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+:global([data-theme="light"]) .overlay {
+  background: rgba(15, 23, 42, 0.4);
+}
+
+.modalShell {
+  /* Único par de tons neutros que o theme.css global não define ainda,
+     usado só nos elementos de destaque (gradientes/CTA). Tudo o mais
+     abaixo puxa direto das variáveis do tema. */
+  --neutral-1: #78828e;
+  --neutral-2: #97a1ac;
+  color: var(--settings-text);
+  background: linear-gradient(140deg, var(--settings-bg) 0%, var(--settings-content-bg) 100%);
+  border-color: var(--settings-border);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+:global([data-theme="light"]) .modalShell {
+  --neutral-1: #64748b;
+  --neutral-2: #94a3b8;
+  box-shadow: 0 24px 80px rgba(15, 23, 42, 0.1);
+}
+
+.closeButton {
+  color: var(--settings-text-muted);
+  background: var(--settings-hover);
+  border: 1px solid var(--settings-border);
+}
+
+.closeButton:hover {
+  color: var(--settings-text);
+  background: var(--settings-active);
+  transform: scale(1.04) rotate(90deg);
+}
+
+.hero {
+  background: linear-gradient(135deg, var(--settings-hover) 0%, transparent 100%);
+  border-color: var(--settings-border);
+}
+
+.heroGlow {
+  position: absolute;
+  top: -35%;
+  left: 50%;
+  width: 420px;
+  height: 300px;
+  transform: translateX(-50%);
+  background: radial-gradient(circle, rgba(148, 163, 184, 0.16) 0%, transparent 70%);
+  filter: blur(70px);
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.heroBadge {
+  color: var(--settings-text-muted);
+  background: var(--settings-hover);
+  border: 1px solid var(--settings-border);
+  font-weight: 700;
+}
+
+.heroTitle {
+  color: var(--settings-text);
+  font-weight: 800;
+}
+
+.heroText {
+  color: var(--settings-text-muted);
+}
+
+.countdownBox {
+  background: var(--settings-hover);
+  border-color: var(--settings-border);
+}
+
+.countdownValue {
+  color: var(--settings-text);
+  font-weight: 700;
+}
+
+.countdownLabel,
+.countdownSep {
+  color: var(--settings-text-muted);
+}
+
+.countdownSep {
+  font-weight: 700;
+  padding-bottom: 14px;
+  opacity: 0.5;
+}
+
+.tabsBar,
+.tabsWrapper {
+  background: var(--settings-sidebar-bg);
+  border-color: var(--settings-border);
+}
+
+.tabButton {
+  color: var(--settings-text-muted);
+}
+
+.tabButton:hover {
+  color: var(--settings-text);
+  background: var(--settings-hover);
+}
+
+.tabHint {
+  color: var(--settings-text);
+  font-weight: 700;
+  opacity: 0.85;
+}
+
+.tabButtonActive {
+  color: #f8fafc;
+  background: linear-gradient(120deg, var(--neutral-1) 0%, var(--neutral-2) 100%);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
+}
+
+.planCard {
+  background: var(--bg-card);
+  border-color: var(--card-border);
+}
+
+.planCard:hover {
+  border-color: var(--neutral-2);
+  background: var(--bg-card-hover);
+}
+
+.planCardHighlight {
+  background: linear-gradient(180deg, var(--settings-hover) 0%, var(--bg-card) 100%);
+  border-color: var(--neutral-2);
+  box-shadow: 0 16px 44px rgba(15, 23, 42, 0.18);
+}
+
+.planTitle {
+  color: var(--settings-text);
+  font-weight: 700;
+}
+
+.planDiscount {
+  color: var(--settings-text);
+  background: var(--settings-hover);
+  font-weight: 800;
+}
+
+.powerBar {
+  display: inline-block;
+  width: 5px;
+  border-radius: 2px;
+  background: var(--settings-border);
+  align-self: flex-end;
+}
+
+.powerBarFilled {
+  background: linear-gradient(180deg, var(--neutral-1) 0%, var(--neutral-2) 100%);
+}
+
+.powerLabel,
+.priceLabel,
+.priceSuffix {
+  color: var(--settings-text-muted);
+}
+
+.priceValue {
+  color: var(--settings-text);
+  font-weight: 800;
+}
+
+.bonusBox {
+  color: var(--settings-text);
+  background: var(--settings-hover);
+  border-color: var(--settings-border);
+}
+
+.featuresList {
+  color: var(--settings-text-muted);
+  border-color: var(--settings-border);
+}
+
+.featureIcon {
+  display: inline-flex;
+  color: var(--settings-text);
+  flex-shrink: 0;
+}
+
+.planTag {
+  color: var(--settings-bg);
+  background: linear-gradient(120deg, var(--neutral-2) 0%, var(--neutral-1) 100%);
+}
+
+.buttonPrimary {
+  color: #f8fafc;
+  background: linear-gradient(120deg, var(--neutral-1) 0%, var(--neutral-2) 100%);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
+}
+
+.buttonPrimary:hover {
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.24);
+  transform: translateY(-1px);
+}
+
+.buttonSecondary {
+  color: var(--settings-text);
+  background: var(--settings-hover);
+  border: 1px solid var(--settings-border);
+}
+
+.buttonSecondary:hover {
+  border-color: var(--neutral-2);
+  background: var(--settings-active);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

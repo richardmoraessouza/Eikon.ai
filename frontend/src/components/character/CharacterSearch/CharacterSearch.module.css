@@ -1,4 +1,4 @@
-/* Container Principal do Card - Layout de Linha */
+
 .polyCard {
   display: flex;
   align-items: flex-start;
@@ -14,7 +14,6 @@
 .polyCard:hover {
   background-color: var(--bg-card-hover);
 }
-
 
 .polyImageContainer {
   width: 56px;

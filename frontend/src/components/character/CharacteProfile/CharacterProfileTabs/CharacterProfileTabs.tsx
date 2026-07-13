@@ -55,9 +55,18 @@ const CharacterProfileTabs: React.FC<CharacterProfileTabsProps> = ({
 
   useEffect(() => {
     if (!personagem?.id) return;
-    chatApiService.fetchConversationTime(personagem.id)
-      .then((data) => setTotalSeconds(data.total_seconds))
-      .catch(console.error);
+    const pid = Number(personagem.id);
+    if (!Number.isInteger(pid)) {
+      console.warn('[CharacterProfileTabs] personagem.id não é inteiro:', personagem.id);
+      return;
+    }
+
+    chatApiService.fetchConversationTime(pid)
+      .then((data) => {
+        console.log('[CharacterProfileTabs] fetchConversationTime', pid, data);
+        setTotalSeconds(data?.total_seconds ?? 0);
+      })
+      .catch((err) => console.error('[CharacterProfileTabs] erro fetchConversationTime:', err));
   }, [personagem?.id]);
 
   const formatTime = (seconds: number): string => {

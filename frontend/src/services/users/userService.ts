@@ -4,13 +4,22 @@ import type { User, UpdateUserResponse, MiniProfileType } from "../../types/user
 import { normalizeFrame } from "../../utils/frame";
 
 // search for the name of the character's creator
-export async function searchCreatorNameService(usuarioId: number | null): Promise<User> {
+export async function searchCreatorNameService(usuarioId: number | null, token?: string): Promise<User> {
     if (!usuarioId) {
         throw new Error('Usuario ID é obrigatório');
     }
-    
+
     try {
-        const response = await axios.get(`${API_URL}/users/name-user/${usuarioId}`);
+        const url = token
+            ? `${API_URL}/users/user/${usuarioId}`
+            : `${API_URL}/users/name-user/${usuarioId}`;
+
+        const response = await axios.get(url, {
+            headers: token
+                ? { Authorization: `Bearer ${token}` }
+                : undefined,
+        });
+
         const data = response.data;
         return {
             ...data,
@@ -24,15 +33,16 @@ export async function searchCreatorNameService(usuarioId: number | null): Promis
 
 // update profile user
 export async function updateUserService(
-    usuarioId: number, 
-    token: string,
-    userData: { nome: string; foto_perfil?: string; descricao?: string; username?: string }
+    usuarioId: number,
+    token?: string | null,
+    userData: { nome?: string; foto_perfil?: string; descricao?: string; username?: string; hide_favorite_character?: boolean; hide_recent_character?: boolean; hide_followers?: boolean; hide_following?: boolean }
 ): Promise<UpdateUserResponse> {
     try {
         const response = await axios.put(`${API_URL}/users/edit-profile/${usuarioId}`, userData, {
-            headers: {
+            withCredentials: true,
+            headers: token ? {
                 Authorization: `Bearer ${token}`
-            }
+            } : undefined,
         });
         return response.data;
     } catch (error) {
@@ -50,6 +60,7 @@ export async function getMiniProfileService(usuarioId: number): Promise<MiniProf
   try {
     const response = await axios.get(`${API_URL}/users/mini-profile/${usuarioId}`);
     const d = response.data;
+
     return {
         usuarioId: d.id,
         nome:      d.nome,

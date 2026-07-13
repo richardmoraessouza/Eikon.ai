@@ -169,15 +169,27 @@ export const CharacterSearch = ({ personagem, creatorsMap, setCreatorsMap, isLoa
     return personagem.nome_criador || (uid !== undefined ? creatorsMap[uid] : undefined) || personagem.criador || 'Desconhecido';
   };
 
-  const refreshLikeCount = async () => {
-    const characterId = getInternalCharacterId();
+  const characterId = getInternalCharacterId();
+
+  const handleLikeClick = async () => {
     if (!characterId) return;
 
-    const total = await getQuantityLikes(characterId);
-    setLikesCount(total ?? 0);
-  };
+    const liked = isLiked(characterId);
 
-  const characterId = getInternalCharacterId();
+    // Atualiza imediatamente
+    setLikesCount(prev =>
+      Math.max(0, prev + (liked ? -1 : 1))
+    );
+
+    try {
+      await handleToggleLike(characterId);
+    } catch {
+      // Reverte caso dê erro
+      setLikesCount(prev =>
+        Math.max(0, prev + (liked ? 1 : -1))
+      );
+    }
+  };
 
   return (
     <div className={styles.polyCard} onClick={() => router.push(`/personagem/${personagem.public_id}`)}>
@@ -223,20 +235,29 @@ export const CharacterSearch = ({ personagem, creatorsMap, setCreatorsMap, isLoa
 
       <div className={styles.polyActionsContainer} onClick={(e) => e.stopPropagation()}>
         <button
-          onClick={() => {
-            if (!characterId) return;
-            handleToggleLike(characterId).then(() => refreshLikeCount());
-          }}
-          className={`${styles.polyLikeButton} ${characterId && isLiked(characterId) ? styles.polyActiveLike : ''}`}
+          onClick={handleLikeClick}
+          className={`${styles.polyLikeButton} ${
+            characterId && isLiked(characterId)
+              ? styles.polyActiveLike
+              : ""
+          }`}
         >
-          <FiHeart size={15} className={styles.statIcon} style={{ fill: characterId && isLiked(characterId) ? "#ff4b4b" : "none" }} />
+          <FiHeart
+            size={15}
+            className={styles.statIcon}
+            style={{
+              fill: characterId && isLiked(characterId)
+                ? "#ff4b4b"
+                : "none",
+            }}
+          />
           <span className={styles.statIcon}>{likesCount}</span>
         </button>
 
         <button
           className={styles.polyFavButton}
           onClick={() => {
-            if (!estaLogado) { router.push('/entrar'); return; }
+            if (!estaLogado) { router.replace('/login'); return; }
             if (!characterId) return;
             handleToggleFavorite(characterId);
           }}

@@ -1,4 +1,4 @@
-'use client'; // Necessário no Next.js (App Router) devido ao uso de hooks e dados dinâmicos do cliente
+'use client';
 
 import { FiTrendingUp, FiStar } from 'react-icons/fi'; 
 import SearchBar from '../navigation/SearchBar/SearchBar';
@@ -10,10 +10,16 @@ import { useAuth } from '../../contexts/AuthContext/AuthContext';
 import { useDiscovery, useRecommendations } from '../../hooks/useDiscovery/useDiscovety';
 import styles from './Explorar.module.css';
 import Footer from '../footer-links/Footer/Footer';
+import PaymentModal from '../PaymentModal/PaymentModal';
 
 const Explorar = () => {
     const { usuarioId: usuarioLogadoId } = useAuth();
     const popularData = useDiscovery();
+
+    const popularCharacters = popularData.characters.map((character) => ({
+        ...character,
+        public_id: character.public_id ?? String(character.id),
+    }));
     
     const { 
         characters: recCharacters, 
@@ -34,7 +40,7 @@ const Explorar = () => {
                 <DiscoveryCards 
                     title="Populares da Semana"
                     icon={<FiTrendingUp />}
-                    characters={popularData.characters}
+                    characters={popularCharacters}
                     loading={popularData.loading}
                     error={popularData.error}
                     emptyMessage="Nenhum personagem popular esta semana."
@@ -51,6 +57,7 @@ const Explorar = () => {
                     emptyMessage="Converse com mais bots para podermos personalizar suas recomendações!"
                 />
             </div>
+
             
             <ExploreSections router='explore'/>
             <Footer />

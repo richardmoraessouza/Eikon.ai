@@ -1,61 +1,75 @@
 import axios from 'axios';
+import { API_URL } from './api';
+import { clearCurrentAuthToken, getCurrentAuthToken } from './authTokenStore';
+
+let csrfTokenPromise: Promise<string | null> | null = null;
+let csrfTokenCache: string | null = null;
+
+async function getCsrfToken(): Promise<string | null> {
+  if (csrfTokenCache) {
+    return csrfTokenCache;
+  }
+
+  if (!csrfTokenPromise) {
+    csrfTokenPromise = axios.get(`${API_URL}/csrf-token`, { withCredentials: true })
+      .then((response) => {
+        const token = response?.data?.csrfToken ?? null;
+        csrfTokenCache = token;
+        return token;
+      })
+      .catch(() => null);
+  }
+
+  return csrfTokenPromise;
+}
 
 /**
- * Configura interceptores globais do axios
- * Adiciona automaticamente o token em todas as requisições
+ * Configura interceptores globais do axios.
+ * O token agora é mantido em memória e as requisições usam cookies HttpOnly + CSRF token.
  */
 export function setupAxiosInterceptors() {
-  // Interceptor de request - adiciona token automaticamente
+  axios.defaults.withCredentials = true;
+
   axios.interceptors.request.use(
-    (config) => {
-      const token = localStorage.getItem('token');
-      
-      if (token) {
-        // Remove "Bearer " se já estiver no token (evita duplication)
-        const cleanToken = token.replace(/^Bearer\s+/i, '').trim();
-        
-        if (cleanToken && cleanToken.includes('.')) {
-          // Log de debug apenas para URLs que requerem autenticação
-          
-          
+    async (config) => {
+      config.withCredentials = true;
+
+      const cleanToken = getCurrentAuthToken();
+      if (cleanToken) {
+        const isValidJwtShape = cleanToken.length > 0 && cleanToken.includes('.');
+        if (isValidJwtShape) {
           config.headers.Authorization = `Bearer ${cleanToken}`;
         } else {
-          console.warn('[Axios] Token inválido encontrado:', {
-            hasToken: !!token,
-            isJWT: token?.includes('.'),
-            length: token?.length
-          });
+          console.warn('[Axios] Token presente porém em formato inválido; requisição seguirá sem Authorization.');
         }
-      } else {
-        // console.warn('[Axios] Nenhum token encontrado para:', config.url);
       }
-      
+
+      if (typeof window !== 'undefined' && !config.url?.includes('/csrf-token') && ['post', 'put', 'patch', 'delete'].includes((config.method || 'get').toLowerCase())) {
+        const token = await getCsrfToken();
+        if (token) {
+          config.headers['X-CSRF-Token'] = token;
+        }
+      }
+
       return config;
     },
-    (error) => {
-      return Promise.reject(error);
-    }
+    (error) => Promise.reject(error)
   );
 
-  // Interceptor de response - trata erros 401
   axios.interceptors.response.use(
     (response) => response,
     (error) => {
       if (error.response?.status === 401) {
-        console.error('[Axios] ⚠️ Erro 401 - Sessão expirada ou token inválido');
-        console.error('[Axios] URL que falhou:', error.config?.url);
-        console.error('[Axios] Resposta do servidor:', error.response?.data);
-        
-        // Limpa dados de autenticação
-        localStorage.clear();
-        
-        // Redireciona para login (se estiver no navegador)
-        if (typeof window !== 'undefined' && window.location.pathname !== '/entrar') {
-          console.log('[Axios] Redirecionando para login...');
-          window.location.href = '/entrar';
+        console.warn('[Axios] Sessão expirada ou token inválido. Limpando sessão local.');
+        clearCurrentAuthToken();
+        csrfTokenCache = null;
+        csrfTokenPromise = null;
+
+        if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
+          window.location.href = '/login';
         }
       }
-      
+
       return Promise.reject(error);
     }
   );

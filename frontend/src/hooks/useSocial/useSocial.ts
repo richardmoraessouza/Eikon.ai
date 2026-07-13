@@ -44,7 +44,7 @@ export function useSocial(): SocialContextType {
 
   // Toggle like
   const handleToggleLike = async (personagemId: number): Promise<void> => {
-    if (!userId || !token) {
+    if (!userId) {
       setError('Usuário não autenticado');
       return;
     }
@@ -69,7 +69,7 @@ export function useSocial(): SocialContextType {
 
   // Toggle favorite
   const handleToggleFavorite = async (personagemId: number): Promise<void> => {
-    if (!userId || !token) {
+    if (!userId) {
       setError('Usuário não autenticado');
       return;
     }
@@ -127,7 +127,7 @@ export function useSeguir(usuarioId: number | null, token: string | null) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!usuarioId || !token) return;
+    if (!usuarioId) return;
     
     const idValido = usuarioId;
 

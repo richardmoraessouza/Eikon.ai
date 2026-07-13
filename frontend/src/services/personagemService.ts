@@ -21,11 +21,6 @@ function validateToken(token: string | null): string {
   }
   
   if (!cleanToken.includes('.')) {
-    console.error('[validateToken] Token não é um JWT válido:', {
-      length: cleanToken.length,
-      start: cleanToken.substring(0, 20),
-      end: cleanToken.substring(Math.max(0, cleanToken.length - 20))
-    });
     throw new Error('Token não é um JWT válido');
   }
   

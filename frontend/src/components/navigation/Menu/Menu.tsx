@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext/AuthContext';
 import { getFrameImagePath } from '@/utils/frame';
-import { useProfileCharacters } from '@/hooks/useCharacters/useCharacters';
+import { useProfileCharacters } from '@/hooks/useCharacters/useProfileCharacters';
 import SettingsModal from '@/components/navigation/SettingsModal/SettingsModal';
 import Progression from '@/components/profiles/Progression/Progression';
 

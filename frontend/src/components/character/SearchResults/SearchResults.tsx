@@ -8,6 +8,7 @@ import ExploreSections from '../ExploreSections/ExploreSections';
 import { CharacterSearch } from '../CharacterSearch/CharacterSearch';
 import { useCharacters } from '../../../hooks/useCharacters/useCharacters';
 import type { Character } from '../../../types/characters/characters';
+import Footer from '@/components/footer-links/Footer/Footer';
 
 function SearchResultsContent() {
     const searchParams = useSearchParams();
@@ -67,44 +68,50 @@ function SearchResultsContent() {
 
     return (
         <main className={styles.container}>
-            <CampoDePesquisar onSearch={handleNovasBuscas} />
+            <div className={styles.content}>
+                <CampoDePesquisar onSearch={handleNovasBuscas} />
 
-            <ExploreSections router="search" onTagChange={setCategoriaAtiva} />
+                <ExploreSections router="search" onTagChange={setCategoriaAtiva} />
 
-            {searchLoading && searchResults.length === 0 ? (
-                <div className={styles.loadingContainer}>
-                    <div className={styles.spinner}></div>
-                </div>
-            ) : searchResults.length > 0 ? (
-                <>
-                    <article className={styles.gridCards}>
-                        {searchResults.map((personagem: any) => (
-                            <CharacterSearch
-                                key={personagem.public_id}
-                                personagem={personagem}
-                                creatorsMap={creatorsMap}
-                                setCreatorsMap={setCreatorsMap}
-                                isLoading={searchLoading}
-                            />
-                        ))}
-                    </article>
-
-                    {searchHasMore && (
-                        <div ref={sentinelRef} className={styles.loadingContainer}>
-                            {searchLoading && <div className={styles.spinner}></div>}
-                        </div>
-                    )}
-                </>
-            ) : (
-                <div className={styles.emptyMessageContainer}>
-                    <div className={styles.emptyMessage}>
-                        {categoriaAtiva
-                          ? `Nenhum personagem correspondente a "${termoPesquisa}" encontrado na categoria selecionada.`
-                          : "Nenhum personagem encontrado. Tente fazer uma busca!"
-                        }
+                {searchLoading && searchResults.length === 0 ? (
+                    <div className={styles.loadingContainer}>
+                        <div className={styles.spinner}></div>
                     </div>
-                </div>
-            )}
+                ) : searchResults.length > 0 ? (
+                    <>
+                        <article className={styles.gridCards}>
+                            {searchResults.map((personagem: any) => (
+                                <CharacterSearch
+                                    key={personagem.public_id}
+                                    personagem={personagem}
+                                    creatorsMap={creatorsMap}
+                                    setCreatorsMap={setCreatorsMap}
+                                    isLoading={searchLoading}
+                                />
+                            ))}
+                        </article>
+
+                        {searchHasMore && (
+                            <div ref={sentinelRef} className={styles.loadingContainer}>
+                                {searchLoading && <div className={styles.spinner}></div>}
+                            </div>
+                        )}
+                    </>
+                ) : (
+                    <div className={styles.emptyMessageContainer}>
+                        <div className={styles.emptyMessage}>
+                            {categoriaAtiva
+                              ? `Nenhum personagem correspondente a "${termoPesquisa}" encontrado na categoria selecionada.`
+                              : "Nenhum personagem encontrado. Tente fazer uma busca!"
+                            }
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            <div className={styles.footerWrapper}>
+                <Footer />
+            </div>
         </main>
     );
 }

@@ -8,9 +8,9 @@ function LayoutInner({ children }: { children: React.ReactNode }) {
 
   useAnalytics({
     trackPageViews: true,
-    debug: true,
+    debug: process.env.NODE_ENV !== "production",
   });
-
+  
   return (
     <>
       <Menu onMenuToggle={setMenuOpen} />

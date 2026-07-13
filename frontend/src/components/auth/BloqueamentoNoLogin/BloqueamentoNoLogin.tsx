@@ -16,7 +16,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     // Se o carregamento terminou e o usuário NÃO está logado,
     // manda ele para a tela de login
     if (!loading && !estaLogado) {
-      router.replace("/entrar");
+      router.replace("/login");
     }
   }, [estaLogado, loading, router]);
 

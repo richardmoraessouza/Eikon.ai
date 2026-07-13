@@ -5,6 +5,7 @@ export interface Character {
     usuario_id?: number;
     bio?: string;
     fotoia?: string;
+    tags?: Array<string | { nome?: string | null; name?: string | null } | null>;
     likes?: number;
     visualizacoes?: number;
     curtidoPeloUsuario?: boolean;
@@ -12,6 +13,8 @@ export interface Character {
     popular?: boolean;
     destaque?: boolean;
     public_id: string;
+    is_public?: boolean;
+    publico?: boolean;
   }
   
 
@@ -63,4 +66,11 @@ export interface Tag {
 export interface RecentCharacter {
   usuarioId: number;
   personagemId: number;
+}
+
+export interface VisibilityResponse {
+    public_id: string;
+    nome: string;
+    is_public: boolean;
+    usuario_id?: number;
 }

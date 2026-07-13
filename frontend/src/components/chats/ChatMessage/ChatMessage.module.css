@@ -96,18 +96,21 @@
 /* SENDER NAME */
 /* ============================================================ */
 
-.senderNameUser {
-  font-size: 0.70rem;
-  font-weight: 600;
-  color: var(--sender-name-user);
-  white-space: nowrap;
-}
-
+.senderNameUser,
 .senderNameBot {
   font-size: 0.70rem;
   font-weight: 600;
-  color: var(--sender-name-bot);
   white-space: nowrap;
+  font-family: var(--sender-name-font-family, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);
+  letter-spacing: normal;
+}
+
+.senderNameUser {
+  color: var(--sender-name-user);
+}
+
+.senderNameBot {
+  color: var(--sender-name-bot);
 }
 
 /* ============================================================ */

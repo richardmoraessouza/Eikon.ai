@@ -23,9 +23,10 @@ interface ModalSeguidoresProps {
     onClose: () => void;
     usuario: number;
     usuarioLogado: number;
+    oculto?: boolean;
 }
 
-function ModalSeguidores({ tipo, lista = [], onClose, usuario, usuarioLogado }: ModalSeguidoresProps) {
+function ModalSeguidores({ tipo, lista = [], onClose, usuario, usuarioLogado, oculto = false }: ModalSeguidoresProps) {
     const [usuarios, setUsuarios] = useState<Seguidor[]>(lista);
     const [abaAtiva, setAbaAtiva] = useState<'seguidores' | 'seguindo'>(tipo);
     const modalRef = useRef<HTMLDivElement>(null);
@@ -108,7 +109,11 @@ function ModalSeguidores({ tipo, lista = [], onClose, usuario, usuarioLogado }: 
                     </button>
                 </div>
 
-                {usuarios.length === 0 ? (
+                {oculto ? (
+                    <p className={styles.warningMessage}>
+                        Este perfil mantém isso privado.
+                    </p>
+                ) : usuarios.length === 0 ? (
                     <p className={styles.emptyMessage}>
                         {abaAtiva === 'seguidores' ? 'Nenhum seguidor' : 'Não está seguindo ninguém'}
                     </p>

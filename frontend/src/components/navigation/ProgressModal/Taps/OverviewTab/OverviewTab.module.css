@@ -1,0 +1,344 @@
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+  z-index: 99998;
+}
+
+.wrap {
+    display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+}
+
+.stickyHeader {
+    width: 100%;
+}
+
+.overviewHeader {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    margin-bottom: 15px;
+}
+
+.overviewLabel {
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--settings-text-muted);
+  margin: 0;
+}
+
+.overviewHint {
+  font-size: 0.8rem;
+  color: var(--settings-text-muted);
+  margin: 0;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+  gap: 16px;
+  width: 100%;
+  min-width: 0;
+}
+
+.levelCircleWrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.bigLevelCircle {
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 2px solid #fff;
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.25rem;
+  background: linear-gradient(135deg, #0084ff, #00bcff);
+  box-shadow: 0 0 0 4px rgba(0, 132, 255, 0.15), 0 4px 14px rgba(0, 188, 255, 0.35);
+}
+
+.xpInfo {
+  min-width: 0;
+}
+
+.xpLabel {
+  margin: 0 0 2px;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #a1a1aa;
+  white-space: nowrap;
+}
+
+.xpVal {
+  margin: 0;
+  color: #fff;
+  font-size: 0.95rem;
+  white-space: nowrap;
+}
+
+.xpBarWrap {
+  flex: 1 1 auto;
+  min-width: 0; /* essencial: evita que a barra estoure o container flex */
+}
+
+.xpBarBg {
+    height: 8px;
+    width: 100%;
+  background: #2d2d30;
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid #27272a;
+}
+
+.xpBarFill {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #0084ff, #00bcff);
+  transition: width 0.6s ease;
+}
+
+.premiumPromo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: auto;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(0, 188, 255, 0.25);
+  background: linear-gradient(135deg, rgba(0, 132, 255, 0.16), rgba(0, 188, 255, 0.08));
+}
+
+.promoContent {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.promoTitle {
+  margin: 0 0 2px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.promoText {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: #cbd5e1;
+}
+
+.premiumButton {
+  flex-shrink: 0;
+  border: none;
+  border-radius: 999px;
+  padding: 8px 12px;
+  background: linear-gradient(90deg, #0084ff, #00bcff);
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.premiumButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(0, 188, 255, 0.2);
+}
+
+.stateMessage {
+  padding: 1.5rem;
+  color: var(--settings-text-muted);
+}
+
+.errorText {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #ff5c5c;
+}
+
+.xpButton {
+  flex-shrink: 0;
+  padding: 6px 14px;
+  background: var(--settings-accent);
+  color: var(--settings-bg);
+  border: none;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.xpButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* --- trilha de níveis --- */
+
+.levelTrackOuter {
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 8px 0 4px;
+  overflow: visible;
+}
+
+.levelTrackWrap {
+  width: min(100%, 760px);
+  margin: 0 auto;
+  overflow-x: auto;
+  overflow-y: visible;
+  padding: 92px 20px 24px;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  scrollbar-width: none;
+  background: transparent;
+}
+
+.levelTrackWrap::-webkit-scrollbar {
+  display: none;
+}
+
+.levelTrackWrap:active {
+  cursor: grabbing;
+}
+
+.levelTrackInner {
+  position: relative;
+  height: 10px;
+  margin-top: 18px;
+  background: #202023;
+  border-radius: 999px;
+  border: 1px solid #2c2c30;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.levelTrackFill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #0055ff, #0084ff, #00d4ff);
+  background-size: 200% 100%;
+  transition: width 0.6s ease;
+  box-shadow: 0 0 12px rgba(0, 188, 255, 0.45), 0 0 2px rgba(0, 188, 255, 0.6);
+}
+
+.levelTickWrapper {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.levelTick {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #232326, #1a1a1c);
+  border: 2px solid #3f3f46;
+  color: #71717a;
+  font-size: 0.68rem;
+  font-weight: 700;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.04), 0 2px 4px rgba(0, 0, 0, 0.3);
+  transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
+}
+
+.levelTickActive {
+  background: linear-gradient(145deg, #0091ff, #0066e0);
+  border-color: #00bcff;
+  color: #fff;
+  box-shadow: 0 0 8px rgba(0, 145, 255, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.25);
+}
+
+.levelTickCurrent {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(145deg, #00c6ff, #0084ff);
+  border: 2px solid #fff;
+  color: #fff;
+  z-index: 1;
+  animation: levelPulse 1.8s ease-in-out infinite;
+}
+
+.rewardTooltip {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 12px);
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 58px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(18, 20, 24, 0.98);
+  color: #e5e7eb;
+  font-size: 0.72rem;
+  box-shadow: none;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.rewardTooltipTitle {
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #7dd3fc;
+}
+
+.rewardImagesRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 2px;
+  justify-content: center;
+}
+
+.rewardImage {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+@keyframes levelPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(0, 188, 255, 0.5), 0 0 10px rgba(0, 188, 255, 0.6);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(0, 188, 255, 0), 0 0 10px rgba(0, 188, 255, 0.6);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(0, 188, 255, 0), 0 0 10px rgba(0, 188, 255, 0.6);
+  }
+}
+

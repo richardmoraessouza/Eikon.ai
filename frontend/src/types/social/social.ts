@@ -9,7 +9,7 @@ export interface Favorite {
 export interface FavoriteResponse {
   id: number;
   usuarioId: number;
-  personagemId: number;
+  personagemId: string;
   createdAt?: string;
 }
 
@@ -17,30 +17,30 @@ export interface FavoriteResponse {
 export interface LikeResponse {
   id: number;
   usuarioId: number;
-  personagemId: number;
+  personagemId: string;
   createdAt?: string;
 }
 
 export interface LikesQuantityResponse {
-  personagemId: number;
+  personagemId: string;
   total: number;
   likes?: number;
 }
 
 // ==================== SOCIAL STATE ====================
 export interface SocialData {
-  favorites: number[];
-  likes: number[];
+  favorites: string[];
+  likes: string[];
   loading: boolean;
   error: string | null;
 }
 
 export interface SocialContextType extends SocialData {
-  handleToggleLike: (personagemId: number) => Promise<void>;
-  handleToggleFavorite: (personagemId: number) => Promise<void>;
-  getQuantityLikes: (personagemId: number) => Promise<number>;
-  isFavorite: (id: number) => boolean;
-  isLiked: (id: number) => boolean;
+  handleToggleLike: (personagemId: string) => Promise<void>;
+  handleToggleFavorite: (personagemId: string) => Promise<void>;
+  getQuantityLikes: (personagemId: string) => Promise<number>;
+  isFavorite: (id: string) => boolean;
+  isLiked: (id: string) => boolean;
 }
 
 export interface Seguidor {

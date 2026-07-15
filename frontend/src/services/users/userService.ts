@@ -34,8 +34,8 @@ export async function searchCreatorNameService(usuarioId: number | null, token?:
 // update profile user
 export async function updateUserService(
     usuarioId: number,
+    userData: { nome?: string; foto_perfil?: string; descricao?: string; username?: string; hide_favorite_character?: boolean; hide_recent_character?: boolean; hide_followers?: boolean; hide_following?: boolean },
     token?: string | null,
-    userData: { nome?: string; foto_perfil?: string; descricao?: string; username?: string; hide_favorite_character?: boolean; hide_recent_character?: boolean; hide_followers?: boolean; hide_following?: boolean }
 ): Promise<UpdateUserResponse> {
     try {
         const response = await axios.put(`${API_URL}/users/edit-profile/${usuarioId}`, userData, {

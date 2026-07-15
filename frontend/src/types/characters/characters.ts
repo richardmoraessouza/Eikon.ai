@@ -1,7 +1,6 @@
 export interface Character {
     id: number;
     nome: string;
-    nome_criador: string;
     usuario_id?: number;
     bio?: string;
     fotoia?: string;
@@ -43,6 +42,7 @@ export interface CharacterbyId {
   is_modo_rapido?: boolean;
   cenario?: string;
   relacaousuario?: string;
+  conversation_style?: string;
   criador?: string;
   likes?: number;
   curtidoPeloUsuario?: boolean;

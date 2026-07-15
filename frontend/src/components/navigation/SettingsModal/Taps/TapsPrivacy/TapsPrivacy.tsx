@@ -30,8 +30,13 @@ const TapsPrivacy = () => {
             return;
         }
 
-        if (!usuarioId && !authToken) {
+        if (!usuarioId) {
             setFeedback({ error: 'Usuário não autenticado.' });
+            return;
+        }
+
+        if (!authToken) {
+            setFeedback({ error: 'Token de autenticação não encontrado.' });
             return;
         }
 
@@ -39,9 +44,9 @@ const TapsPrivacy = () => {
         setFeedback({});
 
         try {
-            const response = await updateUserService(usuarioId, authToken, {
+            const response = await updateUserService(usuarioId, {
                 [field]: value,
-            } as Record<string, boolean>);
+            }, authToken);
 
             const updated = response.usuario_atualizado;
             if (!updated) {

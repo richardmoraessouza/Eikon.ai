@@ -1,0 +1,441 @@
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+}
+
+.backdropClick {
+  position: absolute;
+  inset: 0;
+}
+
+.modalContainer {
+  position: relative;
+  width: min(94vw, 940px);
+  height: min(82dvh, 640px);
+  background-color: var(--settings-bg, #121214);
+  border: 1px solid var(--settings-border, #27272a);
+  display: flex;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.sidebar {
+  width: 220px;
+  min-width: 220px;
+  padding: 24px 16px;
+  background-color: var(--settings-sidebar-bg, #1c1c1e);
+  border-right: 1px solid var(--settings-border, #27272a);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.containerBtn {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.navButton {
+  width: 100%;
+  text-align: left;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  color: var(--settings-text-muted, #a1a1aa);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.navButton:hover {
+  background-color: var(--settings-hover, rgba(255, 255, 255, 0.05));
+  color: var(--settings-text, #fff);
+}
+
+.navButton.active {
+  background-color: var(--settings-active, #2d2d30);
+  color: var(--settings-text, #fff);
+}
+
+.spanFlexCenter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.spanFlexCenterGap1 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.arrowIcon {
+  opacity: 0.7;
+}
+
+.sidebarFooter {
+  margin-top: 16px;
+}
+
+.userPill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--settings-text-muted, #a1a1aa);
+  font-size: 0.82rem;
+}
+
+.rightWrapper {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.topTabBar {
+  width: 100%;
+  background-color: var(--settings-sidebar-bg, #1c1c1e);
+  border-bottom: 1px solid var(--settings-border, #27272a);
+  padding: 12px 16px;
+  overflow-x: auto;
+}
+
+.topTabBarInner {
+  display: flex;
+  gap: 8px;
+  min-width: max-content;
+}
+
+.topTabButton {
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--settings-text-muted, #a1a1aa);
+  padding: 8px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.topTabButton:hover {
+  color: var(--settings-text, #fff);
+  background-color: var(--settings-hover, rgba(255, 255, 255, 0.05));
+}
+
+.topTabButtonActive {
+  color: var(--settings-text, #fff);
+  background-color: var(--settings-active, #2d2d30);
+  border-color: var(--settings-border, #27272a);
+}
+
+.content {
+  flex: 1;
+  min-height: 0;
+  padding: 24px;
+  background-color: var(--settings-content-bg, #18181b);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.closeBtn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  border: none;
+  background: transparent;
+  color: var(--settings-text-muted, #a1a1aa);
+  font-size: 1.05rem;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.closeBtn:hover {
+  color: var(--settings-text, #fff);
+}
+
+.contentStack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.summaryCard,
+.infoCard,
+.specialCard {
+  background: var(--settings-sidebar-bg, #1c1c1e);
+  border: 1px solid var(--settings-border, #27272a);
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.levelSummary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.levelCircle {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 2px solid var(--settings-accent, #fff);
+  color: var(--settings-accent, #fff);
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.label {
+  margin: 0 0 2px;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--settings-text-muted, #a1a1aa);
+}
+
+.value {
+  margin: 0;
+  color: var(--settings-text, #fff);
+  font-size: 0.95rem;
+}
+
+.xpBarWrap {
+  width: 100%;
+}
+
+.xpBarBg {
+  height: 8px;
+  background: var(--settings-active, #2d2d30);
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid var(--settings-border, #27272a);
+}
+
+.xpBarFill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #0084ff, #00bcff);
+  transition: width 0.6s ease;
+}
+
+.levelTrackWrap {
+  padding-top: 4px;
+}
+
+.levelTrackInner {
+  position: relative;
+  height: 10px;
+  background: var(--settings-active, #2d2d30);
+  border-radius: 999px;
+  border: 1px solid var(--settings-border, #27272a);
+  overflow: hidden;
+}
+
+.levelTrackFill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #0066ff, #00c6ff);
+  transition: width 0.6s ease;
+}
+
+.levelTick {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  min-width: 32px;
+  height: 22px;
+  padding: 0 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  font-size: 0.67rem;
+  background: rgba(255,255,255,0.04);
+  color: var(--settings-text-muted, #a1a1aa);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.levelTickActive {
+  background: linear-gradient(145deg, #0080ff, #00c6ff);
+  color: #fff;
+  border-color: rgba(255,255,255,0.25);
+}
+
+.infoCard {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.infoIcon {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.06);
+  color: var(--settings-accent, #fff);
+}
+
+.infoCard h3,
+.sectionHeader h3,
+.specialHeader h4 {
+  margin: 0 0 4px;
+  font-size: 0.96rem;
+}
+
+.infoCard p,
+.sectionHeader span,
+.specialHeader p {
+  margin: 0;
+  color: var(--settings-text-muted, #a1a1aa);
+  font-size: 0.82rem;
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.specialList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.specialCard {
+  display: flex;
+  gap: 12px;
+}
+
+.specialIcon {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  font-size: 1.2rem;
+  background: rgba(255,255,255,0.06);
+  flex-shrink: 0;
+}
+
+.specialContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.specialHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.rewardBadge {
+  padding: 6px 8px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  background: rgba(0, 132, 255, 0.16);
+  color: #7dd3fc;
+  white-space: nowrap;
+}
+
+.progressRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.progressBar {
+  flex: 1;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.08);
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #0084ff, #00bcff);
+}
+
+.progressRow span {
+  font-size: 0.75rem;
+  color: var(--settings-text-muted, #a1a1aa);
+}
+
+.metaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.metaPill {
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.05);
+  color: var(--settings-text-muted, #a1a1aa);
+  font-size: 0.72rem;
+}
+
+@media (max-width: 768px) {
+  .modalContainer {
+    width: 96vw;
+    height: 92dvh;
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    min-width: 0;
+    border-right: none;
+    border-bottom: 1px solid var(--settings-border, #27272a);
+    padding: 16px 12px;
+  }
+
+  .containerBtn {
+    display: none;
+  }
+
+  .content {
+    padding: 18px 14px;
+  }
+}
+
+@media (max-width: 600px) {
+  .specialCard {
+    flex-direction: column;
+  }
+
+  .specialHeader {
+    flex-direction: column;
+  }
+
+  .rewardBadge {
+    align-self: flex-start;
+  }
+}

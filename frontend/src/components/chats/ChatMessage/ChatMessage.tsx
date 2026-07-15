@@ -7,7 +7,7 @@ import { FiMoreVertical, FiCopy, FiTrash2, FiCornerUpLeft } from 'react-icons/fi
 import { BsPin } from 'react-icons/bs';
 import type { ChatMessage as ChatMessageType } from '../../../types/chat/chat';
 import { useAuth } from '../../../contexts/AuthContext/AuthContext';
-import { normalizeFrame } from '../../../utils/frame';
+import { normalizeFrame, getFrameImagePath } from '../../../utils/frame';
 import styles from './ChatMessage.module.css';
 
 interface ChatMessageProps {
@@ -35,11 +35,8 @@ export function ChatMessage({
   
   const { fotoPerfil, frame, usuario } = useAuth();
 
-  const userFrameAtivo = normalizeFrame(frame);
-  const userFramePath = userFrameAtivo ? `/image/frames/${userFrameAtivo}` : null;
-
-  const charFrameAtivo = normalizeFrame(characterFrame ?? null);
-  const charFramePath = charFrameAtivo ? `/image/frames/${charFrameAtivo}` : null;
+  const userFramePath = getFrameImagePath(frame);
+  const charFramePath = getFrameImagePath(characterFrame ?? null);
 
   useEffect(() => {
     if (!menuOpen) return;

@@ -1,6 +1,5 @@
 // hooks/characters/useProfileCharacters.tsx
 import type { Character } from "../../types/characters/characters";
-import type { Favorite } from "../../types/social/social";
 import {
   getCharactersByUserId,
   getRecentCharacters,
@@ -14,11 +13,23 @@ export interface ProfileCharacter extends Character {
   tipo_personagem?: string;
 }
 
-function normalizeFavorites(favData: number[] | Favorite[]): ProfileCharacter[] {
+function normalizeFavorites(favData: Array<string | number | { public_id?: string; id?: number }> | null | undefined): ProfileCharacter[] {
   if (!Array.isArray(favData)) return [];
-  return favData.map(item =>
-    typeof item === "number" ? ({ id: item } as ProfileCharacter) : (item as ProfileCharacter)
-  );
+
+  return favData.map((item) => {
+    if (typeof item === "string") {
+      return { public_id: item, id: 0 } as ProfileCharacter;
+    }
+
+    if (typeof item === "number") {
+      return { id: item } as ProfileCharacter;
+    }
+
+    const publicId = typeof item?.public_id === "string" ? item.public_id : undefined;
+    const id = typeof item?.id === "number" ? item.id : 0;
+
+    return { ...(publicId ? { public_id: publicId } : {}), ...(id ? { id } : {}) } as ProfileCharacter;
+  });
 }
 
 export function useProfileCharacters(

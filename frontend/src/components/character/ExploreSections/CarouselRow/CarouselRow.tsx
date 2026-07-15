@@ -40,7 +40,7 @@ export const CarouselRow = ({ characters, loading = false }: CarouselRowProps) =
   // (ex.: usuário passa o mouse rápido do card A para o card B).
   const hoverRequestRef = useRef(0);
 
-  const [likesCount, setLikesCount] = useState<Record<number, number>>({});
+  const [likesCount, setLikesCount] = useState<Record<string, number>>({});
   const [creatorNames, setCreatorNames] = useState<Record<number, string>>({});
   const [creatorUsernames, setCreatorUsernames] = useState<Record<number, string | null>>({});
   const [activeProfile, setActiveProfile] = useState<MiniProfileType | null>(null);
@@ -178,8 +178,8 @@ export const CarouselRow = ({ characters, loading = false }: CarouselRowProps) =
   useEffect(() => {
     async function loadLikesCount() {
       const idsToFetch = characters
-        .map(c => c.id)
-        .filter(id => likesCount[id] === undefined);
+        .map(c => c.public_id)
+        .filter((id): id is string => Boolean(id) && likesCount[id] === undefined);
 
       if (idsToFetch.length === 0) return;
 
@@ -204,7 +204,7 @@ export const CarouselRow = ({ characters, loading = false }: CarouselRowProps) =
 
   const handleLikeClick = async (
     e: React.MouseEvent<SVGElement>,
-    characterId: number
+    characterId: string
   ) => {
     e.stopPropagation();
 
@@ -237,13 +237,31 @@ export const CarouselRow = ({ characters, loading = false }: CarouselRowProps) =
     if (!hasDragged) router.push(`/chat/${character.public_id ?? character.id}`);
   };
 
-  const normalizeTags = (tags?: Array<string | { nome?: string | null; name?: string | null } | null>) =>
-    (tags ?? [])
-      .map((tag) => {
-        if (typeof tag === "string") return tag;
-        return tag?.nome || tag?.name || "";
-      })
-      .filter(Boolean);
+  const normalizeTags = (tags?: unknown): string[] => {
+    if (tags == null) return [];
+
+    const list = Array.isArray(tags) ? tags : [tags];
+
+    return list.flatMap((tag) => {
+      if (tag == null) return [];
+      if (typeof tag === "string") {
+        const value = tag.trim();
+        return value ? [value] : [];
+      }
+      if (Array.isArray(tag)) {
+        return normalizeTags(tag);
+      }
+      if (typeof tag === "object") {
+        const record = tag as Record<string, unknown>;
+        const value = [record.nome, record.name, record.slug, record.label, record.tag, record.value]
+          .filter((item): item is string => typeof item === "string" && item.trim().length > 0)
+          .map((item) => item.trim())[0];
+
+        return value ? [value] : [];
+      }
+      return [];
+    });
+  };
 
   if (loading && characters.length === 0) {
     return (
@@ -273,7 +291,7 @@ export const CarouselRow = ({ characters, loading = false }: CarouselRowProps) =
     <div className={styles.carouselWrapper}>
       <div className={styles.carouselTrack} ref={carouselRef} {...dragProps}>
         {characters.map((character: Character) => {
-          const displayTags = normalizeTags(character.tags);
+          const displayTags = normalizeTags((character as Character & { tags_slugs?: unknown }).tags ?? (character as Character & { tags_slugs?: unknown }).tags_slugs);
 
           return (
             <div
@@ -317,8 +335,12 @@ export const CarouselRow = ({ characters, loading = false }: CarouselRowProps) =
                 >
                   <p className={styles.author}>
                     {character.usuario_id
-                      ? `@${creatorUsernames[character.usuario_id] || creatorNames[character.usuario_id] || character.nome_criador || "Desconhecido"}`
-                      : `@${character.nome_criador || "Desconhecido"}`}
+                      ? `@${(
+                          creatorUsernames[character.usuario_id] ||
+                          creatorNames[character.usuario_id] ||
+                          "Desconhecido"
+                        )}`
+                      : "@Desconhecido"}
                   </p>
                 </div>
               </div>
@@ -327,15 +349,15 @@ export const CarouselRow = ({ characters, loading = false }: CarouselRowProps) =
                 <div className={styles.stat}>
                   <FiHeart
                     size={12}
-                    onClick={(e) => handleLikeClick(e, character.id)}
+                    onClick={(e) => handleLikeClick(e, character.public_id ?? String(character.id))}
                     style={{
                       cursor: "pointer",
-                      color: isLiked(character.id) ? "#ef4444" : "currentColor",
-                      fill: isLiked(character.id) ? "#ef4444" : "none",
+                      color: isLiked(character.public_id ?? String(character.id)) ? "#ef4444" : "currentColor",
+                      fill: isLiked(character.public_id ?? String(character.id)) ? "#ef4444" : "none",
                       transition: "all 0.2s",
                     }}
                   />
-                  <span>{likesCount[character.id] ?? 0}</span>
+                  <span>{likesCount[character.public_id ?? String(character.id)] ?? 0}</span>
                 </div>
                 <div className={styles.stat}>
                   <FiMessageSquare size={12} />

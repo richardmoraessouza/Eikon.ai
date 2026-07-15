@@ -52,6 +52,8 @@ const CharacterProfile: React.FC<ProfilePersonProps> = ({
   const [likesCount, setLikesCount] = useState<number>(0);
   const [isLoadingLike, setIsLoadingLike] = useState<boolean>(false);
   const [isLoadingFav, setIsLoadingFav] = useState<boolean>(false);
+  const [likedOverride, setLikedOverride] = useState<boolean | null>(null);
+  const [favoriteOverride, setFavoriteOverride] = useState<boolean | null>(null);
   const [activeTab, setActiveTab] = useState<'Perfil' | 'histórico'>('Perfil');
   const router = useRouter();
 
@@ -119,38 +121,59 @@ const CharacterProfile: React.FC<ProfilePersonProps> = ({
     loadCharacter();
   }, [personagemId, searchCharacterById]);
 
+  const characterKey = typeof personagem?.public_id === 'string' && personagem.public_id.trim()
+    ? personagem.public_id
+    : typeof personagem?.id === 'number' || typeof personagem?.id === 'string'
+      ? String(personagem.id)
+      : null;
+
   useEffect(() => {
-    if (!personagem?.id) return;
+    if (!characterKey) return;
     const loadLikesCount = async () => {
       try {
-        const pid = Number(personagem.id);
-        if (!Number.isInteger(pid)) return;
-        const total = await getQuantityLikes(pid);
-        console.log('[CharacteProfile] loadLikesCount', pid, total);
+        const total = await getQuantityLikes(characterKey);
         setLikesCount(total);
       } catch (err) {
         console.error('Erro ao buscar likes:', err);
       }
     };
     loadLikesCount();
-  }, [personagem?.id, getQuantityLikes]);
+  }, [characterKey, getQuantityLikes]);
+
+  useEffect(() => {
+    if (!characterKey) return;
+    setLikedOverride(null);
+    setFavoriteOverride(null);
+  }, [characterKey]);
+
+  const isCharacterLiked = characterKey ? (likedOverride ?? isLiked(characterKey)) : false;
+  const isCharacterFavorite = characterKey ? (favoriteOverride ?? isFavorite(characterKey)) : false;
 
   const modalPerfil = () => setPerfilPerson(prev => !prev);
 
   const handleLikeClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
-    if (!personagem?.id) return;
-    if (!usuarioId || !token) { router.replace('/login'); return; }
+    if (!characterKey) return;
+    if (!usuarioId && !token) {
+      router.replace('/login');
+      return;
+    }
     if (isLoadingLike) return;
+
+    const wasLiked = isCharacterLiked;
+    setLikedOverride(!wasLiked);
+    setLikesCount(prev => Math.max(0, prev + (wasLiked ? -1 : 1)));
     setIsLoadingLike(true);
+
     try {
-      const pid = Number(personagem.id);
-      if (!Number.isInteger(pid)) return;
-      await handleToggleLike(pid);
-      const updatedTotal = await getQuantityLikes(pid);
-      setLikesCount(updatedTotal);
+      await handleToggleLike(characterKey);
+      const updatedTotal = await getQuantityLikes(characterKey);
+      setLikesCount(updatedTotal ?? 0);
+      setLikedOverride(null);
     } catch (err) {
       console.error('Erro ao fazer like:', err);
+      setLikedOverride(wasLiked);
+      setLikesCount(prev => Math.max(0, prev + (wasLiked ? 1 : -1)));
     } finally {
       setIsLoadingLike(false);
     }
@@ -158,16 +181,23 @@ const CharacterProfile: React.FC<ProfilePersonProps> = ({
 
   const handleFavoriteClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
-    if (!personagem?.id) return;
-    if (!usuarioId || !token) { router.replace('/login'); return; }
+    if (!characterKey) return;
+    if (!usuarioId && !token) {
+      router.replace('/login');
+      return;
+    }
     if (isLoadingFav) return;
+
+    const wasFavorite = isCharacterFavorite;
+    setFavoriteOverride(!wasFavorite);
     setIsLoadingFav(true);
+
     try {
-      const pid = Number(personagem.id);
-      if (!Number.isInteger(pid)) return;
-      await handleToggleFavorite(pid);
+      await handleToggleFavorite(characterKey);
+      setFavoriteOverride(null);
     } catch (err) {
       console.error('Erro ao alternar favorito:', err);
+      setFavoriteOverride(wasFavorite);
     } finally {
       setIsLoadingFav(false);
     }
@@ -238,13 +268,19 @@ const CharacterProfile: React.FC<ProfilePersonProps> = ({
                 <h2 className={styles.nomePersonagem}>{personagem?.nome}</h2>
 
                 <div className={styles.interacoes}>
-                  <button onClick={handleLikeClick} title="Curtir">
+                  <button
+                    onClick={handleLikeClick}
+                    title="Curtir"
+                    disabled={isLoadingLike}
+                    aria-pressed={isCharacterLiked}
+                    style={{ opacity: isLoadingLike ? 0.7 : 1 }}
+                  >
                     <FiHeart
                       size={15}
                       style={{
                         cursor: 'pointer',
-                          color: isLiked(Number(personagem.id)) ? '#ef4444' : 'currentColor',
-                          fill: isLiked(Number(personagem.id)) ? '#ef4444' : 'none',
+                        color: isCharacterLiked ? '#ef4444' : 'currentColor',
+                        fill: isCharacterLiked ? '#ef4444' : 'none',
                         transition: 'all 0.2s'
                       }}
                     />
@@ -253,17 +289,23 @@ const CharacterProfile: React.FC<ProfilePersonProps> = ({
 
                   <span className={styles.divisoria}>|</span>
 
-                  <button onClick={handleFavoriteClick} title={isFavorite(personagem.id) ? "Remover dos Favoritos" : "Adicionar aos Favoritos"}>
+                  <button
+                    onClick={handleFavoriteClick}
+                    title={isCharacterFavorite ? "Remover dos Favoritos" : "Adicionar aos Favoritos"}
+                    disabled={isLoadingFav}
+                    aria-pressed={isCharacterFavorite}
+                    style={{ opacity: isLoadingFav ? 0.7 : 1 }}
+                  >
                     <FiStar
                       size={15}
                       style={{
                         cursor: 'pointer',
-                        color: isFavorite(Number(personagem.id)) ? '#eab308' : 'currentColor', 
-                        fill: isFavorite(Number(personagem.id)) ? '#eab308' : 'none',
+                        color: isCharacterFavorite ? '#eab308' : 'currentColor',
+                        fill: isCharacterFavorite ? '#eab308' : 'none',
                         transition: 'all 0.2s'
                       }}
                     />
-                    <span>{isFavorite(personagem.id) ? "Favorito" : "Favoritar"}</span>
+                    <span>{isCharacterFavorite ? "Favorito" : "Favoritar"}</span>
                   </button>
 
                   <span className={styles.divisoria}>|</span>

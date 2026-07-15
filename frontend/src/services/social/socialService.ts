@@ -4,11 +4,11 @@ import type { Favorite, FavoriteResponse, LikeResponse, LikesQuantityResponse, S
 
 // ==================== LIKES ====================
 //// Route to show likes that the user has given 
-export async function SearchLikesUser(usuarioId: number, token?: string | null): Promise<number[]> {
+export async function SearchLikesUser(usuarioId: number, token?: string | null): Promise<string[]> {
   try {
-    const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
+    const config = token ? { headers: { Authorization: `Bearer ${token}` }, withCredentials: true } : { withCredentials: true };
     const res = await axios.get(`${API_URL}/social/likes-by-user/${usuarioId}`, config);
-    return Array.isArray(res.data) ? res.data.map((id: any) => Number(id)) : [];
+    return Array.isArray(res.data) ? res.data.map((item: any) => (typeof item === 'string' ? item : (item?.public_id ?? item?.id ?? ''))) : [];
   } catch (err: any) {
     console.error('[SearchLikesUser] Erro:', err?.response?.status, err?.message);
     return [];
@@ -16,19 +16,19 @@ export async function SearchLikesUser(usuarioId: number, token?: string | null):
 }
 
 // Route to show the quantity of likes for a character
-export async function SearchQuantityLikes(personagemId: number): Promise<number> {
-  if (!Number.isInteger(personagemId) || personagemId <= 0) {
+export async function SearchQuantityLikes(personagemId: string): Promise<number> {
+  if (typeof personagemId !== 'string' || !personagemId.trim()) {
     console.warn('[SearchQuantityLikes] Invalid personagemId:', personagemId);
     return 0;
   }
 
-  const res = await axios.get<LikesQuantityResponse>(`${API_URL}/social/likes-quantity/${personagemId}`);
+  const res = await axios.get<LikesQuantityResponse>(`${API_URL}/social/likes-quantity/${personagemId}`, { withCredentials: true });
   return Number(res.data.likes ?? res.data.total ?? 0);
 }
 
 // Route to toggle like (add or remove)
-export async function toggleLike(usuarioId: number, personagemId: number, token?: string | null): Promise<LikeResponse> {
-  const headers = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
+export async function toggleLike(usuarioId: number, personagemId: string, token?: string | null): Promise<LikeResponse> {
+  const headers = token ? { headers: { Authorization: `Bearer ${token}` }, withCredentials: true } : { withCredentials: true };
   const res = await axios.post<LikeResponse>(
     `${API_URL}/social/toggle-like/${usuarioId}/${personagemId}`,
     {},
@@ -40,27 +40,28 @@ export async function toggleLike(usuarioId: number, personagemId: number, token?
 // ==================== FAVORITOS ====================
 
 // Route to show favorites that the user has given
-export async function SearchFavoritesUser(usuarioId: number): Promise<number[] | Favorite[]> {
-  const res = await axios.get(`${API_URL}/social/favorites-by-user/${usuarioId}`);
+export async function SearchFavoritesUser(usuarioId: number): Promise<string[] | Favorite[]> {
+  const res = await axios.get(`${API_URL}/social/favorites-by-user/${usuarioId}`, { withCredentials: true });
   
   if (Array.isArray(res.data) && res.data.length > 0 && res.data[0].nome) {
     return res.data as Favorite[];
   }
  
-  return Array.isArray(res.data) ? res.data.map((item: any) => Number(item.id || item)) : [];
+  return Array.isArray(res.data) ? res.data.map((item: any) => (typeof item === 'string' ? item : (item?.public_id ?? item?.id ?? item))) : [];
 }
 
 // Route to toggle favorite (add or remove)
-export async function toggleFavorite(usuarioId: number, personagemId: number, token?: string | null): Promise<FavoriteResponse> {
+export async function toggleFavorite(usuarioId: number, personagemId: string, token?: string | null): Promise<FavoriteResponse> {
   try {
     const headers = token
       ? {
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json'
-          }
+          },
+          withCredentials: true
         }
-      : {};
+      : { withCredentials: true };
     
     const res = await axios.post<FavoriteResponse>(
       `${API_URL}/social/favorites/${usuarioId}/${personagemId}`,

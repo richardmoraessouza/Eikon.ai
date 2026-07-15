@@ -5,7 +5,7 @@ import styles from "./Progression.module.css";
 import { useAuth } from "@/contexts/AuthContext/AuthContext";
 import { useMissions } from "@/hooks/useMissions/UseMissions";
 import { useDragScroll } from "@/hooks/useDragScroll/useDragScroll";
-import Missions from "./Missions/Missions";
+import MissionsTab from "@/components/navigation/ProgressModal/Taps/MissionsTab/MissionsTab";
 
 interface ProgressionProps {
   onClose?: () => void;
@@ -182,7 +182,7 @@ export default function Progression({ onClose }: ProgressionProps) {
           </div>
         </div>
 
-        <Missions
+        <MissionsTab
           coletadas={coletadas}
           coletandoMissao={coletandoMissao}
           onColetar={coletarMissao}

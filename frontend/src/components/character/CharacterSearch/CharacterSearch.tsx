@@ -60,15 +60,17 @@ export const CharacterSearch = ({ personagem, creatorsMap, setCreatorsMap, isLoa
     return uid !== undefined && uid !== null ? Number(uid) : undefined;
   };
 
-  const getInternalCharacterId = (): number | undefined => {
+  const getCharacterIdentifier = (): string | undefined => {
+    const publicId = personagem.public_id ?? personagem.publicId ?? personagem.characterPublicId;
+    if (typeof publicId === 'string' && publicId.trim()) return publicId;
     const id = personagem.id ?? personagem.characterId ?? personagem.personagem_id;
-    return Number.isInteger(Number(id)) && Number(id) > 0 ? Number(id) : undefined;
+    return Number.isInteger(Number(id)) && Number(id) > 0 ? String(id) : undefined;
   };
 
   useEffect(() => {
     let mounted = true;
     const loadLikes = async () => {
-      const characterId = getInternalCharacterId();
+      const characterId = getCharacterIdentifier();
       if (!characterId) {
         setLikesCount(0);
         return;
@@ -166,10 +168,13 @@ export const CharacterSearch = ({ personagem, creatorsMap, setCreatorsMap, isLoa
 
   const getCreatorName = () => {
     const uid = getCreatorUid();
-    return personagem.nome_criador || (uid !== undefined ? creatorsMap[uid] : undefined) || personagem.criador || 'Desconhecido';
+    if (uid !== undefined && creatorsMap[uid]) {
+      return creatorsMap[uid];
+    }
+    return personagem.criador || 'Desconhecido';
   };
 
-  const characterId = getInternalCharacterId();
+  const characterId = getCharacterIdentifier();
 
   const handleLikeClick = async () => {
     if (!characterId) return;

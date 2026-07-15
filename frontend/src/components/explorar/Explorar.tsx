@@ -10,7 +10,6 @@ import { useAuth } from '../../contexts/AuthContext/AuthContext';
 import { useDiscovery, useRecommendations } from '../../hooks/useDiscovery/useDiscovety';
 import styles from './Explorar.module.css';
 import Footer from '../footer-links/Footer/Footer';
-import PaymentModal from '../PaymentModal/PaymentModal';
 
 const Explorar = () => {
     const { usuarioId: usuarioLogadoId } = useAuth();

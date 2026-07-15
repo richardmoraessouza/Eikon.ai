@@ -40,19 +40,19 @@ const CardExplore = () => {
   // Controla a exibição do fade de scroll enquanto o usuário rola o carrossel.
   const scrollFadeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const [likesCount, setLikesCount] = useState<Record<number, number>>({});
+  const [likesCount, setLikesCount] = useState<Record<string, number>>({});
   const [creatorNames, setCreatorNames] = useState<Record<number, string>>({});
   const [creatorUsernames, setCreatorUsernames] = useState<Record<number, string | null>>({});
   const [activeProfile, setActiveProfile] = useState<MiniProfileType | null>(null);
   const [activeCardId, setActiveCardId] = useState<number | null>(null);
   const [popoverPos, setPopoverPos] = useState<PopoverPosition | null>(null);
   const [mounted, setMounted] = useState(false);
-  const [likedOverride, setLikedOverride] = useState<Record<number, boolean>>({});
+  const [likedOverride, setLikedOverride] = useState<Record<string, boolean>>({});
   const [scrollFade, setScrollFade] = useState({ left: false, right: false });
 
   useEffect(() => setMounted(true), []);
 
-  const isCharacterLiked = (id: number) =>
+  const isCharacterLiked = (id: string) =>
   likedOverride[id] ?? isLiked(id);
 
   // Limpa qualquer timer pendente ao desmontar o componente.
@@ -184,8 +184,8 @@ const CardExplore = () => {
   useEffect(() => {
     async function loadLikesCount() {
       const idsToFetch = exploreCharacters
-        .map(c => c.id)
-        .filter(id => likesCount[id] === undefined);
+        .map(c => c.public_id)
+        .filter((id): id is string => Boolean(id) && likesCount[id] === undefined);
 
       if (idsToFetch.length === 0) return;
 
@@ -212,7 +212,10 @@ const CardExplore = () => {
     const canScrollLeft = target.scrollLeft > 4;
     const canScrollRight =
       target.scrollWidth - (target.scrollLeft + target.clientWidth) > 4;
-    setScrollFade({ left: canScrollLeft, right: canScrollRight });
+
+    window.requestAnimationFrame(() => {
+      setScrollFade({ left: canScrollLeft, right: canScrollRight });
+    });
   };
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
@@ -235,7 +238,7 @@ const CardExplore = () => {
 
   const handleLikeClick = async (
     e: React.MouseEvent<SVGElement>,
-    characterId: number
+    characterId: string
   ) => {
     e.stopPropagation();
 
@@ -370,7 +373,9 @@ const CardExplore = () => {
                   </p>
                 </div>
 
-                {character.bio && <p className={styles.bio}>{character.bio}</p>}
+                <p className={styles.bio}>
+                  {character.bio ? character.bio : ` ${character.nome} ainda não tem bio.`}
+                </p>
                 {(() => {
                   const displayTags = normalizeTags(character.tags);
                   return displayTags.length > 0 ? (
@@ -391,15 +396,15 @@ const CardExplore = () => {
                 <div className={styles.stat}>
                   <FiHeart
                     size={12}
-                    onClick={(e) => handleLikeClick(e, character.id)}
+                    onClick={(e) => handleLikeClick(e, character.public_id ?? String(character.id))}
                     style={{
                       cursor: "pointer",
-                      color: isCharacterLiked(character.id) ? "#ef4444" : "currentColor",
-                      fill: isCharacterLiked(character.id) ? "#ef4444" : "none",
+                      color: isCharacterLiked(character.public_id ?? String(character.id)) ? "#ef4444" : "currentColor",
+                      fill: isCharacterLiked(character.public_id ?? String(character.id)) ? "#ef4444" : "none",
                       transition: "all 0.2s",
                     }}
                   />
-                  <span>{likesCount[character.id] ?? 0}</span>
+                  <span>{likesCount[character.public_id ?? String(character.id)] ?? 0}</span>
                 </div>
                 <div className={styles.stat}>
                   <FiMessageSquare size={12} />

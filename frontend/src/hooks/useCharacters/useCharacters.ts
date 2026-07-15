@@ -52,9 +52,9 @@ export function useCharacters() {
     return await createCharacterService(usuarioId, payload, token);
   }, []);
 
-  // Sends a request to update an existing character by ID
-  const updateCharacter = useCallback(async (personagemId: number, payload: any, token?: string | null) => {
-    return await updateCharacterService(personagemId, payload, token);
+  // Sends a request to update an existing character using its public_id (or a numeric id fallback)
+  const updateCharacter = useCallback(async (personagemIdentifier: string | number, payload: any, token?: string | null) => {
+    return await updateCharacterService(personagemIdentifier, payload, token);
   }, []);
 
   // Fetches all available category tags for the filter UI

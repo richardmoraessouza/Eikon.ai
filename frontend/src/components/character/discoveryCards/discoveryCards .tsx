@@ -66,7 +66,7 @@ export const DiscoveryCards = ({
   // (ex.: usuário passa o mouse rápido do card A para o card B).
   const hoverRequestRef = useRef(0);
 
-  const [likesCount, setLikesCount] = useState<Record<number, number>>({});
+  const [likesCount, setLikesCount] = useState<Record<string, number>>({});
   const [creatorNames, setCreatorNames] = useState<Record<number, string>>({});
   const [creatorUsernames, setCreatorUsernames] = useState<Record<number, string | null>>({});
   const [activeProfile, setActiveProfile] = useState<MiniProfileType | null>(null);
@@ -203,9 +203,13 @@ export const DiscoveryCards = ({
   // Carrega contagem de likes em paralelo, também com update funcional.
   useEffect(() => {
     async function loadLikesCount() {
-      const idsToFetch = characters
-        .map(c => c.id)
-        .filter(id => likesCount[id] === undefined);
+      const idsToFetch = characters.flatMap(c => {
+        const id = c.public_id;
+        if (typeof id !== "string" || id.trim() === "" || id in likesCount) {
+          return [];
+        }
+        return [id];
+      });
 
       if (idsToFetch.length === 0) return;
 
@@ -238,7 +242,7 @@ export const DiscoveryCards = ({
 
   const handleLikeClick = async (
     e: React.MouseEvent<SVGElement>,
-    characterId: number
+    characterId: string
   ) => {
     e.stopPropagation();
 
@@ -385,15 +389,15 @@ export const DiscoveryCards = ({
                 <div className={styles.stat}>
                   <FiHeart
                     size={12}
-                    onClick={(e) => handleLikeClick(e, character.id)}
+                    onClick={(e) => handleLikeClick(e, character.public_id ?? String(character.id))}
                     style={{
                       cursor: "pointer",
-                      color: isLiked(character.id) ? "#ef4444" : "currentColor",
-                      fill: isLiked(character.id) ? "#ef4444" : "none",
+                      color: isLiked(character.public_id ?? String(character.id)) ? "#ef4444" : "currentColor",
+                      fill: isLiked(character.public_id ?? String(character.id)) ? "#ef4444" : "none",
                       transition: "all 0.2s",
                     }}
                   />
-                  <span>{likesCount[character.id] ?? 0}</span>
+                  <span>{likesCount[character.public_id ?? String(character.id)] ?? 0}</span>
                 </div>
                 <div className={styles.stat}>
                   <FiMessageSquare size={12} />

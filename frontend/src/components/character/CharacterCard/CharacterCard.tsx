@@ -79,8 +79,8 @@ function CharacterCard({ type, abaAtiva, usuarioId: externalUsuarioId, hideFavor
     getQuantityLikes
   } = useSocial();
 
-  const [likesCount, setLikesCount] = useState<Record<number, number>>({});
-  const [openMenuId, setOpenMenuId] = useState<number | null>(null);
+  const [likesCount, setLikesCount] = useState<Record<string, number>>({});
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [publicoOverride, setPublicoOverride] = useState<Record<number, boolean>>({});
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -104,14 +104,14 @@ function CharacterCard({ type, abaAtiva, usuarioId: externalUsuarioId, hideFavor
     async function loadMissingLikes() {
       const results = await Promise.all(
         characters.map(async character => {
-          if (!Number.isInteger(character.id) || character.id <= 0) {
-            console.warn('[CharacterCard] Ignoring character with invalid id:', character);
+          if (!character.public_id) {
+            console.warn('[CharacterCard] Ignoring character with invalid public_id:', character);
             return null;
           }
 
           const total =
-            character.likes ?? (await getQuantityLikes(character.id));
-          return [character.id, total] as const;
+            character.likes ?? (await getQuantityLikes(character.public_id));
+          return [character.public_id, total] as const;
         })
       );
 
@@ -160,7 +160,7 @@ function CharacterCard({ type, abaAtiva, usuarioId: externalUsuarioId, hideFavor
     return true;
   };
 
-  const handleLike = async (personagemId: number) => {
+  const handleLike = async (personagemId: string) => {
     if (!requireAuth()) return;
 
     const jaCurtido = isLiked(personagemId);
@@ -187,10 +187,23 @@ function CharacterCard({ type, abaAtiva, usuarioId: externalUsuarioId, hideFavor
   };
 
   const handleEdit = (p: ProfileCharacter) => {
-    localStorage.setItem("editarPersonagem", JSON.stringify({
-      editar: true, personagem: p, tipo: p.tipo_personagem
-    }));
-    router.push("/create-character");
+    const identifier = p.public_id || p.id;
+    if (!identifier) return;
+
+    const editPayload = {
+      editar: true,
+      personagem: {
+        ...p,
+        public_id: p.public_id || p.id,
+        id: p.id,
+        tipo_personagem: p.tipo_personagem,
+        is_public: p.is_public ?? p.publico ?? true
+      },
+      tipo: p.tipo_personagem
+    };
+
+    localStorage.setItem("editarPersonagem", JSON.stringify(editPayload));
+    router.push(`/character/${encodeURIComponent(String(identifier))}`);
   };
 
   const isPublicoPersonagem = (p: CharacterComVisibilidade) => {
@@ -252,11 +265,13 @@ function CharacterCard({ type, abaAtiva, usuarioId: externalUsuarioId, hideFavor
     <article className={styles.cardsPersonagens}>
       {characters.map((p: CharacterComVisibilidade, idx: number) => {
         const interactions = p.visualizacoes ?? 0;
-        const likes = likesCount[p.id] ?? p.likes ?? 0;
-        const menuOpen = openMenuId === p.id;
+        const likes = likesCount[p.public_id] ?? p.likes ?? 0;
+        const menuKey = p.public_id ?? String(p.id ?? `char-${idx}`);
+        const menuOpen = openMenuId === menuKey;
         const canEdit = isOwnProfile && type === "meus-personagens";
-        const liked = isLiked(p.id);
+        const liked = isLiked(p.public_id);
         const publico = isPublicoPersonagem(p);
+        const characterName = typeof p.nome === "string" && p.nome.trim() ? p.nome.trim() : "Foto do personagem";
 
         return (
           <div
@@ -278,7 +293,7 @@ function CharacterCard({ type, abaAtiva, usuarioId: externalUsuarioId, hideFavor
             <div className={styles.avatarWrapper}>
               <Image
                 src={p.fotoia || "/image/semPerfil.jpg"}
-                alt={p.nome}
+                alt={characterName}
                 className={styles.cardImg}
                 width={100}
                 height={100}
@@ -303,7 +318,7 @@ function CharacterCard({ type, abaAtiva, usuarioId: externalUsuarioId, hideFavor
                   aria-label={liked ? `Remover curtida de ${p.nome}` : `Curtir ${p.nome}`}
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleLike(p.id);
+                    handleLike(p.public_id);
                   }}
                 >
                   <FiHeart size={12} aria-hidden="true" />
@@ -322,7 +337,7 @@ function CharacterCard({ type, abaAtiva, usuarioId: externalUsuarioId, hideFavor
                     aria-expanded={menuOpen}
                     onClick={(e) => {
                       e.stopPropagation();
-                      setOpenMenuId(menuOpen ? null : p.id);
+                      setOpenMenuId(menuOpen ? null : menuKey);
                     }}
                   >
                     <FiMoreVertical size={16} />

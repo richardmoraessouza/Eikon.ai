@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import styles from './CreateCharacter.module.css';
-import { FiEdit2 } from "react-icons/fi";
-import { useRouter } from 'next/navigation';
+import { FiEdit2, FiGlobe, FiLock } from "react-icons/fi";
+import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext/AuthContext';
 import { useCharacters } from '@/hooks/useCharacters/useCharacters';
 import { converterBase64 } from '@/utils/CorverteImagem/corverteImagem';
@@ -12,6 +12,20 @@ import { QuickCreateMode } from '@/components/character/quick-create/quick-creat
 const validarNome = (texto: string) => {
   const limpo = texto.replace(/[^A-Za-zÀ-ú0-9 ]/g, '');
   return limpo.trim().length > 0 && /[A-Za-zÀ-ú]/.test(limpo) ? limpo : '';
+};
+
+const normalizarTipoPersonagem = (valor?: string | null) => {
+  const texto = String(valor ?? '').trim().toLowerCase();
+
+  if (['person', 'original', 'original-personagem', 'personagem-original'].includes(texto)) {
+    return 'person';
+  }
+
+  if (['ficcional', 'fiction', 'fictional', 'ficticio', 'fictícia', 'ficcao'].includes(texto)) {
+    return 'ficcional';
+  }
+
+  return 'person';
 };
 
 function CreateCharacter() {
@@ -36,6 +50,7 @@ function CreateCharacter() {
     const [quick_prompt, setQuick_prompt] = useState('');
     const [is_modo_rapido, setIs_modo_rapido] = useState(false);
     const [modoRapido, setModoRapido] = useState(false);
+    const [isPublic, setIsPublic] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [erro, setErro] = useState('');
     const nomeInputRef = useRef<HTMLInputElement>(null);
@@ -43,28 +58,54 @@ function CreateCharacter() {
     const { token, usuarioId, estaLogado, loading } = useAuth();
     const { createCharacter, updateCharacter, searchCharacterById } = useCharacters();
     const router = useRouter();
+    const params = useParams<{ id?: string | string[] }>();
+    const routeCharacterId = typeof params?.id === 'string'
+        ? params.id
+        : Array.isArray(params?.id)
+            ? params.id[0]
+            : null;
 
-    // Substitui location.state — lê do localStorage
+    // Substitui location.state — lê do localStorage como fallback ou usa a rota dinâmica /character/[id]
     const [modoEdicao, setModoEdicao] = useState(false);
-    const [personagemId, setPersonagemId] = useState<number | null>(null);
+    const [personagemIdentifier, setPersonagemIdentifier] = useState<string | null>(null);
 
     useEffect(() => {
+        if (routeCharacterId) {
+            setModoEdicao(true);
+            setPersonagemIdentifier(routeCharacterId);
+            return;
+        }
+
         const raw = localStorage.getItem("editarPersonagem");
         if (raw) {
             try {
                 const data = JSON.parse(raw);
-                if (data?.editar && data?.personagem?.id) {
+                if (data?.editar && data?.personagem) {
                     setModoEdicao(true);
-                    setPersonagemId(data.personagem.id);
-                    if (data.personagem.tipo_personagem) {
-                        setTipo_personagem(data.personagem.tipo_personagem);
+
+                    const personagem = data.personagem;
+                    const identifier = typeof personagem?.public_id === 'string' && personagem.public_id.trim()
+                        ? personagem.public_id
+                        : personagem?.id != null
+                            ? String(personagem.id)
+                            : null;
+                    setPersonagemIdentifier(identifier);
+
+                    if (personagem?.tipo_personagem) {
+                        setTipo_personagem(normalizarTipoPersonagem(personagem.tipo_personagem));
+                    }
+
+                    if (typeof personagem?.is_public === 'boolean') {
+                        setIsPublic(personagem.is_public);
+                    } else if (typeof personagem?.publico === 'boolean') {
+                        setIsPublic(personagem.publico);
                     }
                 }
             } catch {
                 // ignorar erro de parse
             }
         }
-    }, []);
+    }, [routeCharacterId]);
 
     useEffect(() => {
         if (!loading && (!estaLogado || !usuarioId)) {
@@ -74,39 +115,65 @@ function CreateCharacter() {
 
     useEffect(() => {
         const carregarDadosPersonagem = async () => {
-            if (modoEdicao && personagemId) {
-                try {
-                    const dados = await searchCharacterById(personagemId);
-                    setNome(dados.nome || '');
-                    setBio(dados.bio || '');
-                    setHistoria(dados.historia || '');
-                    setPersonalidade(dados.personalidade || '');
-                    setRegras(dados.regras || '');
-                    setGenero(dados.genero || '');
-                    setDescricao(dados.descricao || '');
-                    setObra(dados.obra || '');
-                    setTipo_personagem(dados.tipo_personagem || 'person');
-                    setAparencia(dados.aparencia || '');
-                    setGostos(dados.gostos || '');
-                    setDesgostos(dados.desgostos || '');
-                    setObjetivos(dados.objetivos || '');
-                    setPrimeiraMensagem(dados.primeiramensagem || '');
-                    setRelacaoUsuario(dados.relacaousuario || '');
-                    setCenario(dados.cenario || '');
-                    setQuick_prompt(dados.quick_prompt || '');
-                    setIs_modo_rapido(dados.is_modo_rapido || false);
-                    if (dados.fotoia) setFotoia(dados.fotoia);
-                } catch (err) {
-                    console.error('[CreateCharacter] Erro ao carregar dados do personagem:', err);
-                    setErro('Erro ao carregar dados do personagem');
-                }
+            if (!modoEdicao || !personagemIdentifier) {
+                return;
+            }
+
+            try {
+                const dados = await searchCharacterById(personagemIdentifier);
+                setNome(dados.nome || '');
+                setBio(dados.bio || '');
+                setHistoria(dados.historia || '');
+                setPersonalidade(dados.personalidade || '');
+                setRegras(dados.regras || '');
+                setGenero(dados.genero || '');
+                setDescricao(dados.descricao || '');
+                setObra(dados.obra || '');
+                setTipo_personagem(normalizarTipoPersonagem(dados.tipo_personagem || 'person'));
+                setAparencia(dados.aparencia || '');
+                setGostos(dados.gostos || '');
+                setDesgostos(dados.desgostos || '');
+                setObjetivos(dados.objetivos || '');
+                setPrimeiraMensagem(dados.primeiramensagem || '');
+                setRelacaoUsuario(dados.relacaousuario || '');
+                setCenario(dados.cenario || '');
+                setConversation_style(dados.conversation_style || 'Modo Direto');
+                setQuick_prompt(dados.quick_prompt || '');
+                const modoRapidoSalvo = Boolean(dados.is_modo_rapido);
+                setModoRapido(modoRapidoSalvo);
+                setIs_modo_rapido(modoRapidoSalvo);
+                setIsPublic(typeof (dados as any).is_public === 'boolean' ? (dados as any).is_public : true);
+                if (dados.fotoia) setFotoia(dados.fotoia);
+            } catch (err) {
+                console.error('[CreateCharacter] Erro ao carregar dados do personagem:', err);
+                setErro('Erro ao carregar dados do personagem');
             }
         };
 
         carregarDadosPersonagem();
-    }, [modoEdicao, personagemId, searchCharacterById]);
+    }, [modoEdicao, personagemIdentifier, searchCharacterById]);
 
-    const isFiccional = tipo_personagem === 'ficcional';
+    const isFiccional = normalizarTipoPersonagem(tipo_personagem) === 'ficcional';
+
+    const alternarModoCriacao = (modoRapidoAtivo: boolean) => {
+        setModoRapido(modoRapidoAtivo);
+        setIs_modo_rapido(modoRapidoAtivo);
+
+        if (modoRapidoAtivo) {
+            setHistoria('');
+            setPersonalidade('');
+            setRegras('');
+            setAparencia('');
+            setGostos('');
+            setDesgostos('');
+            setObjetivos('');
+            setPrimeiraMensagem('');
+            setRelacaoUsuario('');
+            setCenario('');
+        } else {
+            setQuick_prompt('');
+        }
+    };
 
     const validarFormulario = () => {
         if (!nome.trim()) return "Por favor, insira o nome do personagem.";
@@ -143,24 +210,50 @@ function CreateCharacter() {
 
         try {
             const payload: any = {
-                nome, bio, descricao, personalidade, regras, historia,
-                tipo_personagem, is_modo_rapido: modoRapido,
-                genero, obra,
-                aparencia, gostos, desgostos, objetivos,
-                primeiramensagem: primeiraMensagem,
-                relacaousuario: relacaoUsuario,
-                cenario, conversation_style, quick_prompt
+                nome,
+                bio,
+                descricao,
+                tipo_personagem,
+                is_modo_rapido: modoRapido,
+                genero,
+                obra,
+                conversation_style,
+                is_public: isPublic,
+                ...(modoRapido
+                    ? {
+                        quick_prompt,
+                        fotoia: fotoia || undefined,
+                    }
+                    : {
+                        personalidade,
+                        regras,
+                        historia,
+                        aparencia,
+                        gostos,
+                        desgostos,
+                        objetivos,
+                        primeiramensagem: primeiraMensagem,
+                        relacaousuario: relacaoUsuario,
+                        cenario,
+                        quick_prompt: '',
+                        fotoia: fotoia || undefined,
+                    })
             };
 
             if (fotoia) payload.fotoia = fotoia;
 
-            await (modoEdicao && personagemId
-                ? updateCharacter(personagemId, payload, token)
+            const result = await (modoEdicao && personagemIdentifier
+                ? updateCharacter(personagemIdentifier, payload, token)
                 : createCharacter(usuarioId, payload, token)
             );
 
             localStorage.removeItem("editarPersonagem");
-            router.push(`/perfil/${usuarioId}`);
+            const createdCharacterId = (result as any)?.public_id || (result as any)?.id || (modoEdicao ? personagemIdentifier : null);
+            if (createdCharacterId) {
+                router.push(`/chat/${createdCharacterId}`);
+            } else {
+                router.push(`/perfil/${usuarioId}`);
+            }
         } catch (err: any) {
             if (err?.response?.status === 401) {
                 setErro("Sua sessão expirou. Por favor, faça login novamente.");
@@ -182,11 +275,11 @@ function CreateCharacter() {
         <main className={styles.criacaoPerson}>
             <form onSubmit={form} className={styles.containerCriacaoPerson}>
                 <div className={styles.tabRow}>
-                    <button type="button" onClick={() => setModoRapido(true)} className={`${styles.tabBtn} ${modoRapido ? styles.tabActive : ''}`}>
+                    <button type="button" onClick={() => alternarModoCriacao(true)} className={`${styles.tabBtn} ${modoRapido ? styles.tabActive : ''}`}>
                         <i className="fa-solid fa-bolt" style={{ marginRight: '6px', fontSize: '12px' }}></i>
                         Criação Rápida
                     </button>
-                    <button type="button" onClick={() => setModoRapido(false)} className={`${styles.tabBtn} ${!modoRapido ? styles.tabActive : ''}`}>
+                    <button type="button" onClick={() => alternarModoCriacao(false)} className={`${styles.tabBtn} ${!modoRapido ? styles.tabActive : ''}`}>
                         <i className="fa-solid fa-sliders" style={{ marginRight: '6px', fontSize: '12px' }}></i>
                         Criação Completa
                     </button>
@@ -200,30 +293,38 @@ function CreateCharacter() {
                     </button>
                 </div>
 
-                <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-                    <div style={{ position: 'relative', width: 'fit-content', margin: '0 auto', marginBottom: '20px' }}>
+                <div className={styles.header}>
+                    <div className={styles.avatarWrap}>
                         <img
                             src={fotoia || "/image/semPerfil.jpg"}
                             alt="Pré-visualização"
-                            style={{ width: '104px', height: '104px', borderRadius: '50%', objectFit: 'cover' }}
+                            className={styles.avatarImage}
                         />
-                        <div
+                        <button
+                            type="button"
+                            className={styles.avatarButton}
                             onClick={() => document.getElementById('fotoia')?.click()}
-                            style={{
-                                position: 'absolute', bottom: '0', right: '0',
-                                background: 'var(--bg-main)', width: '36px', height: '36px',
-                                borderRadius: '50%', display: 'flex', justifyContent: 'center',
-                                alignItems: 'center', border: '2px solid var(--text-main)', cursor: 'pointer'
-                            }}
+                            aria-label="Alterar foto"
                         >
                             <FiEdit2 size={16} />
-                            <input id="fotoia" type="file" onChange={(e) => converterBase64(e, setFotoia)} accept="image/*" style={{ display: 'none' }} />
-                        </div>
+                            <input id="fotoia" type="file" onChange={(e) => converterBase64(e, setFotoia)} accept="image/*" className={styles.hiddenInput} />
+                        </button>
                     </div>
-                    <h1 style={{ fontSize: '20px', fontWeight: '700', margin: '20px 0 0 0' }}>
+                    <h1>
                         {modoEdicao ? "Editar personagem" : isFiccional ? "Crie Seu Personagem fictício" : "Criar personagem"}
                     </h1>
-                    {erro && <p style={{ color: '#ef4444', fontSize: '12px', marginTop: '8px' }}>{erro}</p>}
+                    <div className={styles.visibilityWrap}>
+                        <button
+                            type="button"
+                            className={`${styles.visibilityToggle} ${isPublic ? styles.visibilityTogglePublic : styles.visibilityTogglePrivate}`}
+                            onClick={() => setIsPublic((prev) => !prev)}
+                            aria-pressed={isPublic}
+                        >
+                            {isPublic ? <FiGlobe size={16} /> : <FiLock size={16} />}
+                            <span>{isPublic ? 'Público' : 'Privado'}</span>
+                        </button>
+                    </div>
+                    {erro && <p className={styles.erro}>{erro}</p>}
                 </div>
 
                 {modoRapido ? (
@@ -241,21 +342,21 @@ function CreateCharacter() {
                             <label>Nome</label>
                             <input ref={nomeInputRef} type="text" placeholder="Nome" maxLength={20} value={nome} required
                                 onChange={(e) => setNome(validarNome(e.target.value))} />
-                            <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{nome.length}/20 palavras</p>
+                            <p className={styles.helperText}>{nome.length}/20 palavras</p>
                         </div>
 
                         <div className={styles.formGroup}>
                             <label>Bio</label>
-                            <input type="text" placeholder="Uma descrição breve" value={bio} maxLength={50}
+                            <input type="text" placeholder="Ex.: Uma pessoa calma, observadora e cheia de perguntas" value={bio} maxLength={50}
                                 onChange={(e) => setBio(e.target.value)} />
-                            <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{bio.length}/50 palavras</p>
+                            <p className={styles.helperText}>{bio.length}/50 palavras</p>
                         </div>
 
                         <div className={styles.formGroup}>
                             <label>Gênero</label>
                             <input type="text" placeholder="Qual é o gênero?" value={genero} maxLength={20}
                                 onChange={(e) => setGenero(e.target.value)} />
-                            <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{genero.length}/20 palavras</p>
+                            <p className={styles.helperText}>{genero.length}/20 palavras</p>
                         </div>
 
                         {isFiccional && (
@@ -263,87 +364,87 @@ function CreateCharacter() {
                                 <div className={styles.formGroup}>
                                     <label>Obra / Universo</label>
                                     <input type="text" value={obra} placeholder="De qual obra/universo é este personagem?"
-                                        required={isFiccional} maxLength={50} onChange={(e) => setObra(e.target.value)} className={styles.textarea} />
-                                    <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{obra.length}/50 palavras</p>
+                                        required={isFiccional} maxLength={50} onChange={(e) => setObra(e.target.value)} />
+                                    <p className={styles.helperText}>{obra.length}/50 palavras</p>
                                 </div>
                                 <div className={styles.formGroup}>
                                     <label>Cenário</label>
                                     <textarea id="cenário" value={cenario} maxLength={200}
-                                        placeholder="Descreva o cenário em que o personagem vive?"
-                                        onChange={(e) => setCenario(e.target.value)} className={styles.textarea} />
-                                    <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{cenario.length}/200 palavras</p>
+                                        placeholder="Ex.: Uma cidade moderna repleta de neon, chuva e prédios altos"
+                                        onChange={(e) => setCenario(e.target.value)} />
+                                    <p className={styles.helperText}>{cenario.length}/200 palavras</p>
                                 </div>
                             </>
                         )}
 
                         <div className={styles.formGroup}>
                             <label>Descrição</label>
-                            <textarea placeholder="Descrição para seu personagem" value={descricao}
+                            <textarea placeholder="Ex.: Um personagem acolhedor, inteligente e muito perspicaz" value={descricao}
                                 onChange={(e) => setDescricao(e.target.value)} maxLength={500} />
-                            <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{descricao.length}/500 caracteres</p>
+                            <p className={styles.helperText}>{descricao.length}/500 caracteres</p>
                         </div>
 
                         <div className={styles.formGroup}>
                             <label>História / Backstory</label>
-                            <textarea placeholder="Qual é a história deste personagem?" value={historia} maxLength={500}
+                            <textarea placeholder="Ex.: Cresceu viajando com a família e aprendeu a se adaptar a qualquer lugar" value={historia} maxLength={500}
                                 onChange={(e) => setHistoria(e.target.value)} />
-                            <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{historia.length}/500 palavras</p>
+                            <p className={styles.helperText}>{historia.length}/500 palavras</p>
                         </div>
 
                         <div className={styles.formGroup}>
                             <label>Personalidade</label>
-                            <textarea placeholder="Quais são seus traços de personalidade?" value={personalidade} maxLength={200}
+                            <textarea placeholder="Ex.: Curiosa, direta e um pouco impaciente com respostas vagas" value={personalidade} maxLength={200}
                                 onChange={(e) => setPersonalidade(e.target.value)} />
-                            <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{personalidade.length}/200 palavras</p>
+                            <p className={styles.helperText}>{personalidade.length}/200 palavras</p>
                         </div>
 
                         <div className={styles.formGroup}>
                             <label>Aparência</label>
-                            <textarea placeholder="Como o personagem se parece?" value={aparencia} maxLength={200}
+                            <textarea placeholder="Ex.: Cabelo curto e escuro, olhos castanhos, sempre com uma jaqueta jeans" value={aparencia} maxLength={200}
                                 onChange={(e) => setAparencia(e.target.value)} />
-                            <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{aparencia.length}/200 palavras</p>
+                            <p className={styles.helperText}>{aparencia.length}/200 palavras</p>
                         </div>
 
                         <div className={styles.formGroup}>
                             <label>Gostos</label>
                             <textarea placeholder="O que ele gosta?" value={gostos} maxLength={200}
                                 onChange={(e) => setGostos(e.target.value)} />
-                            <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{gostos.length}/200 palavras</p>
+                            <p className={styles.helperText}>{gostos.length}/200 palavras</p>
                         </div>
 
                         <div className={styles.formGroup}>
                             <label>Desgostos</label>
                             <textarea placeholder="O que ele não gosta?" value={desgostos} maxLength={200}
                                 onChange={(e) => setDesgostos(e.target.value)} />
-                            <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{desgostos.length}/200 palavras</p>
+                            <p className={styles.helperText}>{desgostos.length}/200 palavras</p>
                         </div>
 
                         <div className={styles.formGroup}>
                             <label>Relação com o Usuário</label>
                             <textarea placeholder="Como o personagem se relaciona com o usuário?" value={relacaoUsuario} maxLength={200}
                                 onChange={(e) => setRelacaoUsuario(e.target.value)} />
-                            <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{relacaoUsuario.length}/200 palavras</p>
+                            <p className={styles.helperText}>{relacaoUsuario.length}/200 palavras</p>
                         </div>
 
                         <div className={styles.formGroup}>
                             <label>Objetivos</label>
                             <textarea placeholder="Quais são os objetivos deste personagem?" value={objetivos} maxLength={200}
                                 onChange={(e) => setObjetivos(e.target.value)} />
-                            <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{objetivos.length}/200 palavras</p>
+                            <p className={styles.helperText}>{objetivos.length}/200 palavras</p>
                         </div>
 
                         <div className={styles.formGroup}>
                             <label>Primeira Mensagem</label>
-                            <textarea placeholder="Como o personagem deve saudar o usuário pela primeira vez?" value={primeiraMensagem} maxLength={200}
+                            <textarea placeholder="Ex.: Oi! Que bom te ver por aqui." value={primeiraMensagem} maxLength={200}
                                 onChange={(e) => setPrimeiraMensagem(e.target.value)} />
-                            <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{primeiraMensagem.length}/200 palavras</p>
+                            <p className={styles.helperText}>{primeiraMensagem.length}/200 palavras</p>
                         </div>
 
                         <div className={styles.formGroup}>
                             <label>Regras</label>
                             <textarea placeholder="Defina as regras de comportamento do personagem" value={regras} maxLength={200}
                                 onChange={(e) => setRegras(e.target.value)} />
-                            <p style={{ color: 'var(--input-placeholder)', fontSize: '12px', textAlign: 'right', marginTop: '4px' }}>{regras.length}/200 palavras</p>
+                            <p className={styles.helperText}>{regras.length}/200 palavras</p>
                         </div>
 
                         <div className={styles.formGroup}>

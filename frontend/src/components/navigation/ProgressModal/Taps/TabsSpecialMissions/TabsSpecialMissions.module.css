@@ -1,0 +1,122 @@
+.contentStack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.sectionHeader h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.sectionHeader span {
+  color: var(--settings-text-muted, #a1a1aa);
+  font-size: 0.85rem;
+}
+
+.specialList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.specialCard {
+  display: flex;
+  gap: 12px;
+  background: var(--settings-sidebar-bg, #1c1c1e);
+  border: 1px solid var(--settings-border, #27272a);
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.specialIcon {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  font-size: 1.2rem;
+  background: rgba(255,255,255,0.06);
+  flex-shrink: 0;
+}
+
+.specialContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.specialHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.specialHeader h4 {
+  margin: 0 0 4px;
+  font-size: 0.96rem;
+}
+
+.specialHeader p {
+  margin: 0;
+  color: var(--settings-text-muted, #a1a1aa);
+  font-size: 0.82rem;
+}
+
+.rewardBadge {
+  padding: 6px 8px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  background: rgba(0, 132, 255, 0.16);
+  color: #7dd3fc;
+  white-space: nowrap;
+}
+
+.progressRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.progressBar {
+  flex: 1;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.08);
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #0084ff, #00bcff);
+}
+
+.progressRow span {
+  font-size: 0.75rem;
+  color: var(--settings-text-muted, #a1a1aa);
+}
+
+.metaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.metaPill {
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.05);
+  color: var(--settings-text-muted, #a1a1aa);
+  font-size: 0.72rem;
+}

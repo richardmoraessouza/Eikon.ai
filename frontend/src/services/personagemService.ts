@@ -164,11 +164,11 @@ export async function buscarLikesUsuario(usuarioId: number, token?: string) {
   return SearchLikesUser(usuarioId, token);
 }
 
-export async function buscarQuantidadeLikes(personagemId: number) {
+export async function buscarQuantidadeLikes(personagemId: string) {
   return SearchQuantityLikes(personagemId);
 }
 
-export async function toggleLike(usuarioId: number, personagemId: number, token: string) {
+export async function toggleLike(usuarioId: number, personagemId: string, token: string) {
   return socialToggleLike(usuarioId, personagemId, token);
 }
 
@@ -178,6 +178,6 @@ export async function buscarFavoritosUsuario(usuarioId: number) {
   return SearchFavoritesUser(usuarioId);
 }
 
-export async function toggleFavorito(usuarioId: number, personagemId: number, token: string) {
+export async function toggleFavorito(usuarioId: number, personagemId: string, token: string) {
   return socialToggleFavorite(usuarioId, personagemId, token);
 }

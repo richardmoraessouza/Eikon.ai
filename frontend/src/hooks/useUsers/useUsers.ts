@@ -61,7 +61,7 @@ export function useUsers(usuarioId: number | null) {
       token: string,
       userData: { nome: string; foto_perfil?: string; descricao?: string; username?: string }
     ) => {
-      return await updateUserService(id, token, userData);
+      return await updateUserService(id, userData, token);
     },
     []
   );

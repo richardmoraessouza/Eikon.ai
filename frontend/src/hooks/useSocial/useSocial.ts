@@ -4,10 +4,21 @@ import { useAuth } from "../../contexts/AuthContext/AuthContext";
 import type { SocialContextType, Seguidor } from "../../types/social/social";
 import { FRAME_UPDATED_EVENT, type FrameUpdatedDetail } from "../../utils/frame";
 
+function normalizeIdentifier(value: unknown): string | null {
+  if (typeof value === 'string' && value.trim()) return value;
+  if (typeof value === 'number' && Number.isFinite(value)) return String(value);
+  if (typeof value === 'object' && value !== null) {
+    const record = value as Record<string, unknown>;
+    const publicId = record.public_id;
+    if (typeof publicId === 'string' && publicId.trim()) return publicId;
+  }
+  return null;
+}
+
 export function useSocial(): SocialContextType {
   const { usuarioId: userId, token } = useAuth();
-  const [favorites, setFavorites] = useState<number[]>([]);
-  const [likes, setLikes] = useState<number[]>([]);
+  const [favorites, setFavorites] = useState<string[]>([]);
+  const [likes, setLikes] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -25,12 +36,20 @@ export function useSocial(): SocialContextType {
         ]);
         
         // Processar favoritos para extrair apenas IDs
-        const favoritesIds = Array.isArray(favs) 
-          ? favs.map(f => typeof f === 'object' ? f.id : f) 
+        const favoritesIds = Array.isArray(favs)
+          ? favs
+              .map((item) => normalizeIdentifier(item))
+              .filter((value): value is string => Boolean(value))
           : [];
-          
+
+        const normalizedLikes = Array.isArray(likesData)
+          ? likesData
+              .map((item) => normalizeIdentifier(item))
+              .filter((value): value is string => Boolean(value))
+          : [];
+
         setFavorites(favoritesIds);
-        setLikes(likesData);
+        setLikes(normalizedLikes);
       } catch (err: any) {
         console.error('[useSocial] Erro ao buscar dados sociais:', err);
         setError(err?.message || 'Erro ao buscar dados sociais');
@@ -43,7 +62,7 @@ export function useSocial(): SocialContextType {
   }, [userId, token]);
 
   // Toggle like
-  const handleToggleLike = async (personagemId: number): Promise<void> => {
+  const handleToggleLike = async (personagemId: string): Promise<void> => {
     if (!userId) {
       setError('Usuário não autenticado');
       return;
@@ -68,7 +87,7 @@ export function useSocial(): SocialContextType {
   };
 
   // Toggle favorite
-  const handleToggleFavorite = async (personagemId: number): Promise<void> => {
+  const handleToggleFavorite = async (personagemId: string): Promise<void> => {
     if (!userId) {
       setError('Usuário não autenticado');
       return;
@@ -88,8 +107,8 @@ export function useSocial(): SocialContextType {
   };
 
   // Get quantity of likes for a character
-  const getQuantityLikes = async (personagemId: number): Promise<number> => {
-    if (!Number.isInteger(personagemId) || personagemId <= 0) {
+  const getQuantityLikes = async (personagemId: string): Promise<number> => {
+    if (!personagemId || typeof personagemId !== 'string' || !personagemId.trim()) {
       console.warn('[useSocial] getQuantityLikes chamado com personagemId inválido:', personagemId);
       return 0;
     }
@@ -104,8 +123,8 @@ export function useSocial(): SocialContextType {
   };
 
   // Verificadores
-  const isFavorite = (id: number): boolean => favorites.includes(id);
-  const isLiked = (id: number): boolean => likes.includes(id);
+  const isFavorite = (id: string): boolean => favorites.includes(id);
+  const isLiked = (id: string): boolean => likes.includes(id);
 
   return {
     favorites,

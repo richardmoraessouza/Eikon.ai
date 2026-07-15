@@ -25,7 +25,12 @@ export const getCharactersPaginated = async (
 
 export async function searchCharacterById(personagemPublicId: string | number): Promise<CharacterbyId> {
     try {
-        const res = await axios.get(`${API_URL}/character/data-character-by-public-id/${personagemPublicId}`);
+        const identifier = String(personagemPublicId);
+        const isNumeric = /^\d+$/.test(identifier);
+        const endpoint = isNumeric
+            ? `/character/data-character-by-id/${encodeURIComponent(identifier)}`
+            : `/character/data-character-by-public-id/${encodeURIComponent(identifier)}`;
+        const res = await axios.get(`${API_URL}${endpoint}`);
         return res.data;
     } catch (error) {
         console.error(`Error searching character data for ${personagemPublicId}:`, error);
@@ -47,9 +52,9 @@ export async function incrementChatViews(personagemPublicId: string | number, to
     }
 }
 
-export async function updateCharacterService(personagemId: number, payload: any, token?: string | null): Promise<Character> {
+export async function updateCharacterService(personagemIdentifier: string | number, payload: any, token?: string | null): Promise<Character> {
     const res = await axios.put(
-        `${API_URL}/character/update-character/${personagemId}`,
+        `${API_URL}/character/update-character/${encodeURIComponent(String(personagemIdentifier))}`,
         payload,
         token ? { headers: { Authorization: `Bearer ${token}` } } : {}
     );

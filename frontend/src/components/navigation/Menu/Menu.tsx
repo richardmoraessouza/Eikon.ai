@@ -10,6 +10,7 @@ import { useAuth } from '@/contexts/AuthContext/AuthContext';
 import { getFrameImagePath } from '@/utils/frame';
 import { useProfileCharacters } from '@/hooks/useCharacters/useProfileCharacters';
 import SettingsModal from '@/components/navigation/SettingsModal/SettingsModal';
+import MissionsModal from '@/components/navigation/ProgressModal/ProgressModal';
 import Progression from '@/components/profiles/Progression/Progression';
 
 interface MenuProps {
@@ -23,6 +24,7 @@ function Menu({ setPersonId, onMenuToggle }: MenuProps) {
     const pathname = usePathname();
 
     const [settingsModalOpen, setSettingsModalOpen] = useState(false);
+    const [missionsModalOpen, setMissionsModalOpen] = useState(false);
     const [progressionOpen, setProgressionOpen] = useState(false);
 
     const [abrirConta, setAbrirConta] = useState<boolean>(false);
@@ -99,6 +101,7 @@ function Menu({ setPersonId, onMenuToggle }: MenuProps) {
 
             
             <SettingsModal isOpen={settingsModalOpen} onClose={() => setSettingsModalOpen(false)} />
+            <MissionsModal isOpen={missionsModalOpen} onClose={() => setMissionsModalOpen(false)} />
             {progressionOpen && (
                 <div
                     className={styles.progressionOverlay}
@@ -272,9 +275,9 @@ function Menu({ setPersonId, onMenuToggle }: MenuProps) {
                                             </li>
 
                                             <li className={styles.navItem}>
-                                                <button onClick={() => setProgressionOpen(true)} className={styles.navLink}>
+                                                <button onClick={() => setMissionsModalOpen(true)} className={styles.navLink}>
                                                     <FiAward />
-                                                    <span>Nível</span>
+                                                    <span>Missões</span>
                                                 </button>
                                             </li>
 

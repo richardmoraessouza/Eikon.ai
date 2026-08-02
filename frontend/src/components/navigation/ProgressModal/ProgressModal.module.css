@@ -106,10 +106,10 @@
 }
 
 .topTabBar {
+  display: none;
   width: 100%;
   background-color: var(--settings-sidebar-bg, #1c1c1e);
-  border-bottom: 1px solid var(--settings-border, #27272a);
-  padding: 12px 16px;
+  padding: 8px 12px;
   overflow-x: auto;
 }
 
@@ -410,15 +410,15 @@
   }
 
   .sidebar {
-    width: 100%;
-    min-width: 0;
-    border-right: none;
-    border-bottom: 1px solid var(--settings-border, #27272a);
-    padding: 16px 12px;
+    display: none;
   }
 
   .containerBtn {
     display: none;
+  }
+
+  .topTabBar {
+    display: block;
   }
 
   .content {

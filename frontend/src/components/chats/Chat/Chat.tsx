@@ -14,6 +14,8 @@ import { useAuth } from '@/contexts/AuthContext/AuthContext';
 import { ChatMessageSkeleton } from '@/components/chats/ChatMessage/ChatMessageSkeleton/ChatMessageSkeleton';
 import { useMenu } from '@/contexts/MenuContext/MenuContext';
 
+import { ChatCallModal } from '@/components/chats/ChatCallModal/ChatCallModal';
+
 function Chat() {
   const params = useParams();
   const publicIdStr = params?.id as string | undefined;
@@ -22,9 +24,10 @@ function Chat() {
 
   const { searchCharacterById } = useCharacters();
   const [character, setCharacter] = useState<CharacterbyId | null>(null);
-  
   const [perfilPerson, setPerfilPerson] = useState(false);
-  
+
+  const [chamadaAtiva, setChamadaAtiva] = useState(false);
+
   useTheme();
 
   useEffect(() => {
@@ -50,6 +53,8 @@ function Chat() {
     handleKeyPress,
     handleDeleteMessage,
     handleTogglePinMessage,
+    clearChat,
+    isClearing,
   } = useChat(publicIdStr);
 
   useEffect(() => {
@@ -57,6 +62,44 @@ function Chat() {
       scrollContainerRef.current.scrollBy({ top: 60, behavior: 'smooth' });
     }
   }, [replyTo, scrollContainerRef]);
+
+  const handleSendVoiceMessage = (text: string) => {
+    const trimmed = text.trim();
+    if (!trimmed) return;
+    enviarMensagem({ text: trimmed, isVoiceCall: true });
+  };
+
+  const sendMessage = () => enviarMensagem({ isVoiceCall: chamadaAtiva });
+
+  const handleCompartilharPersonagem = async () => {
+    const url = `${window.location.origin}/character/${publicIdStr}`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: character?.nome ?? 'Personagem',
+          text: `Conheça ${character?.nome ?? 'este personagem'}!`,
+          url,
+        });
+      } catch {
+        // usuário cancelou o compartilhamento, sem problema
+      }
+    } else {
+      await navigator.clipboard.writeText(url);
+      // opcional: dispare aqui seu toast de "Link copiado!"
+    }
+  };
+
+  const handleLimparConversa = async () => {
+    const confirmar = window.confirm('Tem certeza que deseja apagar toda a conversa com este personagem? Essa ação não pode ser desfeita.');
+    if (!confirmar) return;
+
+    try {
+      await clearChat();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Não foi possível limpar a conversa.');
+    }
+  };
 
   return (
     <>
@@ -69,12 +112,14 @@ function Chat() {
         pinnedMessages={pinnedMessages}
         isLoadingPinned={isLoadingPinned}
         onUnpin={(msg) => handleTogglePinMessage(msg)}
+        onIniciarChamada={() => setChamadaAtiva(true)}
+        onCompartilharPersonagem={handleCompartilharPersonagem}
+        onLimparConversa={handleLimparConversa}
+        isClearing={isClearing}
       />
 
       <div className={`${styles.containerChat} ${menuOpen ? styles.menuAberto : ''} ${perfilPerson ? styles.perfilAberto : ''}`}>
         <main className={`${styles.chat} flex flex-col`}>
-          <div className={styles.containerEmCima} />
-
           <section
             className={styles.conversas}
             ref={scrollContainerRef}
@@ -129,11 +174,11 @@ function Chat() {
             isLoading={isLoading}
             replyTo={replyTo}
             onChange={(val) => setMessage(val)}
-            onSend={enviarMensagem}
+            onSend={sendMessage}
             onKeyPress={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
-                enviarMensagem();
+                sendMessage();
               } else {
                 handleKeyPress(e);
               }
@@ -142,6 +187,16 @@ function Chat() {
           />
         </main>
       </div>
+
+      <ChatCallModal
+        isOpen={chamadaAtiva}
+        onClose={() => setChamadaAtiva(false)}
+        characterName={character?.nome ?? 'Personagem'}
+        characterPhoto={character?.fotoia}
+        chatHistory={chatHistory}
+        isLoading={isLoading}
+        onSendMessage={handleSendVoiceMessage}
+      />
     </>
   );
 }

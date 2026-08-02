@@ -12,6 +12,7 @@ import { BsPin } from 'react-icons/bs';
 interface CharacterProfileTabsProps {
   personagem: {
     id?: number;
+    public_id?: string;
     bio?: string;
     descricao?: string;
     usuario_id?: number;
@@ -54,20 +55,21 @@ const CharacterProfileTabs: React.FC<CharacterProfileTabsProps> = ({
   const [totalSeconds, setTotalSeconds] = useState<number>(0);
 
   useEffect(() => {
-    if (!personagem?.id) return;
-    const pid = Number(personagem.id);
-    if (!Number.isInteger(pid)) {
-      console.warn('[CharacterProfileTabs] personagem.id não é inteiro:', personagem.id);
-      return;
-    }
+    // Aceita id numérico OU public_id (string) — o personagem pode não ter
+    // um "id" numérico populado dependendo de onde foi carregado.
+    const rawId = personagem?.id ?? personagem?.public_id;
+    if (rawId === undefined || rawId === null || rawId === '') return;
 
-    chatApiService.fetchConversationTime(pid)
+    chatApiService.fetchConversationTime(rawId as string | number)
       .then((data) => {
-        console.log('[CharacterProfileTabs] fetchConversationTime', pid, data);
-        setTotalSeconds(data?.total_seconds ?? 0);
+        console.log('[CharacterProfileTabs] fetchConversationTime', rawId, data);
+        // A API retorna total_seconds como STRING (ex: "408"), por isso
+        // usamos Number() pra converter antes de comparar/formatar.
+        const seconds = Number(data?.total_seconds ?? 0);
+        setTotalSeconds(Number.isFinite(seconds) ? seconds : 0);
       })
       .catch((err) => console.error('[CharacterProfileTabs] erro fetchConversationTime:', err));
-  }, [personagem?.id]);
+  }, [personagem?.id, personagem?.public_id]);
 
   const formatTime = (seconds: number): string => {
     if (seconds < 60) return `${seconds}s`;

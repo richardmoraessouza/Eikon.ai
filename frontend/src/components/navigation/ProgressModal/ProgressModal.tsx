@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { FiAward, FiTarget, FiTrendingUp, FiUser } from 'react-icons/fi';
+import { FiAward, FiTarget, FiTrendingUp } from 'react-icons/fi';
 import styles from './ProgressModal.module.css';
 import { useAuth } from '@/contexts/AuthContext/AuthContext';
 import { useMissions } from '@/hooks/useMissions/UseMissions';
@@ -9,6 +9,8 @@ import MissionsTab from './Taps/MissionsTab/MissionsTab';
 import OverviewTab from './Taps/OverviewTab/OverviewTab';
 import TabsSpecialMissions from './Taps/TabsSpecialMissions/TabsSpecialMissions';
 import PaymentModal from '@/components/navigation/PaymentModal/PaymentModal';
+import { getFrameUnlocksService } from '@/services/users/userService';
+import type { FrameUnlock } from '@/types/users/users';
 
 interface MissionsModalProps {
   isOpen: boolean;
@@ -32,7 +34,7 @@ function xpParaNivel(nivel: number) {
 }
 
 const MissionsModal: React.FC<MissionsModalProps> = ({ isOpen, onClose }) => {
-  const { usuarioId } = useAuth();
+  const { usuarioId, token } = useAuth();
   const usuarioIdNum = useMemo(() => (usuarioId ? Number(usuarioId) : undefined), [usuarioId]);
   const { getUserLevel, getUserXp } = useMissions(usuarioIdNum);
 
@@ -41,6 +43,7 @@ const MissionsModal: React.FC<MissionsModalProps> = ({ isOpen, onClose }) => {
   const [xpAtual, setXpAtual] = useState(0);
   const [loading, setLoading] = useState(true);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [frameUnlocks, setFrameUnlocks] = useState<FrameUnlock[]>([]);
 
   const currentLevelNum = Number(currentLevel) || 1;
   const xpAtualNum = Number(xpAtual) || 0;
@@ -60,7 +63,10 @@ const MissionsModal: React.FC<MissionsModalProps> = ({ isOpen, onClose }) => {
   }, [isOpen, onClose]);
 
   useEffect(() => {
-    if (usuarioIdNum == null) return;
+    if (usuarioIdNum == null) {
+      setFrameUnlocks([]);
+      return;
+    }
 
     const userIdNumber = usuarioIdNum;
     let cancelled = false;
@@ -90,6 +96,32 @@ const MissionsModal: React.FC<MissionsModalProps> = ({ isOpen, onClose }) => {
     };
   }, [getUserLevel, getUserXp, usuarioIdNum]);
 
+  useEffect(() => {
+    if (usuarioIdNum == null) {
+      setFrameUnlocks([]);
+      return;
+    }
+
+    const userIdNumber = usuarioIdNum;
+    let cancelled = false;
+
+    async function loadFrameUnlocks() {
+      try {
+        const response = await getFrameUnlocksService(userIdNumber, token ?? undefined);
+        if (!cancelled) setFrameUnlocks(response?.frames ?? []);
+      } catch (error) {
+        console.error('Erro ao carregar desbloqueios de molduras:', error);
+        if (!cancelled) setFrameUnlocks([]);
+      }
+    }
+
+    loadFrameUnlocks();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [token, usuarioIdNum]);
+
   if (!isOpen) return null;
 
   const renderContent = () => {
@@ -103,6 +135,7 @@ const MissionsModal: React.FC<MissionsModalProps> = ({ isOpen, onClose }) => {
             pct={pct}
             fillPx={fillPx}
             loading={loading}
+            frameUnlocks={frameUnlocks}
             onOpenPremiumModal={() => setIsPaymentModalOpen(true)}
           />
         );
@@ -137,15 +170,26 @@ const MissionsModal: React.FC<MissionsModalProps> = ({ isOpen, onClose }) => {
             ))}
           </div>
 
-          <div className={styles.sidebarFooter}>
-            <div className={styles.userPill}>
-              <FiUser size={14} />
-              <span>{usuarioId ? 'Conta ativa' : 'Entre para ver'}</span>
-            </div>
-          </div>
         </aside>
 
         <div className={styles.rightWrapper}>
+          <div className={styles.topTabBar}>
+            <div className={styles.topTabBarInner}>
+              {TABS.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id as MissionTab)}
+                  className={`${styles.topTabButton} ${activeTab === tab.id ? styles.topTabButtonActive : ''}`}
+                >
+                  <span className={styles.spanFlexCenter}>
+                    {tab.icon}
+                    {tab.label}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div className={styles.content}>{renderContent()}</div>
         </div>
       </div>

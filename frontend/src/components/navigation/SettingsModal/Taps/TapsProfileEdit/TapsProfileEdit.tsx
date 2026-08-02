@@ -7,6 +7,8 @@ import { FiCamera, FiUser, FiFileText, FiCheck, FiAlertCircle } from "react-icon
 import { useUsers } from '../../../../../hooks/useUsers/useUsers';
 import { useAuth } from '../../../../../contexts/AuthContext/AuthContext';
 import { getFrameImagePath } from '../../../../../utils/frame';
+import { uploadMidia } from '../../../../../services/supabaseUpload';
+import { getCurrentAuthToken } from '../../../../../config/authTokenStore';
 
 const USERNAME_REGEX = /^[a-zA-Z0-9._]*$/;
 const USERNAME_MIN = 3;
@@ -20,7 +22,8 @@ const TapsProfileEdit: React.FC = () => {
         descricao: ctxDescricao,
         usuario: ctxNome,
         updateProfile,
-        frame
+        frame,
+        loading: authLoading,
     } = useAuth();
         
     const { users, loading, error, updateUser } = useUsers(usuarioId);
@@ -33,8 +36,13 @@ const TapsProfileEdit: React.FC = () => {
     const [sucesso, setSucesso] = useState<string | null>(null);
     const [erro, setErro] = useState<string | null>(null);
     const [salvando, setSalvando] = useState(false);
+    const [subindoFoto, setSubindoFoto] = useState(false);
+    const [fotoSelecionada, setFotoSelecionada] = useState<File | null>(null);
+    const [previewFoto, setPreviewFoto] = useState<string | null>(null);
+    const [pathFotoAtual, setPathFotoAtual] = useState<string | null>(null);
 
     const caminhoFrame = getFrameImagePath(frame);
+    const imagemExibida = previewFoto || imgPerfil || '/image/semPerfil.jpg';
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
@@ -59,6 +67,14 @@ const TapsProfileEdit: React.FC = () => {
         }
     }, [users]);
 
+    useEffect(() => {
+        return () => {
+            if (previewFoto?.startsWith('blob:')) {
+                URL.revokeObjectURL(previewFoto);
+            }
+        };
+    }, [previewFoto]);
+
     const validarUsername = (value: string): string => {
         if (value.length === 0) return '';
         if (value.length < USERNAME_MIN) return `O username precisa ter pelo menos ${USERNAME_MIN} caracteres.`;
@@ -73,13 +89,26 @@ const TapsProfileEdit: React.FC = () => {
         setUsernameErro(validarUsername(valorFiltrado));
     };
 
-    const converterBase64 = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => setImgPerfil(reader.result as string);
-            reader.readAsDataURL(file);
+        if (!file) return;
+
+        if (!file.type.startsWith('image/')) {
+            setErro('Selecione um arquivo de imagem válido.');
+            e.target.value = '';
+            return;
         }
+
+        if (previewFoto?.startsWith('blob:')) {
+            URL.revokeObjectURL(previewFoto);
+        }
+
+        const objectUrl = URL.createObjectURL(file);
+        setFotoSelecionada(file);
+        setPreviewFoto(objectUrl);
+        setErro(null);
+        setSucesso('Foto escolhida. Clique em salvar para enviar e persistir.');
+        e.target.value = '';
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -87,7 +116,9 @@ const TapsProfileEdit: React.FC = () => {
         setSucesso(null);
         setErro(null);
 
-        if (!usuarioId || !token) {
+        const authToken = token ?? getCurrentAuthToken();
+
+        if (!usuarioId) {
             setErro("Você precisa estar logado para editar o perfil.");
             return;
         }
@@ -116,20 +147,35 @@ const TapsProfileEdit: React.FC = () => {
 
         try {
             setSalvando(true);
-            await updateUser(usuarioId, token, {
+            let fotoParaPersistir = imgPerfil;
+
+            if (fotoSelecionada) {
+                setSubindoFoto(true);
+                const { publicUrl, path } = await uploadMidia(fotoSelecionada, 'usuario', pathFotoAtual);
+                fotoParaPersistir = publicUrl;
+                setImgPerfil(publicUrl);
+                setPathFotoAtual(path || null);
+            }
+
+            await updateUser(usuarioId, authToken ?? undefined, {
                 nome: novoNome,
                 username,
-                foto_perfil: imgPerfil,
+                foto_perfil: fotoParaPersistir,
                 descricao: descricao
             });
 
             updateProfile({
                 nome: novoNome,
                 username,
-                foto_perfil: imgPerfil,
+                foto_perfil: fotoParaPersistir,
                 descricao: descricao
             });
 
+            if (previewFoto?.startsWith('blob:')) {
+                URL.revokeObjectURL(previewFoto);
+            }
+            setFotoSelecionada(null);
+            setPreviewFoto(null);
             setSucesso("Perfil atualizado com sucesso!");
             setTimeout(() => setSucesso(null), 3000);
         } catch (err: any) {
@@ -143,10 +189,11 @@ const TapsProfileEdit: React.FC = () => {
             }
         } finally {
             setSalvando(false);
+            setSubindoFoto(false);
         }
     };
 
-    if (loading) return (
+    if (authLoading || loading) return (
         <section className={styles.section} aria-busy="true">
             <div className={styles.container}>
                 <div className={styles.avatarSection}>
@@ -176,7 +223,7 @@ const TapsProfileEdit: React.FC = () => {
                     <div className={styles.avatarWrapOuter}>
                         <div className={styles.avatarWrapper}>
                             <Image 
-                                src={imgPerfil || '/image/semPerfil.jpg'} 
+                                src={imagemExibida} 
                                 alt="Foto Perfil" 
                                 className={styles.avatar}
                                 width={120}
@@ -191,8 +238,9 @@ const TapsProfileEdit: React.FC = () => {
                                 id="foto" 
                                 type="file" 
                                 accept="image/*" 
-                                onChange={converterBase64} 
+                                onChange={handleFotoUpload} 
                                 className={styles.hiddenInput}
+                                disabled={subindoFoto}
                             />
                         </div>
                         {caminhoFrame && (

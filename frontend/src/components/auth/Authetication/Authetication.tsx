@@ -10,8 +10,8 @@ import { useAuth } from '@/contexts/AuthContext/AuthContext';
 import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 import { API_URL } from '@/config/api';
-import { converterBase64 } from '@/utils/CorverteImagem/corverteImagem';
 import { getFrameImagePath } from '@/utils/frame';
+import { uploadMidia } from '@/services/supabaseUpload';
 
 interface SituacaoProps {
     verificar: boolean;
@@ -39,6 +39,7 @@ function Authentication({ verificar }: SituacaoProps) {
     const [username, setUsername] = useState<string>('');
     const [usernameErro, setUsernameErro] = useState<string>('');
     const [googleCredential, setGoogleCredential] = useState<string | null>(null);
+    const [subindoFoto, setSubindoFoto] = useState<boolean>(false);
 
     const router = useRouter();
     const { login } = useAuth();
@@ -114,6 +115,30 @@ function Authentication({ verificar }: SituacaoProps) {
         setUsername(valorFiltrado);
         setNome(valorFiltrado);
         setUsernameErro(validarUsername(valorFiltrado));
+    };
+
+    const handleFotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (!file.type.startsWith('image/')) {
+            setLoginErro('Selecione um arquivo de imagem válido.');
+            e.target.value = '';
+            return;
+        }
+
+        try {
+            setSubindoFoto(true);
+            setLoginErro('');
+            const { publicUrl } = await uploadMidia(file, 'usuario');
+            setImgPerfil(publicUrl);
+        } catch (err: any) {
+            const mensagemErro = err?.message || 'Não foi possível enviar a imagem para o Supabase.';
+            setLoginErro(mensagemErro);
+        } finally {
+            setSubindoFoto(false);
+            e.target.value = '';
+        }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -248,8 +273,8 @@ function Authentication({ verificar }: SituacaoProps) {
                                     id="foto"
                                     type="file"
                                     accept="image/*"
-                                    disabled={condicaoUsuario}
-                                    onChange={(e) => converterBase64(e, setImgPerfil)}
+                                    disabled={condicaoUsuario || subindoFoto}
+                                    onChange={handleFotoUpload}
                                     style={{ display: 'none' }}
                                 />
                             </div>
@@ -296,8 +321,8 @@ function Authentication({ verificar }: SituacaoProps) {
                             />
                         </div>
 
-                        <button type="submit" className={styles.submitBtn} disabled={!condicaoUsuario && !!usernameErro}>
-                            {condicaoUsuario ? 'Entrar' : 'Cadastrar'}
+                        <button type="submit" className={styles.submitBtn} disabled={!condicaoUsuario && (!!usernameErro || subindoFoto)}>
+                            {subindoFoto ? 'Enviando foto...' : (condicaoUsuario ? 'Entrar' : 'Cadastrar')}
                         </button>
                     </form>
 

@@ -11,7 +11,6 @@ import { getFrameImagePath } from '@/utils/frame';
 import { useProfileCharacters } from '@/hooks/useCharacters/useProfileCharacters';
 import SettingsModal from '@/components/navigation/SettingsModal/SettingsModal';
 import MissionsModal from '@/components/navigation/ProgressModal/ProgressModal';
-import Progression from '@/components/profiles/Progression/Progression';
 
 interface MenuProps {
     setPersonId?: React.Dispatch<React.SetStateAction<number>>;
@@ -102,21 +101,7 @@ function Menu({ setPersonId, onMenuToggle }: MenuProps) {
             
             <SettingsModal isOpen={settingsModalOpen} onClose={() => setSettingsModalOpen(false)} />
             <MissionsModal isOpen={missionsModalOpen} onClose={() => setMissionsModalOpen(false)} />
-            {progressionOpen && (
-                <div
-                    className={styles.progressionOverlay}
-                    onClick={() => setProgressionOpen(false)}
-                >
-                    <div
-                        className={styles.progressionModal}
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <Progression
-                            onClose={() => setProgressionOpen(false)}
-                        />
-                    </div>
-                </div>
-            )}
+
 
             {modalOpen && (
                 <aside ref={modalRef} className={`fixed top-0 left-0 p-4 ${styles.menu}`}>

@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
-import { FiCheck, FiLock } from 'react-icons/fi';
+import { FiCheck } from 'react-icons/fi';
+import { FiLock } from 'react-icons/fi';
 import { useAuth } from '../../../../../contexts/AuthContext/AuthContext';
 import { useUsers } from '../../../../../hooks/useUsers/useUsers';
 import { normalizeFrame } from '../../../../../utils/frame';
@@ -34,52 +35,46 @@ const TapsFrames = () => {
   const [selected, setSelected] = useState<string | null>(() => resolveFrameValue(frame));
   const [saving, setSaving] = useState(false);
   const [sucesso, setSucesso] = useState(false);
-  const [unlockedFrames, setUnlockedFrames] = useState<string[]>([]);
-  const { updateFrame, getMiniProfile } = useUsers(usuarioId);
+  const [frameStatus, setFrameStatus] = useState<Record<string, boolean> | null>(null);
+  const [frameStatusLoading, setFrameStatusLoading] = useState(true);
+  const { updateFrame, getFrameUnlocks } = useUsers(usuarioId);
 
   useEffect(() => {
     setSelected(resolveFrameValue(frame));
   }, [frame]);
 
   useEffect(() => {
-    if (!usuarioId) return;
+    if (!usuarioId) {
+      return;
+    }
 
-    let cancelled = false;
-
-    const carregarDesbloqueios = async () => {
+    const loadFrameStatus = async () => {
+      setFrameStatusLoading(true);
       try {
-        const miniProfile = await getMiniProfile(usuarioId);
-        if (cancelled) return;
-        setUnlockedFrames(Array.isArray(miniProfile.unlocked_frames) ? miniProfile.unlocked_frames : []);
+        const result = await getFrameUnlocks(usuarioId, token ?? undefined);
+        const status = result.frames.reduce((acc, item) => {
+          acc[item.file] = item.unlocked;
+          return acc;
+        }, {} as Record<string, boolean>);
+        setFrameStatus(status);
       } catch (err) {
-        console.error('Erro ao carregar molduras desbloqueadas:', err);
+        console.error('Erro ao carregar status de frames:', err);
+        setFrameStatus(null);
+      } finally {
+        setFrameStatusLoading(false);
       }
     };
 
-    carregarDesbloqueios();
-    return () => {
-      cancelled = true;
-    };
-  }, [usuarioId, getMiniProfile]);
+    loadFrameStatus();
+  }, [usuarioId, token, getFrameUnlocks]);
 
   const selectedFrame = useMemo(() => {
     return FRAMES.find((frameItem) => frameItem.value === selected) ?? null;
   }, [selected]);
 
-  const isFrameUnlocked = (frameItem: (typeof FRAMES)[number]) => {
-    const legacyValues = frameItem.legacyValues ?? [];
-    return unlockedFrames.includes(frameItem.value) || legacyValues.some((legacyValue) => unlockedFrames.includes(legacyValue));
-  };
-
-  const groupedFrames = useMemo(() => {
-    const unlocked = FRAMES.filter((frameItem) => isFrameUnlocked(frameItem));
-    const locked = FRAMES.filter((frameItem) => !isFrameUnlocked(frameItem));
-    return { unlocked, locked };
-  }, [unlockedFrames]);
-
   const handleSelect = (value: string) => {
     const frameItem = FRAMES.find((item) => item.value === value);
-    if (!frameItem || !isFrameUnlocked(frameItem)) return;
+    if (!frameItem) return;
     setSelected((prev) => (prev === value ? null : value));
   };
 
@@ -87,10 +82,6 @@ const TapsFrames = () => {
     if (!usuarioId) return;
 
     const frameToSave = selected ?? '';
-
-    if (frameToSave && !unlockedFrames.includes(frameToSave)) {
-      return;
-    }
 
     try {
       setSaving(true);
@@ -100,7 +91,6 @@ const TapsFrames = () => {
 
       updateProfile({ frame: savedFrame });
       setSelected(resolveFrameValue(savedFrame));
-      setUnlockedFrames(Array.isArray((updated as { unlocked_frames?: string[] }).unlocked_frames) ? (updated as { unlocked_frames?: string[] }).unlocked_frames! : unlockedFrames);
       setSucesso(true);
       setTimeout(() => setSucesso(false), 3000);
     } catch (err) {
@@ -196,8 +186,8 @@ const TapsFrames = () => {
           <span className={styles.frameLabel}>Nenhuma</span>
         </button>
 
-        {groupedFrames.unlocked.map((frameItem) => {
-          const isUnlocked = unlockedFrames.includes(frameItem.value);
+        {/* Render unlocked frames first */}
+        {FRAMES.filter((f) => (frameStatus ? frameStatus[f.file] : true)).map((frameItem) => {
           const isSelected = selected === frameItem.value;
 
           return (
@@ -206,7 +196,6 @@ const TapsFrames = () => {
               className={`${styles.frameCard} ${isSelected ? styles.frameCardSelected : ''}`}
               onClick={() => handleSelect(frameItem.value)}
               type="button"
-              disabled={!isUnlocked}
             >
               <div className={styles.previewWrapper}>
                 <Image
@@ -233,48 +222,52 @@ const TapsFrames = () => {
             </button>
           );
         })}
+
+        {/* Separator label for blocked frames */}
+        {frameStatus && (
+          <div style={{ gridColumn: '1 / -1', marginTop: 6 }}>
+            <div className={styles.sectionLabel}>Bloqueadas</div>
+          </div>
+        )}
+
+        {/* Render locked frames below */}
+        {FRAMES.filter((f) => (frameStatus ? !frameStatus[f.file] : false)).map((frameItem) => {
+          const isSelected = selected === frameItem.value;
+          const isUnlocked = frameStatus ? frameStatus[frameItem.file] : false;
+
+          return (
+            <button
+              key={frameItem.id}
+              className={`${styles.frameCard} ${isSelected ? styles.frameCardSelected : ''} ${styles.frameCardLocked}`}
+              onClick={() => handleSelect(frameItem.value)}
+              type="button"
+              disabled={!isUnlocked}
+            >
+              <div className={styles.previewWrapper}>
+                <Image
+                  src={fotoPerfil || '/image/semPerfil.jpg'}
+                  alt="Preview"
+                  className={styles.previewAvatar}
+                  width={64}
+                  height={64}
+                />
+                <Image
+                  src={`/image/frames/${frameItem.file}`}
+                  alt={frameItem.label}
+                  className={styles.previewFrame}
+                  width={70}
+                  height={70}
+                />
+                <div className={styles.lockBadge} aria-hidden>
+                  <FiLock size={12} />
+                </div>
+              </div>
+              <span className={styles.frameLabel}>{frameItem.label}</span>
+            </button>
+          );
+        })}
       </div>
 
-      {groupedFrames.locked.length > 0 && (
-        <>
-          <p className={styles.sectionLabel}>Bloqueadas</p>
-          <div className={styles.grid}>
-            {groupedFrames.locked.map((frameItem) => {
-              const isSelected = selected === frameItem.value;
-
-              return (
-                <button
-                  key={frameItem.id}
-                  className={`${styles.frameCard} ${styles.frameCardLocked} ${isSelected ? styles.frameCardSelected : ''}`}
-                  onClick={() => handleSelect(frameItem.value)}
-                  type="button"
-                  disabled
-                >
-                  <div className={styles.previewWrapper}>
-                    <div className={styles.previewAvatarEmpty} />
-                    <Image
-                      src={`/image/frames/${frameItem.file}`}
-                      alt={frameItem.label}
-                      className={styles.previewFrame}
-                      width={70}
-                      height={70}
-                    />
-                    <div className={styles.lockBadge}>
-                      <FiLock size={10} />
-                    </div>
-                    {isSelected && (
-                      <div className={styles.selectedBadge}>
-                        <FiCheck size={10} />
-                      </div>
-                    )}
-                  </div>
-                  <span className={styles.frameLabel}>{frameItem.label}</span>
-                </button>
-              );
-            })}
-          </div>
-        </>
-      )}
 
       <div className={styles.footer}>
         {sucesso && (

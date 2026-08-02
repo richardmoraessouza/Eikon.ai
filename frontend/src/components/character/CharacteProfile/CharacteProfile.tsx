@@ -14,6 +14,7 @@ import { getMiniProfileService } from "../../../services/users/userService";
 import { FRAME_UPDATED_EVENT, type FrameUpdatedDetail } from "../../../utils/frame";
 import type { MiniProfileType } from "../../../types/users/users";
 import type { ChatMessage as ChatMessageType } from '../../../types/chat/chat';
+import { ChatHeaderActions } from './ChatHeaderActions/ChatHeaderActions';
 
 interface ProfilePersonProps {
   personagemId: string | number | null;
@@ -24,6 +25,10 @@ interface ProfilePersonProps {
   pinnedMessages: ChatMessageType[];
   isLoadingPinned: boolean;
   onUnpin: (msg: ChatMessageType) => void;
+  onIniciarChamada: () => void;
+  onCompartilharPersonagem: () => void | Promise<void>;
+  onLimparConversa: () => void | Promise<void>;
+  isClearing: boolean;
 }
 
 const CharacterProfile: React.FC<ProfilePersonProps> = ({ 
@@ -35,6 +40,10 @@ const CharacterProfile: React.FC<ProfilePersonProps> = ({
   pinnedMessages,
   isLoadingPinned,
   onUnpin,
+  onIniciarChamada,
+  onCompartilharPersonagem,
+  onLimparConversa,
+  isClearing,
 }) => {
   const { token, usuarioId } = useAuth();
   const { searchCharacterById } = useCharacters();
@@ -210,30 +219,61 @@ const CharacterProfile: React.FC<ProfilePersonProps> = ({
     return () => clearInterval(intervalo);
   }, []);
 
-  if (!personagem) return null;
+  if (!personagem) {
+    return (
+      <section className={`fixed top-0 ${styles.contantoPerson} ${!menuOpen ? styles.menuFechado : styles.menuAberto}`}>
+        <div className="flex items-center gap-3 py-1">
+          <div
+            className="rounded-full animate-pulse"
+            style={{ width: '32px', height: '32px', background: 'var(--profile-border)', flexShrink: 0 }}
+          />
+          <div className="flex-1 min-w-0 flex flex-col gap-2">
+            <div
+              className="rounded animate-pulse"
+              style={{ height: '12px', width: '40%', background: 'var(--profile-border)' }}
+            />
+            <div
+              className="rounded animate-pulse"
+              style={{ height: '10px', width: '65%', background: 'var(--profile-border)' }}
+            />
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className={`fixed top-0 ${styles.contantoPerson} ${!menuOpen ? styles.menuFechado : styles.menuAberto}`}>
 
-      <header 
-        className='flex items-center gap-3 cursor-pointer hover:opacity-80 transition py-1'
-        onClick={modalPerfil}
-      >
-        <div style={{ position: 'relative', width: '32px', height: '32px' }}>
-          <Image
-            src={personagem?.fotoia || '/image/semPerfil.jpg'}
-            alt={personagem.nome}
-            fill
-            sizes="32px"
-            className='rounded-full object-cover'
-            unoptimized
-          />
-        </div>
-        <div className='flex-1 min-w-0'>
-          <h2 className={`text-sm font-semibold ${styles.nomePersonagemHeader}`}>{personagem.nome}</h2>
-          <p className='text-xs text-gray-400'>{status}</p>
-        </div>
-      </header>
+      <div className="flex items-center justify-between gap-2">
+        <header 
+          className='flex items-center gap-3 cursor-pointer hover:opacity-80 transition py-1 flex-1 min-w-0'
+          onClick={modalPerfil}
+        >
+          <div style={{ position: 'relative', width: '32px', height: '32px' }}>
+            <Image
+              src={personagem?.fotoia || '/image/semPerfil.jpg'}
+              alt={personagem.nome}
+              fill
+              sizes="32px"
+              className='rounded-full object-cover'
+              unoptimized
+            />
+          </div>
+          <div className='flex-1 min-w-0'>
+            <h2 className={`text-sm font-semibold ${styles.nomePersonagemHeader}`}>{personagem.nome}</h2>
+            <p className='text-xs text-gray-400'>{status}</p>
+          </div>
+        </header>
+
+        <ChatHeaderActions
+          onIniciarChamada={onIniciarChamada}
+          onVerPerfil={() => setPerfilPerson(true)}
+          onCompartilharPersonagem={onCompartilharPersonagem}
+          onLimparConversa={onLimparConversa}
+          isClearing={isClearing}
+        />
+      </div>
 
       {perfilPerson && personagem && (
         <div

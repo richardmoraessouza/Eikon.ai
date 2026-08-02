@@ -1,8 +1,9 @@
 "use client"; // Necessário por conta dos eventos de input (onChange, onKeyDown) e interações de botões
 
-import React from 'react';
-import { FiSend, FiX } from 'react-icons/fi';
+import React, { useRef, useState } from 'react';
+import { FiSend, FiX, FiImage } from 'react-icons/fi';
 import type { ReplyQuote } from '../../../types/chat/chat';
+import { uploadMidia } from '../../../services/supabaseUpload';
 import styles from './ChatInput.module.css';
 
 interface ChatInputProps {
@@ -30,6 +31,10 @@ export function ChatInput({
   onKeyPress,
   onCancelReply
 }: ChatInputProps) {
+  const [uploadStatus, setUploadStatus] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+
   return (
     <div
       className={`fixed ${styles.containerMensagem} ${!menuOpen ? styles.menuFechado : ''} ${perfilAberto ? styles.perfilAberto : ''}`}
@@ -70,6 +75,7 @@ export function ChatInput({
           <FiSend size={20} />
         </button>
       </div>
+      {uploadStatus && <div className={styles.uploadStatus}>{uploadStatus}</div>}
     </div>
   );
 }

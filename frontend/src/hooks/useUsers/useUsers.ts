@@ -5,6 +5,7 @@ import {
   updateUserService,
   getMiniProfileService,
   updateFrameService,
+  getFrameUnlocksService,
 } from "../../services/users/userService";
 import { FRAME_UPDATED_EVENT, type FrameUpdatedDetail } from "../../utils/frame";
 
@@ -58,7 +59,7 @@ export function useUsers(usuarioId: number | null) {
   const updateUser = useCallback(
     async (
       id: number,
-      token: string,
+      token: string | null | undefined,
       userData: { nome: string; foto_perfil?: string; descricao?: string; username?: string }
     ) => {
       return await updateUserService(id, userData, token);
@@ -79,6 +80,10 @@ export function useUsers(usuarioId: number | null) {
     return await getMiniProfileService(id);
   }, []);
 
+  const getFrameUnlocks = useCallback(async (id: number, token?: string) => {
+    return await getFrameUnlocksService(id, token);
+  }, []);
+
   return {
     users,
     loading,
@@ -86,5 +91,6 @@ export function useUsers(usuarioId: number | null) {
     updateUser,
     getMiniProfile,
     updateFrame,
+    getFrameUnlocks,
   };
 }

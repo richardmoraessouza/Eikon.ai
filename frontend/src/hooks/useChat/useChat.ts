@@ -60,6 +60,8 @@ export function useChat(personagemId: string | number | undefined) {
   const timerStartRef = useRef<number>(Date.now());
   const timerFlushedRef = useRef<boolean>(false);
 
+  const [isClearing, setIsClearing] = useState(false);
+
   useEffect(() => {
     if (!storage.get('anonId')) storage.set('anonId', crypto.randomUUID());
   }, []);
@@ -197,16 +199,23 @@ export function useChat(personagemId: string | number | undefined) {
     if (target.scrollTop <= 5 && !isLoading && !isLoadingMore && hasMore) loadMoreMessages();
   };
 
-  const enviarMensagem = async () => {
-    const trimmedMessage = message.trim();
-    if (isLoading || !trimmedMessage || !personagemId) return;
+  const enviarMensagem = async (options?: { text?: string; isVoiceCall?: boolean }) => {
+    const trimmedMessage = (options?.text ?? message).trim();
+    const isVoiceCall = options?.isVoiceCall ?? false;
+    if (isLoading || !personagemId) return;
+
+    if (!trimmedMessage) {
+      return;
+    }
 
     const charId = personagemId as string | number;
     const currentQuote = replyTo ? replyTo : undefined;
     const replyToId = replyTo?.id || null;
     const optimisticMessageId = -(Date.now() + Math.floor(Math.random() * 1000));
 
-    setMessage('');
+    if (!options?.text) {
+      setMessage('');
+    }
     setIsLoading(true);
 
     setChatHistory((prev) => [
@@ -227,7 +236,7 @@ export function useChat(personagemId: string | number | undefined) {
     setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 10);
 
     try {
-      const data = await chatApiService.sendChatMessage(charId, trimmedMessage, replyToId);
+      const data = await chatApiService.sendChatMessage(charId, trimmedMessage, replyToId, isVoiceCall);
 
       if (data?.id) {
         setChatHistory((prev) =>
@@ -269,6 +278,13 @@ export function useChat(personagemId: string | number | undefined) {
           const refId = data.replyToIds?.[i] ?? null;
           const quoteData = refId ? data.quotes?.[refId] : null;
 
+          // FIX: antes o texto era salvo como '' (vazio) no chatHistory e a fala
+          // rolava por fora via speakText() — isso fazia a IA "falar" em QUALQUER
+          // tela (chat normal, sem ligação aberta) e, ao mesmo tempo, deixava o
+          // ChatCallModal mudo, porque ele lê lastMsg.text do chatHistory (que
+          // estava vazio). Agora o texto real vai pro histórico, e quem decide
+          // se fala em voz alta é só o ChatCallModal, só quando a ligação
+          // está aberta.
           setChatHistory((prev) => [
             ...prev,
             {
@@ -330,11 +346,30 @@ export function useChat(personagemId: string | number | undefined) {
     if (e.key === 'Enter' && !isLoading && message.trim()) enviarMensagem();
   };
 
+  const clearChat = async () => {
+    if (!personagemId) return;
+
+    setIsClearing(true);
+    try {
+      await chatApiService.clearChatService(personagemId as string | number);
+      setChatHistory([]);
+      setPinnedMessages([]);
+    } catch (err) {
+      console.error('[useChat] Erro ao limpar conversa:', err);
+      throw new Error(chatApiService.extractErrorMessage(err));
+    } finally {
+      setIsClearing(false);
+    }
+  };
+
+
   return {
     message,
     setMessage,
     replyTo,
     setReplyTo,
+    clearChat,
+    isClearing,
     chatHistory,
     setChatHistory,
     pinnedMessages,
@@ -349,6 +384,6 @@ export function useChat(personagemId: string | number | undefined) {
     handleKeyPress,
     handleDeleteMessage,
     handleTogglePinMessage,
-    missionToasts, // ← novo
+    missionToasts,
   };
 }

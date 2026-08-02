@@ -32,7 +32,6 @@ export function ChatMessage({
   const [menuOpen, setMenuOpen] = useState(false);
   const [menuPos, setMenuPos] = useState<{ top: number; left: number } | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
-  
   const { fotoPerfil, frame, usuario } = useAuth();
 
   const userFramePath = getFrameImagePath(frame);
@@ -142,20 +141,22 @@ export function ChatMessage({
               </div>
             )}
 
-            <div style={{ margin: 0, wordBreak: 'break-word' }}>
-              <ReactMarkdown
-                components={{
-                  em: ({ node, ...props }) => (
-                    <em style={{ color: 'rgba(255,255,255,0.6)', fontStyle: 'italic' }} {...props} />
-                  ),
-                  p: ({ node, ...props }) => (
-                    <p style={{ margin: 0, display: 'inline' }} {...props} />
-                  ),
-                }}
-              >
-                {msg.text}
-              </ReactMarkdown>
-            </div>
+            {msg.text ? (
+              <div style={{ margin: 0, wordBreak: 'break-word' }}>
+                <ReactMarkdown
+                  components={{
+                    em: ({ node, ...props }) => (
+                      <em style={{ color: 'rgba(255,255,255,0.6)', fontStyle: 'italic' }} {...props} />
+                    ),
+                    p: ({ node, ...props }) => (
+                      <p style={{ margin: 0, display: 'inline' }} {...props} />
+                    ),
+                  }}
+                >
+                  {msg.text}
+                </ReactMarkdown>
+              </div>
+            ) : null}
           </div>
 
           {/* Botão menu — sem wrapper position:relative */}

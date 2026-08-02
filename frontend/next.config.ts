@@ -13,6 +13,11 @@ const allowedLocalOrigins = isDev
 
 // Ajuste os domínios abaixo para os que o Eikon realmente usa
 // (API, Google OAuth, analytics, CDN de imagens, etc.)
+const supabaseHosts = [
+  "https://whydzqwlkhopyvxeclzs.supabase.co",
+  "https://*.supabase.co",
+];
+
 const cspDirectives = {
   "default-src": ["'self'"],
   "script-src": [
@@ -25,7 +30,7 @@ const cspDirectives = {
     ...(isDev ? ["'unsafe-inline'", "'unsafe-eval'"] : []),
   ],
   "style-src": ["'self'", "'unsafe-inline'"], // muitas libs de CSS-in-JS exigem inline
-  "img-src": ["'self'", "data:", "https:"],   // ajuste "https:" para domínios específicos se possível
+  "img-src": ["'self'", "data:", "https:", ...supabaseHosts],
   "font-src": ["'self'", "data:"],
   "connect-src": [
     "'self'",
@@ -34,6 +39,7 @@ const cspDirectives = {
     "https://accounts.google.com",
     "https://www.google-analytics.com",
     "https://region1.google-analytics.com",
+    ...supabaseHosts,
   ].filter(Boolean),
   "frame-src": ["https://accounts.google.com", "https://www.googletagmanager.com"],
   "object-src": ["'none'"],
@@ -68,7 +74,7 @@ const securityHeaders = [
   },
   {
     key: "Permissions-Policy",
-    value: "camera=(), microphone=(), geolocation=()",
+    value: "camera=(self), microphone=(self), geolocation=(self)",
   },
   {
     key: "Strict-Transport-Security",
@@ -77,6 +83,14 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "whydzqwlkhopyvxeclzs.supabase.co",
+      },
+    ],
+  },
   async headers() {
     return [
       {

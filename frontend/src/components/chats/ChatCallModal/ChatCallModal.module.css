@@ -1,0 +1,89 @@
+.avatarWrapper {
+  position: relative;
+  width: 8rem;
+  height: 8rem;
+  border-radius: 9999px;
+  overflow: hidden;
+  border: 4px solid #27272a; /* zinc-800, estado padrão */
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  transition: border-color 0.4s ease, box-shadow 0.4s ease;
+  z-index: 1;
+}
+
+/* Só ativa quando a IA está falando */
+.avatarWrapper.speaking {
+  border-color: #10b981;
+  animation: glowPulse 1.4s ease-in-out infinite;
+}
+
+@keyframes glowPulse {
+  0%, 100% {
+    box-shadow:
+      0 0 0 4px rgba(16, 185, 129, 0.35),
+      0 0 28px 6px rgba(16, 185, 129, 0.45);
+  }
+  50% {
+    box-shadow:
+      0 0 0 8px rgba(16, 185, 129, 0.15),
+      0 0 42px 12px rgba(16, 185, 129, 0.7);
+  }
+}
+
+/* Anel externo, meio "auréola" de luz atrás do avatar */
+.avatarRing {
+  position: absolute;
+  inset: -16px;
+  border-radius: 9999px;
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(0.9);
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.28) 0%, rgba(16, 185, 129, 0) 70%);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.avatarRing.speaking {
+  opacity: 1;
+  transform: scale(1);
+  animation: ringPulse 1.6s ease-in-out infinite;
+}
+
+@keyframes ringPulse {
+  0%, 100% { transform: scale(1); opacity: 0.55; }
+  50% { transform: scale(1.15); opacity: 1; }
+}
+
+/* Barrinhas de áudio (waveform) */
+.waveform {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 24px;
+}
+
+.waveform .bar {
+  width: 4px;
+  height: 4px; /* reta/parada por padrão */
+  border-radius: 9999px;
+  background: #52525b; /* zinc-600, cor neutra parada */
+  transform: scaleY(1);
+  transition: background-color 0.3s ease;
+}
+
+/* Quando está falando de verdade, cada barra ganha sua altura e anima */
+.waveform.active .bar {
+  background: #34d399; /* emerald-400 */
+  animation: waveBounce 0.9s ease-in-out infinite;
+}
+
+.waveform.active .bar:nth-child(1) { height: 8px;  animation-delay: 0s; }
+.waveform.active .bar:nth-child(2) { height: 16px; animation-delay: 0.1s; }
+.waveform.active .bar:nth-child(3) { height: 24px; animation-delay: 0.2s; }
+.waveform.active .bar:nth-child(4) { height: 14px; animation-delay: 0.3s; }
+.waveform.active .bar:nth-child(5) { height: 20px; animation-delay: 0.4s; }
+.waveform.active .bar:nth-child(6) { height: 10px; animation-delay: 0.5s; }
+
+@keyframes waveBounce {
+  0%, 100% { transform: scaleY(0.4); opacity: 0.6; }
+  50% { transform: scaleY(1); opacity: 1; }
+}

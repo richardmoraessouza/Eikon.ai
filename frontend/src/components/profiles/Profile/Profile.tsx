@@ -306,24 +306,11 @@ function Profile() {
                     priority
                   />
                 )}
-
-                <span
-                  className={styles.levelChip}
-                  title={`Nível ${nivelUsuario ?? 1}`}
-                  aria-label={`Nível ${nivelUsuario ?? 1}`}
-                >
-                  {carregandoNivel ? '…' : nivelUsuario ?? 1}
-                </span>
               </div>
 
               <div className={styles.profileIdentity}>
                 <h1 className={styles.nome}>{nome}</h1>
                 {username && <p className={styles.username}>@{username}</p>}
-                {ehMeuProprioPerfil && (
-                  <p className={styles.xpText}>
-                    {carregandoNivel ? 'Carregando…' : `${xpUsuario ?? 0} / ${xpNecessario} XP para o próximo nível`}
-                  </p>
-                )}
               </div>
             </div>
 

@@ -113,27 +113,6 @@
   z-index: 3;
 }
 
-.levelChip {
-  position: absolute;
-  bottom: -2px;
-  right: -2px;
-  z-index: 4;
-  min-width: 26px;
-  height: 26px;
-  padding: 0 6px;
-  border-radius: 999px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: 'Sora', sans-serif;
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: #fff;
-  background: var(--accent);
-  border: 2px solid var(--bg-main);
-  box-shadow: 0 4px 10px -4px rgba(0, 0, 0, 0.6);
-}
-
 /* ── IDENTITY ── */
 .profileIdentity {
   display: flex;
@@ -158,13 +137,6 @@
   margin: 0;
 }
 
-.xpText {
-  margin: 4px 0 0;
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: var(--accent-strong);
-  letter-spacing: 0.01em;
-}
 
 /* ── DESCRIÇÃO ── */
 .descricao {

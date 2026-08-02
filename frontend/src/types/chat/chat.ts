@@ -8,6 +8,11 @@ export interface ChatResponse {
   missoesCompletadas?: string[];
 }
 
+export interface ClearChatResponse {
+  sucesso: boolean;
+  mensagensApagadas: number;
+}
+
 export interface ReplyQuote {
   sender: 'user' | 'model'; 
   text: string;
@@ -35,6 +40,12 @@ export interface BackendMessage {
   is_pinned: boolean;
   criado_em?: string;
   reply_to_id?: number | null;
+  media?: Array<{
+    id?: number;
+    media_type?: string;
+    media_data?: string | null;
+    media_url?: string | null;
+  }>;
 }
 
 export interface ConversationTimePayload {

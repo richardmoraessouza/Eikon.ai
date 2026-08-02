@@ -7,6 +7,7 @@ import type {
   ConversationTimePayload,
   ConversationTimeFetchResponse,
   ConversationTimeResponse,
+  ClearChatResponse,
 } from '../../types/chat/chat';
 
 /**
@@ -97,11 +98,15 @@ export const fetchChatHistory = async (
 export const sendChatMessage = async (
   characterId: string | number,
   message: string,
-  replyToId?: number | null
+  replyToId?: number | null,
+  isVoiceCall?: boolean
 ): Promise<ChatResponse> => {
-  const payload: { message: string; replyToId?: number } = { message };
+  const payload: { message: string; replyToId?: number; isVoiceCall?: boolean } = { message };
   if (replyToId) {
     payload.replyToId = replyToId;
+  }
+  if (isVoiceCall) {
+    payload.isVoiceCall = true;
   }
 
   const response = await axios.post<ChatResponse>(
@@ -182,6 +187,8 @@ export const saveConversationTime = async (
     `${API_URL}/chat/conversation-time`,
     payload
   );
+
+  console.log('[ChatService] Conversation time saved:', response.data);
   return response.data;
 };
 
@@ -194,6 +201,8 @@ export const fetchConversationTime = async (
   const response = await axios.get<ConversationTimeFetchResponse>(
     `${API_URL}/chat/conversation-time/${characterId}`
   );
+
+  console.log('[ChatService] Conversation time fetched:', response.data);
   return response.data;
 };
 
@@ -207,4 +216,11 @@ export const beaconConversationTime = (payload: ConversationTimePayload): void =
     type: 'application/json',
   });
   navigator.sendBeacon(`${API_URL}/chat/conversation-time`, blob);
+};
+
+export const clearChatService = async (
+  publicId: string | number
+): Promise<ClearChatResponse> => {
+  const response = await axios.delete<ClearChatResponse>(`${API_URL}/chat/${publicId}/mensagens`);
+  return response.data;
 };

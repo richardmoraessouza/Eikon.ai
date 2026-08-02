@@ -6,8 +6,8 @@ import { FiEdit2, FiGlobe, FiLock } from "react-icons/fi";
 import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext/AuthContext';
 import { useCharacters } from '@/hooks/useCharacters/useCharacters';
-import { converterBase64 } from '@/utils/CorverteImagem/corverteImagem';
 import { QuickCreateMode } from '@/components/character/quick-create/quick-create';
+import { uploadMidia } from '@/services/supabaseUpload';
 
 const validarNome = (texto: string) => {
   const limpo = texto.replace(/[^A-Za-zÀ-ú0-9 ]/g, '');
@@ -52,7 +52,11 @@ function CreateCharacter() {
     const [modoRapido, setModoRapido] = useState(false);
     const [isPublic, setIsPublic] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isUploadingFoto, setIsUploadingFoto] = useState(false);
     const [erro, setErro] = useState('');
+    const [fotoSelecionada, setFotoSelecionada] = useState<File | null>(null);
+    const [previewFoto, setPreviewFoto] = useState<string | null>(null);
+    const [pathFotoAtual, setPathFotoAtual] = useState<string | null>(null);
     const nomeInputRef = useRef<HTMLInputElement>(null);
 
     const { token, usuarioId, estaLogado, loading } = useAuth();
@@ -155,6 +159,29 @@ function CreateCharacter() {
 
     const isFiccional = normalizarTipoPersonagem(tipo_personagem) === 'ficcional';
 
+    const handleFotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+
+        if (!file) return;
+
+        if (!file.type.startsWith('image/')) {
+            setErro('Selecione um arquivo de imagem válido.');
+            event.target.value = '';
+            return;
+        }
+
+        if (previewFoto?.startsWith('blob:')) {
+            URL.revokeObjectURL(previewFoto);
+        }
+
+        const objectUrl = URL.createObjectURL(file);
+        setFotoSelecionada(file);
+        setPreviewFoto(objectUrl);
+        setErro('');
+        setFotoia('');
+        event.target.value = '';
+    };
+
     const alternarModoCriacao = (modoRapidoAtivo: boolean) => {
         setModoRapido(modoRapidoAtivo);
         setIs_modo_rapido(modoRapidoAtivo);
@@ -209,6 +236,16 @@ function CreateCharacter() {
         setErro('');
 
         try {
+            let fotoParaSalvar = fotoia;
+
+            if (fotoSelecionada) {
+                setIsUploadingFoto(true);
+                const { publicUrl, path } = await uploadMidia(fotoSelecionada, 'personagem', pathFotoAtual);
+                fotoParaSalvar = publicUrl;
+                setFotoia(publicUrl);
+                setPathFotoAtual(path || null);
+            }
+
             const payload: any = {
                 nome,
                 bio,
@@ -222,7 +259,7 @@ function CreateCharacter() {
                 ...(modoRapido
                     ? {
                         quick_prompt,
-                        fotoia: fotoia || undefined,
+                        fotoia: fotoParaSalvar || undefined,
                     }
                     : {
                         personalidade,
@@ -236,11 +273,13 @@ function CreateCharacter() {
                         relacaousuario: relacaoUsuario,
                         cenario,
                         quick_prompt: '',
-                        fotoia: fotoia || undefined,
+                        fotoia: fotoParaSalvar || undefined,
                     })
             };
 
-            if (fotoia) payload.fotoia = fotoia;
+            if (fotoParaSalvar) {
+                payload.fotoia = fotoParaSalvar;
+            }
 
             const result = await (modoEdicao && personagemIdentifier
                 ? updateCharacter(personagemIdentifier, payload, token)
@@ -268,6 +307,7 @@ function CreateCharacter() {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         } finally {
             setIsSubmitting(false);
+            setIsUploadingFoto(false);
         }
     };
 
@@ -296,7 +336,7 @@ function CreateCharacter() {
                 <div className={styles.header}>
                     <div className={styles.avatarWrap}>
                         <img
-                            src={fotoia || "/image/semPerfil.jpg"}
+                            src={previewFoto || fotoia || "/image/semPerfil.jpg"}
                             alt="Pré-visualização"
                             className={styles.avatarImage}
                         />
@@ -305,9 +345,17 @@ function CreateCharacter() {
                             className={styles.avatarButton}
                             onClick={() => document.getElementById('fotoia')?.click()}
                             aria-label="Alterar foto"
+                            disabled={isUploadingFoto}
                         >
                             <FiEdit2 size={16} />
-                            <input id="fotoia" type="file" onChange={(e) => converterBase64(e, setFotoia)} accept="image/*" className={styles.hiddenInput} />
+                            <input
+                                id="fotoia"
+                                type="file"
+                                onChange={handleFotoUpload}
+                                accept="image/*"
+                                className={styles.hiddenInput}
+                                disabled={isUploadingFoto}
+                            />
                         </button>
                     </div>
                     <h1>

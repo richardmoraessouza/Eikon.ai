@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "../../../../../../chatback"
+		},
+		{
+			"path": "../../../../.."
+		}
+	],
+	"settings": {
+		"liveServer.settings.port": 5501
+	}
+}

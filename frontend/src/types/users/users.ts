@@ -41,3 +41,14 @@ export interface MiniProfileType {
   nivel?: number | null;
   unlocked_frames?: string[];
 }
+
+export interface FrameUnlock {
+  file: string;
+  unlocked: boolean;
+  requiredLevel: number;
+}
+
+export interface FrameUnlocksResponse {
+  nivel: number;
+  frames: FrameUnlock[];
+}

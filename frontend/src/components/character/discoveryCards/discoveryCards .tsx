@@ -288,7 +288,7 @@ export const DiscoveryCards = ({
 
   if (error) return (
     <article className={styles.container}>
-      <div className={styles.header}><h2>{icon} {title}</h2></div>
+      <div className={styles.header}><h2>{icon} Destaques</h2></div>
       <div className={styles.error}>{error}</div>
     </article>
   );
@@ -296,7 +296,7 @@ export const DiscoveryCards = ({
   if (loading && characters.length === 0) return (
     <article className={styles.container}>
       <div className={styles.header}>
-        <h2><span className={styles.headerIcon}>{icon}</span>{title}</h2>
+        <h2><span className={styles.headerIcon}>{icon}</span>Destaques</h2>
       </div>
       <div className={styles.carouselWrapper}>
         <div className={styles.carouselTrack} aria-busy="true" aria-label="Carregando conteúdos">
@@ -326,16 +326,11 @@ export const DiscoveryCards = ({
   return (
     <article className={styles.container}>
       <div className={styles.header}>
-        <h2><span className={styles.headerIcon}>{icon}</span>{title}</h2>
+        <h2><span className={styles.headerIcon}></span>Destaques</h2>
       </div>
 
       <div className={styles.carouselWrapper}>
-        <button onClick={() => scroll("left")} className={`${styles.navBtn} ${styles.navLeft}`} aria-label="Anterior">
-          <FiChevronLeft size={16} />
-        </button>
-        <button onClick={() => scroll("right")} className={`${styles.navBtn} ${styles.navRight}`} aria-label="Próximo">
-          <FiChevronRight size={16} />
-        </button>
+    
 
         <div className={styles.carouselTrack} ref={carouselRef} onScroll={handleScroll} {...dragProps}>
           {characters.map((character) => {

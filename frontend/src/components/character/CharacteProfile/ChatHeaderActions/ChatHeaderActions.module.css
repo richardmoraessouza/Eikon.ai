@@ -1,0 +1,44 @@
+.callButton {
+  color: var(--profile-text-secondary);
+
+}
+
+.callButton:hover {
+  filter: brightness(1.1);
+  background: var(--menu-hover);
+}
+
+.menuButton {
+  color: var(--profile-text-secondary);
+}
+
+.menuButton:hover {
+  background: var(--menu-hover);
+}
+
+.dropdown {
+  background: var(--profile-modal-bg);
+  border: 1px solid var(--profile-border);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+}
+
+.dropdownItem {
+  color: var(--profile-text-secondary);
+}
+
+.dropdownItem:hover {
+  background: var(--menu-hover);
+}
+
+.dropdownItemDanger {
+  color: #ef4444;
+}
+
+.dropdownItemDanger:hover {
+  background: var(--menu-hover);
+}
+
+.dropdownItemDanger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

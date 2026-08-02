@@ -1,6 +1,6 @@
 import axios from "axios";
 import { API_URL } from "../../config/api";
-import type { User, UpdateUserResponse, MiniProfileType } from "../../types/users/users";
+import type { FrameUnlocksResponse, User, UpdateUserResponse, MiniProfileType } from "../../types/users/users";
 import { normalizeFrame } from "../../utils/frame";
 
 // search for the name of the character's creator
@@ -92,6 +92,24 @@ export async function updateFrameService (usuarioId: number, frame: string, toke
 
     } catch (error: any) {
         console.error(`Error updating frame:`, error.response?.data);
+        throw error;
+    }
+}
+
+// Get frame unlock status by user level
+export async function getFrameUnlocksService(usuarioId: number, token?: string): Promise<FrameUnlocksResponse> {
+    if (!usuarioId) {
+        throw new Error('Usuario ID é obrigatório');
+    }
+
+    try {
+        const response = await axios.get(`${API_URL}/users/frame-unlocks/${usuarioId}`, {
+            headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        });
+
+        return response.data as FrameUnlocksResponse;
+    } catch (error) {
+        console.error(`Error loading frame unlocks for ${usuarioId}:`, error);
         throw error;
     }
 }

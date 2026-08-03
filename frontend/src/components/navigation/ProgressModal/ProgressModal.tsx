@@ -1,13 +1,13 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { FiAward, FiTarget, FiTrendingUp } from 'react-icons/fi';
+import { FiTarget, FiTrendingUp } from 'react-icons/fi';
 import styles from './ProgressModal.module.css';
 import { useAuth } from '@/contexts/AuthContext/AuthContext';
 import { useMissions } from '@/hooks/useMissions/UseMissions';
 import MissionsTab from './Taps/MissionsTab/MissionsTab';
 import OverviewTab from './Taps/OverviewTab/OverviewTab';
-import TabsSpecialMissions from './Taps/TabsSpecialMissions/TabsSpecialMissions';
+// TabsSpecialMissions removed
 import PaymentModal from '@/components/navigation/PaymentModal/PaymentModal';
 import { getFrameUnlocksService } from '@/services/users/userService';
 import type { FrameUnlock } from '@/types/users/users';
@@ -17,12 +17,12 @@ interface MissionsModalProps {
   onClose: () => void;
 }
 
-type MissionTab = 'nivel' | 'principais' | 'especiais';
+type MissionTab = 'nivel' | 'principais';
 
 const TABS = [
   { id: 'nivel', label: 'Nível e XP', icon: <FiTrendingUp size={15} /> },
   { id: 'principais', label: 'Missões principais', icon: <FiTarget size={15} /> },
-  { id: 'especiais', label: 'Missões especiais', icon: <FiAward size={15} /> },
+  // 'especiais' tab removed with component
 ] as const;
 
 const LEVEL_TICKS = Array.from({ length: 100 }, (_, i) => i + 1);
@@ -141,8 +141,6 @@ const MissionsModal: React.FC<MissionsModalProps> = ({ isOpen, onClose }) => {
         );
       case 'principais':
         return <MissionsTab />;
-      case 'especiais':
-        return <TabsSpecialMissions />;
       default:
         return null;
     }

@@ -20,9 +20,16 @@ export async function getDailyMissions(usuarioId: number, token?: string): Promi
     });
     return res.data;
   } catch (err) {
-    if (!isAuthError(err)) {
-      console.error("Error searching daily missions:", err);
+    // If backend endpoint was removed, return empty list instead of throwing
+    if (axios.isAxiosError(err)) {
+      const status = err.response?.status ?? 0;
+      if (status === 404) return [];
+      if ([401, 403].includes(status)) return [];
+      console.error("Error searching daily missions:", err.message, err.response?.data);
+      return [];
     }
+
+    console.error("Error searching daily missions:", err);
     return [];
   }
 }
@@ -44,6 +51,10 @@ export async function updateMissionProgress(
     });
     return res.data;
   } catch (err) {
+    // If mission endpoints are gone, return a safe fallback instead of throwing
+    if (axios.isAxiosError(err) && err.response?.status === 404) {
+      return { completada: false, progresso: 0, xpGanho: 0, message: 'missions endpoint not available' };
+    }
     console.error("Error updating mission progress:", err);
     throw err;
   }
@@ -94,6 +105,9 @@ export async function claimMissionService(
     });
     return res.data;
   } catch (err) {
+    if (axios.isAxiosError(err) && err.response?.status === 404) {
+      return { xp_awarded: 0, updated: null };
+    }
     console.error('Error claiming mission', err);
     throw err;
   }

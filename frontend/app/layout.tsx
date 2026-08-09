@@ -8,12 +8,14 @@ import { setupAxiosInterceptors } from "@/config/axiosConfig";
 
 setupAxiosInterceptors();
 
-const CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+const CLIENT_ID: string =
+  process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || process.env.VITE_GOOGLE_CLIENT_ID || '';
 if (!CLIENT_ID) {
   throw new Error(
-    "Missing NEXT_PUBLIC_GOOGLE_CLIENT_ID environment variable. Google OAuth cannot be initialized."
+    "Missing NEXT_PUBLIC_GOOGLE_CLIENT_ID or VITE_GOOGLE_CLIENT_ID environment variable. Google OAuth cannot be initialized."
   );
 }
+
 
 export default function RootLayout({
   children,

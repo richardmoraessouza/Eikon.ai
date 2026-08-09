@@ -1,15 +1,15 @@
 'use client';
 
 import { FiTrendingUp, FiStar } from 'react-icons/fi'; 
-import SearchBar from '../navigation/SearchBar/SearchBar';
-import CardExplore from '../character/CardExplore/CardExplore';
-import ExploreSections from '../character/ExploreSections/ExploreSections';
-import { HeroBanner } from '../character/HeroBanner/HeroBanner';
-import { DiscoveryCards } from '../character/discoveryCards/discoveryCards ';
-import { useAuth } from '../../contexts/AuthContext/AuthContext';
-import { useDiscovery, useRecommendations } from '../../hooks/useDiscovery/useDiscovety';
+import SearchBar from '../SearchBar/SearchBar';
+import CardExplore from '../../character/CardExplore/CardExplore';
+import ExploreSections from '../../character/ExploreSections/ExploreSections';
+import { HeroBanner } from '../../character/HeroBanner/HeroBanner';
+import { DiscoveryCards } from '../../character/discoveryCards/discoveryCards ';
+import { useAuth } from '../../../contexts/AuthContext/AuthContext';
+import { useDiscovery, useRecommendations } from '../../../hooks/useDiscovery/useDiscovety';
 import styles from './Explorar.module.css';
-import Footer from '../footer-links/Footer/Footer';
+import Footer from '../../footer-links/Footer/Footer';
 
 const Explorar = () => {
     const { usuarioId: usuarioLogadoId } = useAuth();

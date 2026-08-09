@@ -25,9 +25,10 @@ const cspDirectives = {
     "https://accounts.google.com",
     "https://www.googletagmanager.com",
     "https://www.google-analytics.com",
-    // 'unsafe-inline' só em dev, se necessário para hot-reload.
-    // Em produção, evite — prefira nonces se precisar de inline script.
-    ...(isDev ? ["'unsafe-inline'", "'unsafe-eval'"] : []),
+    // Next App Router and some analytics/runtime scripts use inline execution.
+    // Keep this only if you are not using nonce-based CSP for inline scripts.
+    "'unsafe-inline'",
+    ...(isDev ? ["'unsafe-eval'"] : []),
   ],
   "style-src": ["'self'", "'unsafe-inline'"], // muitas libs de CSS-in-JS exigem inline
   "img-src": ["'self'", "data:", "https:", ...supabaseHosts],

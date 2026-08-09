@@ -314,19 +314,6 @@ export const CarouselRow = ({ characters, loading = false }: CarouselRowProps) =
 
               <div className={styles.info}>
                 <p className={styles.name}>{character.nome}</p>
-                <p className={styles.bio}>
-                  {character.bio ? character.bio : ` ${character.nome} ainda não tem bio.`}
-                </p>
-                {displayTags.length > 0 && (
-                  <div className={styles.tagsContainer}>
-                    {displayTags.map((tag, index) => (
-                      <span key={`${tag}-${index}`} className={styles.tagItem}>
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                )}
-
                 <div
                   className={styles.authorContainer}
                   onMouseEnter={(e) => character.usuario_id != null && handleMouseEnterAuthor(e, character.usuario_id, character.id)}
@@ -343,6 +330,19 @@ export const CarouselRow = ({ characters, loading = false }: CarouselRowProps) =
                       : "@Desconhecido"}
                   </p>
                 </div>
+
+                <p className={styles.bio}>
+                  {character.bio ? character.bio : ` ${character.nome} ainda não tem bio.`}
+                </p>
+                {displayTags.length > 0 && (
+                  <div className={styles.tagsContainer}>
+                    {displayTags.map((tag, index) => (
+                      <span key={`${tag}-${index}`} className={styles.tagItem}>
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div className={styles.stats}>

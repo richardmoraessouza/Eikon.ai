@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { SearchFavoritesUser, SearchLikesUser, SearchQuantityLikes, toggleFavorite, toggleLike, getSeguidoresService, getSeguindoService } from "../../services/social/socialService";
 import { useAuth } from "../../contexts/AuthContext/AuthContext";
 import type { SocialContextType, Seguidor } from "../../types/social/social";
@@ -15,8 +16,14 @@ function normalizeIdentifier(value: unknown): string | null {
   return null;
 }
 
+function getErrorMessage(error: unknown, fallback: string): string {
+  if (error instanceof Error) return error.message;
+  return fallback;
+}
+
 export function useSocial(): SocialContextType {
-  const { usuarioId: userId, token } = useAuth();
+  const router = useRouter();
+  const { usuarioId: userId, token, estaLogado } = useAuth();
   const [favorites, setFavorites] = useState<string[]>([]);
   const [likes, setLikes] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
@@ -50,9 +57,9 @@ export function useSocial(): SocialContextType {
 
         setFavorites(favoritesIds);
         setLikes(normalizedLikes);
-      } catch (err: any) {
-        console.error('[useSocial] Erro ao buscar dados sociais:', err);
-        setError(err?.message || 'Erro ao buscar dados sociais');
+      } catch (error: unknown) {
+        console.error('[useSocial] Erro ao buscar dados sociais:', error);
+        setError(getErrorMessage(error, 'Erro ao buscar dados sociais'));
       } finally {
         setLoading(false);
       }
@@ -63,8 +70,9 @@ export function useSocial(): SocialContextType {
 
   // Toggle like
   const handleToggleLike = async (personagemId: string): Promise<void> => {
-    if (!userId) {
+    if (!estaLogado || !userId) {
       setError('Usuário não autenticado');
+      router.push('/login');
       return;
     }
 
@@ -76,20 +84,21 @@ export function useSocial(): SocialContextType {
     try {
       await toggleLike(userId, personagemId, token);
       setError(null);
-    } catch (err: any) {
+    } catch (error: unknown) {
       setLikes(prev =>
         wasLiked ? [...prev, personagemId] : prev.filter(id => id !== personagemId)
       );
-      console.error('[useSocial] Erro ao fazer toggle like:', err);
-      setError(err?.message || 'Erro ao fazer like');
-      throw err;
+      console.error('[useSocial] Erro ao fazer toggle like:', error);
+      setError(getErrorMessage(error, 'Erro ao fazer like'));
+      throw error;
     }
   };
 
   // Toggle favorite
   const handleToggleFavorite = async (personagemId: string): Promise<void> => {
-    if (!userId) {
+    if (!estaLogado || !userId) {
       setError('Usuário não autenticado');
+      router.push('/login');
       return;
     }
     try {
@@ -100,9 +109,9 @@ export function useSocial(): SocialContextType {
           : [...prev, personagemId]
       );
       setError(null);
-    } catch (err: any) {
-      console.error('[useSocial] Erro ao fazer toggle favorite:', err);
-      setError(err?.message || 'Erro ao adicionar aos favoritos');
+    } catch (error: unknown) {
+      console.error('[useSocial] Erro ao fazer toggle favorite:', error);
+      setError(getErrorMessage(error, 'Erro ao adicionar aos favoritos'));
     }
   };
 
@@ -116,8 +125,8 @@ export function useSocial(): SocialContextType {
     try {
       const quantity = await SearchQuantityLikes(personagemId);
       return quantity ?? 0;
-    } catch (err: any) {
-      console.error('[useSocial] Erro ao buscar quantidade de likes:', err);
+    } catch (error: unknown) {
+      console.error('[useSocial] Erro ao buscar quantidade de likes:', error);
       return 0;
     }
   };
@@ -160,9 +169,9 @@ export function useSeguir(usuarioId: number | null, token: string | null) {
         ]);
         setSeguidores(seg);
         setSeguindo(segInd);
-      } catch (err: any) {
-        console.error("Erro ao carregar seguidores:", err);
-        setError(err?.message || "Erro ao carregar seguidores");
+      } catch (error: unknown) {
+        console.error("Erro ao carregar seguidores:", error);
+        setError(getErrorMessage(error, "Erro ao carregar seguidores"));
       } finally {
         setLoading(false);
       }

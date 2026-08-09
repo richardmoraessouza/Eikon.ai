@@ -197,7 +197,7 @@ export const CharacterSearch = ({ personagem, creatorsMap, setCreatorsMap, isLoa
   };
 
   return (
-    <div className={styles.polyCard} onClick={() => router.push(`/personagem/${personagem.public_id}`)}>
+    <div className={styles.polyCard} onClick={() => router.push(`/chat/${personagem.public_id}`)}>
       
       <div className={styles.polyImageContainer} style={{ position: 'relative' }}>
         <Image 

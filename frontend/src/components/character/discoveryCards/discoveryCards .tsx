@@ -65,6 +65,7 @@ export const DiscoveryCards = ({
   // Guarda um "id de requisição" para descartar respostas de hover desatualizadas
   // (ex.: usuário passa o mouse rápido do card A para o card B).
   const hoverRequestRef = useRef(0);
+  const scrollFadeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [likesCount, setLikesCount] = useState<Record<string, number>>({});
   const [creatorNames, setCreatorNames] = useState<Record<number, string>>({});
@@ -73,13 +74,18 @@ export const DiscoveryCards = ({
   const [activeCardId, setActiveCardId] = useState<number | null>(null);
   const [popoverPos, setPopoverPos] = useState<PopoverPosition | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [likedOverride, setLikedOverride] = useState<Record<string, boolean>>({});
+  const [scrollFade, setScrollFade] = useState({ left: false, right: false });
 
   useEffect(() => setMounted(true), []);
+
+  const isCharacterLiked = (id: string) => likedOverride[id] ?? isLiked(id);
 
   // Limpa qualquer timer de hover pendente ao desmontar o componente.
   useEffect(() => {
     return () => {
       if (hoverTimerRef.current) clearTimeout(hoverTimerRef.current);
+      if (scrollFadeTimerRef.current) clearTimeout(scrollFadeTimerRef.current);
     };
   }, []);
 
@@ -232,9 +238,20 @@ export const DiscoveryCards = ({
     if (characters.length > 0) loadLikesCount();
   }, [characters, getQuantityLikes]);
 
+  const updateScrollFade = (target: HTMLDivElement) => {
+    const canScrollLeft = target.scrollLeft > 4;
+    const canScrollRight = target.scrollWidth - (target.scrollLeft + target.clientWidth) > 4;
+
+    window.requestAnimationFrame(() => {
+      setScrollFade({ left: canScrollLeft, right: canScrollRight });
+    });
+  };
+
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    if (!onLoadMore || !hasMore || loading) return;
     const target = e.currentTarget;
+    updateScrollFade(target);
+
+    if (!onLoadMore || !hasMore || loading) return;
     if (target.scrollWidth - (target.scrollLeft + target.clientWidth) < 300) {
       onLoadMore();
     }
@@ -246,9 +263,13 @@ export const DiscoveryCards = ({
   ) => {
     e.stopPropagation();
 
-    const liked = isLiked(characterId);
+    const liked = isCharacterLiked(characterId);
 
-    // Atualiza o contador imediatamente
+    setLikedOverride(prev => ({
+      ...prev,
+      [characterId]: !liked,
+    }));
+
     setLikesCount(prev => ({
       ...prev,
       [characterId]: Math.max(
@@ -260,7 +281,11 @@ export const DiscoveryCards = ({
     try {
       await handleToggleLike(characterId);
     } catch {
-      // Se der erro, desfaz a alteração
+      setLikedOverride(prev => ({
+        ...prev,
+        [characterId]: liked,
+      }));
+
       setLikesCount(prev => ({
         ...prev,
         [characterId]: Math.max(
@@ -330,7 +355,14 @@ export const DiscoveryCards = ({
       </div>
 
       <div className={styles.carouselWrapper}>
-    
+        <div
+          className={`${styles.scrollFade} ${styles.scrollFadeLeft} ${scrollFade.left ? styles.visible : ""}`}
+          aria-hidden="true"
+        />
+        <div
+          className={`${styles.scrollFade} ${styles.scrollFadeRight} ${scrollFade.right ? styles.visible : ""}`}
+          aria-hidden="true"
+        />
 
         <div className={styles.carouselTrack} ref={carouselRef} onScroll={handleScroll} {...dragProps}>
           {characters.map((character) => {
@@ -338,69 +370,68 @@ export const DiscoveryCards = ({
 
             return (
               <div key={character.public_id ?? character.id} className={styles.card} onClick={() => handleCharacterClick(character.public_id ?? String(character.id))}>
-              <div className={styles.imageWrapper} style={{ position: "relative" }}>
-                <Image
-                  src={character.fotoia || "/image/semPerfil.jpg"}
-                  alt={character.nome}
-                  fill
-                  sizes="(max-width: 768px) 100vw, 240px"
-                  className={styles.image}
-                  style={{ objectFit: "cover" }}
-                  draggable={false}
-                  unoptimized
-                />
-              </div>
-
-              <div className={styles.info}>
-                <p className={styles.name}>{character.nome}</p>
-                <p className={styles.bio}>
-                  {character.bio ? character.bio : ` ${character.nome} ainda não tem bio.`}
-                </p>
-                {displayTags.length > 0 && (
-                  <div className={styles.tagsContainer}>
-                    {displayTags.map((tag, index) => (
-                      <span key={`${tag}-${index}`} className={styles.tagItem}>
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                )}
-
-                <div
-                  className={styles.authorContainer}
-                  onMouseEnter={(e) => character.usuario_id != null && handleMouseEnterAuthor(e, character.usuario_id, character.id)}
-                  onMouseLeave={handleMouseLeaveAuthor}
-                  onClick={(e) => character.usuario_id != null && handleAuthorClick(e, character.usuario_id)}
-                >
-                  <p className={styles.author}>
-                    {character.usuario_id
-                      ? `@${creatorUsernames[character.usuario_id] || creatorNames[character.usuario_id] || "Desconhecido"}`
-                      : "@Desconhecido"}
-                  </p>
-                </div>
-              </div>
-
-              <div className={styles.stats}>
-                <div className={styles.stat}>
-                  <FiHeart
-                    size={12}
-                    onClick={(e) => handleLikeClick(e, character.public_id ?? String(character.id))}
-                    style={{
-                      cursor: "pointer",
-                      color: isLiked(character.public_id ?? String(character.id)) ? "#ef4444" : "currentColor",
-                      fill: isLiked(character.public_id ?? String(character.id)) ? "#ef4444" : "none",
-                      transition: "all 0.2s",
-                    }}
+                <div className={styles.imageWrapper} style={{ position: "relative" }}>
+                  <Image
+                    src={character.fotoia || "/image/semPerfil.jpg"}
+                    alt={character.nome}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 240px"
+                    className={styles.image}
+                    style={{ objectFit: "cover" }}
+                    draggable={false}
+                    unoptimized
                   />
-                  <span>{likesCount[character.public_id ?? String(character.id)] ?? 0}</span>
                 </div>
-                <div className={styles.stat}>
-                  <FiMessageSquare size={12} />
-                  <span>{character.visualizacoes ?? 0}</span>
+
+                <div className={styles.info}>
+                  <p className={styles.name}>{character.nome}</p>
+                  <div
+                    className={styles.authorContainer}
+                    onMouseEnter={(e) => character.usuario_id != null && handleMouseEnterAuthor(e, character.usuario_id, character.id)}
+                    onMouseLeave={handleMouseLeaveAuthor}
+                    onClick={(e) => character.usuario_id != null && handleAuthorClick(e, character.usuario_id)}
+                  >
+                    <p className={styles.author}>
+                      {character.usuario_id
+                        ? `@${creatorUsernames[character.usuario_id] || creatorNames[character.usuario_id] || "Desconhecido"}`
+                        : "@Desconhecido"}
+                    </p>
+                  </div>
+
+                  <p className={styles.bio}>
+                    {character.bio ? character.bio : ` ${character.nome} ainda não tem bio.`}
+                  </p>
+                  {displayTags.length > 0 && (
+                    <div className={styles.tagsContainer}>
+                      {displayTags.map((tag, index) => (
+                        <span key={`${tag}-${index}`} className={styles.tagItem}>
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div className={styles.stats}>
+                  <div className={styles.stat}>
+                    <FiHeart
+                      size={12}
+                      onClick={(e) => handleLikeClick(e, character.public_id ?? String(character.id))}
+                      style={{
+                        cursor: "pointer",
+                        color: isCharacterLiked(character.public_id ?? String(character.id)) ? "#ef4444" : "currentColor",
+                        fill: isCharacterLiked(character.public_id ?? String(character.id)) ? "#ef4444" : "none",
+                        transition: "all 0.2s",
+                      }}
+                    />
+                    <span>{likesCount[character.public_id ?? String(character.id)] ?? 0}</span>
+                  </div>
+                  <div className={styles.stat}>
+                    <FiMessageSquare size={12} />
+                    <span>{character.visualizacoes ?? 0}</span>
+                  </div>
                 </div>
               </div>
-
-            </div>
             );
           })}
           {loading && (

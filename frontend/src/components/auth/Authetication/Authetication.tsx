@@ -298,7 +298,7 @@ function Authentication({ verificar }: SituacaoProps) {
                                 disabled={condicaoUsuario}
                                 value={username}
                                 onChange={(e) => handleUsernameChange(e.target.value)}
-                                placeholder="lucas.silva"
+                                placeholder="Nome"
                                 maxLength={USERNAME_MAX}
                                 autoCapitalize="none"
                                 autoCorrect="off"

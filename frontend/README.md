@@ -2,6 +2,12 @@
 
 Eikon é uma plataforma web de conversação com personagens IA, voltada para experiências imersivas de interação entre usuário, personagens fictícios e personas personalizadas. O projeto combina UX, arquitetura modular de frontend, autenticação, integrações com APIs externas e um produto com forte identidade visual e funcional.
 
+## Links úteis
+
+- Repositório do projeto: https://github.com/richardmoraessouza/Eikon.ai.git
+- Repositório do backend: https://github.com/richardmoraessouza/api-personia.git
+- Aplicação local: http://localhost:3000
+
 ## Visão do produto
 
 A plataforma foi pensada como um ambiente onde o usuário pode:

@@ -64,10 +64,6 @@ export function setupAxiosInterceptors() {
         clearCurrentAuthToken();
         csrfTokenCache = null;
         csrfTokenPromise = null;
-
-        if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
-          window.location.href = '/login';
-        }
       }
 
       return Promise.reject(error);

@@ -22,8 +22,8 @@
 
 .tagsContainer {
   display: flex;
-  flex-wrap: wrap;
-  overflow: visible;
+  flex-wrap: nowrap;
+  overflow: hidden;
   gap: 4px;
   margin: 5px 0 2px;
   max-width: 100%;
@@ -163,6 +163,10 @@
   -webkit-user-drag: none;
   pointer-events: none;
   transition: transform 0.35s ease;
+}
+
+.card:hover .image {
+  transform: scale(1.04);
 }
 
 .authorContainer {

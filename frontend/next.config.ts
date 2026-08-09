@@ -11,6 +11,9 @@ const allowedLocalOrigins = isDev
     ]
   : [];
 
+const apiUrl =
+  process.env.NEXT_PUBLIC_API_URL || "https://api-personia.onrender.com";
+
 // Ajuste os domínios abaixo para os que o Eikon realmente usa
 // (API, Google OAuth, analytics, CDN de imagens, etc.)
 const supabaseHosts = [
@@ -36,7 +39,7 @@ const cspDirectives = {
   "connect-src": [
     "'self'",
     ...allowedLocalOrigins,
-    process.env.NEXT_PUBLIC_API_URL ?? "",
+    apiUrl,
     "https://accounts.google.com",
     "https://www.google-analytics.com",
     "https://region1.google-analytics.com",

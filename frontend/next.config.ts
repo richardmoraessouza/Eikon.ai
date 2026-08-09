@@ -47,7 +47,7 @@ const cspDirectives = {
   "base-uri": ["'self'"],
   "form-action": ["'self'"],
   "frame-ancestors": ["'self'"],
-git   ...(isDev ? {} : { "upgrade-insecure-requests": [] }),
+  ...(isDev ? {} : { "upgrade-insecure-requests": [] }),
 };
 
 const cspHeader = Object.entries(cspDirectives)

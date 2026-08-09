@@ -44,8 +44,8 @@ function Menu({ setPersonId, onMenuToggle }: MenuProps) {
         if (onMenuToggle) onMenuToggle(modalOpen);
     }, [modalOpen, onMenuToggle]);
 
-    function sairDaConta() {
-        logout();
+    async function sairDaConta() {
+        await logout();
         setAbrirConta(false);
     }
 
@@ -62,8 +62,6 @@ function Menu({ setPersonId, onMenuToggle }: MenuProps) {
             setModaOpen(false);
         }
     }
-
-    // Recentes carregados via `useProfileCharacters('recentes', usuarioId)`
 
     useEffect(() => {
         if (window.innerWidth <= 768) {
@@ -268,7 +266,7 @@ function Menu({ setPersonId, onMenuToggle }: MenuProps) {
 
                                             <li className={styles.navItem}>
                                                 <button onClick={() => {
-                                                    sairDaConta();
+                                                    void sairDaConta();
                                                     closeMenuOnMobile();
                                                 }} className={styles.navLink}>
                                                     <FiLogOut />

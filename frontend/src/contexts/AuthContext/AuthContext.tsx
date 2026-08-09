@@ -35,7 +35,7 @@ interface AuthContextType {
     estaLogado: boolean;
     loading: boolean;
     login: (userData: UserData) => void;
-    logout: () => void;
+    logout: () => Promise<void>;
     updateProfile: (profileData: { nome?: string; foto_perfil?: string; descricao?: string; username?: string; frame?: string | null; hideFavoriteCharacter?: boolean; hideRecentCharacter?: boolean; hideFollowers?: boolean; hideFollowing?: boolean }) => void;
 }
 
@@ -54,7 +54,7 @@ const initialContextValue: AuthContextType = {
     estaLogado: false,
     loading: true,
     login: () => {},
-    logout: () => {},
+    logout: async () => {},
     updateProfile: () => {},
 };
 
@@ -144,20 +144,34 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setHideFollowing(Boolean(userData.hide_following));
     };
 
-    const logout = () => {
-        clearCurrentAuthToken();
-        localStorage.clear();
-        sessionStorage.clear();
+    const logout = async () => {
+        const clearClientAuthState = () => {
+            clearCurrentAuthToken();
+            localStorage.clear();
+            sessionStorage.clear();
+            document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
 
-        setToken(null);
-        setUsuario(null);
-        setUsuarioId(null);
-        setUsername(null);
-        setFotoPerfil(null);
-        setDescricao(null);
-        setFrame(null);
+            setToken(null);
+            setUsuario(null);
+            setUsuarioId(null);
+            setUsername(null);
+            setFotoPerfil(null);
+            setDescricao(null);
+            setFrame(null);
+            setHideFavoriteCharacter(false);
+            setHideRecentCharacter(false);
+            setHideFollowers(false);
+            setHideFollowing(false);
+        };
 
-        window.location.href = '/';
+        try {
+            await axios.post(`${API_URL}/auth/logout`, {}, { withCredentials: true });
+        } catch (error) {
+            console.warn('[Auth] Falha ao encerrar sessão no servidor:', error);
+        } finally {
+            clearClientAuthState();
+            window.location.href = '/';
+        }
     };
 
     const updateProfile = (profileData: { nome?: string; foto_perfil?: string; descricao?: string; username?: string; frame?: string | null; hideFavoriteCharacter?: boolean; hideRecentCharacter?: boolean; hideFollowers?: boolean; hideFollowing?: boolean }) => {

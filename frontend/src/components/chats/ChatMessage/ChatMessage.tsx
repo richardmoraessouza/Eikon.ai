@@ -105,7 +105,7 @@ export function ChatMessage({
               fill
               sizes="40px"
               className={styles.avatar}
-              unoptimized
+            
             />
             {framePath && (
               <Image
@@ -114,7 +114,7 @@ export function ChatMessage({
                 fill
                 sizes="40px"
                 className={styles.frame}
-                unoptimized
+              
               />
             )}
           </div>

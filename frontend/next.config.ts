@@ -33,9 +33,9 @@ const cspDirectives = {
     "'unsafe-inline'",
     ...(isDev ? ["'unsafe-eval'"] : []),
   ],
-  "style-src": ["'self'", "'unsafe-inline'"], // muitas libs de CSS-in-JS exigem inline
+  "style-src": ["'self'", "'unsafe-inline'", "https://accounts.google.com", "https://fonts.googleapis.com"], // muitas libs de CSS-in-JS exigem inline
   "img-src": ["'self'", "data:", "https:", ...supabaseHosts],
-  "font-src": ["'self'", "data:"],
+  "font-src": ["'self'", "data:", "https://fonts.gstatic.com"],
   "connect-src": [
     "'self'",
     ...allowedLocalOrigins,

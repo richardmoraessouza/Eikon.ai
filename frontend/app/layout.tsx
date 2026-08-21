@@ -16,8 +16,6 @@ if (!CLIENT_ID) {
   );
 }
 
-console.log("Google OAuth Client ID:", CLIENT_ID);
-
 export default function RootLayout({
   children,
 }: {

@@ -13,13 +13,15 @@ const allowedLocalOrigins = isDev
 
 const apiUrl =
   process.env.NEXT_PUBLIC_API_URL || "https://api-personia.onrender.com";
+const supabaseUrl =
+  process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseHostname = supabaseUrl
+  ? new URL(supabaseUrl).hostname
+  : "*.supabase.co";
 
 // Ajuste os domínios abaixo para os que o Eikon realmente usa
 // (API, Google OAuth, analytics, CDN de imagens, etc.)
-const supabaseHosts = [
-  "https://whydzqwlkhopyvxeclzs.supabase.co",
-  "https://*.supabase.co",
-];
+const supabaseHosts = [`https://${supabaseHostname}`];
 
 const cspDirectives = {
   "default-src": ["'self'"],
@@ -91,7 +93,8 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "whydzqwlkhopyvxeclzs.supabase.co",
+        hostname: supabaseHostname,
+        pathname: "/storage/v1/object/**",
       },
     ],
   },

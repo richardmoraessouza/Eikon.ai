@@ -2,12 +2,11 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://whydzqwlkhopyvxeclzs.supabase.co';
-const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const anonKey = process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'sb_publishable_O83NbWhvDbpe0Wat06EHrg_Jfr6CsFq';
+const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseSecretKey = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-const supabaseAdmin = serviceRoleKey
-  ? createClient(supabaseUrl, serviceRoleKey, {
+const supabaseAdmin = supabaseUrl && supabaseSecretKey
+  ? createClient(supabaseUrl, supabaseSecretKey, {
       auth: { persistSession: false, autoRefreshToken: false },
     })
   : null;
@@ -38,10 +37,10 @@ export async function POST(request: Request) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    if (!supabaseAdmin) {
+    if (!supabaseUrl || !supabaseSecretKey || !supabaseAdmin) {
       return NextResponse.json(
         {
-          error: 'Chave de serviço do Supabase não configurada. Configure SUPABASE_SERVICE_ROLE_KEY no ambiente do servidor.',
+          error: 'Configuração do Supabase incompleta. Configure SUPABASE_URL e SUPABASE_SECRET_KEY no ambiente do servidor.',
         },
         { status: 500 }
       );
@@ -59,8 +58,7 @@ export async function POST(request: Request) {
         console.warn('[Supabase upload] Falha ao remover imagem antiga:', cleanupError);
       }
     }
-
-    const { data, error: uploadError } = await supabaseAdmin.storage
+    const { error: uploadError } = await supabaseAdmin.storage
       .from(bucketName)
       .upload(filePath, buffer, {
         contentType: file.type || 'application/octet-stream',
@@ -71,6 +69,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Falha no upload do Supabase', detail: uploadError.message }, { status: 500 });
     }
 
+
     const { data: publicUrlData } = supabaseAdmin.storage.from(bucketName).getPublicUrl(filePath);
 
     return NextResponse.json({
@@ -79,7 +78,8 @@ export async function POST(request: Request) {
       removedPrevious,
       previousPath,
     });
-  } catch (error: any) {
-    return NextResponse.json({ error: error?.message || 'Erro inesperado' }, { status: 500 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Erro inesperado';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
